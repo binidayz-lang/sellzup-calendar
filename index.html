@@ -1435,11 +1435,13 @@ function renderChallengeDetail(s){
   const isResult=s.resultDate===td;
   const hasTodoLeft=(s.todos||[]).some(t=>!t.done);
   const isStopped=!s.lastActive||s.lastActive<addDays(td,-3);
+  const isActive=s.lastActive===td;
   const doneLvs=LEVELS.filter(l=>s.levels?.[l]?.done).map(l=>LV_EMOJI[l]).join('');
   let statusTag='';
   if(isStopped) statusTag=`<span class="status-chip" style="background:var(--dbg);color:var(--danger)">🔴 3일이상멈춤</span>`;
   else if(isResult && hasTodoLeft) statusTag=`<span class="status-chip wait">⚠️ 투두미완료</span>`;
   else if(isResult) statusTag=`<span class="status-chip done">✅ 결과제출</span>`;
+  else if(isActive) statusTag=`<span class="status-chip wait">🕐 접속만</span>`;
   else statusTag=`<span class="status-chip" style="background:var(--card);color:var(--m)">⬜ 미제출</span>`;
 
   const logs=s.dailyLogs||{}; const logDates=Object.keys(logs).sort((a,b)=>b.localeCompare(a)).slice(0,5);
