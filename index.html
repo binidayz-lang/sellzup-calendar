@@ -473,12 +473,7 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
       <button class="filter-btn" id="pf-sellzup" onclick="filterProgram('sellzup',this)">✦ 셀즈업</button>
       <button class="filter-btn" id="pf-challenge" onclick="filterProgram('challenge',this)">기존 챌린지</button>
     </div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;padding:10px 14px 0">
-      <button class="filter-btn active" id="af-all" onclick="filterAdmin('all',this)">전체</button>
-      <button class="filter-btn" id="af-queue" onclick="filterAdmin('queue',this)" style="background:var(--wbg);color:var(--warn);border-color:#EAD9A8">⚠️ 미션 확인 대기</button>
-      <button class="filter-btn" id="af-freeReview" onclick="filterAdmin('freeReview',this)" style="background:var(--wbg);color:var(--warn);border-color:#EAD9A8">✅ 자유모드 확인 대기</button>
-      <button class="filter-btn" id="af-noContent" onclick="filterAdmin('noContent',this)">📝 미션 등록 필요</button>
-    </div>
+    <div id="admin-status-filters" style="display:flex;gap:6px;flex-wrap:wrap;padding:10px 14px 0"></div>
     <div id="admin-list"><div class="loader">불러오는 중...</div></div>
   </div>
 
@@ -1335,8 +1330,73 @@ function doAdminLogin(){const pw=document.getElementById('a-pw').value;if(pw!==A
 function switchAdminTab(tab){document.querySelectorAll('.admin-tab-btn').forEach((b,i)=>b.classList.toggle('active',['students','gongu','ipjumstat','notice','edu','issue'][i]===tab));document.querySelectorAll('.admin-tab-section').forEach(s=>s.classList.remove('active'));document.getElementById('admin-sec-'+tab).classList.add('active');if(tab==='students')loadAdmin();if(tab==='notice')loadAdminNotices();if(tab==='edu')loadAdminEdu();if(tab==='issue')loadAdminProductIssues();if(tab==='gongu')loadAdminGongu();if(tab==='ipjumstat')loadAdminIpjumStat();}
 
 let _adminAllList=[],_adminFilter='all',_programFilter='all';
-function filterProgram(p,btn){_programFilter=p;document.querySelectorAll('#admin-sec-students .filter-btn').forEach(b=>{if(b.id&&b.id.startsWith('pf-'))b.classList.remove('active');});btn.classList.add('active');renderAdminList();}
-function filterAdmin(f,btn){_adminFilter=f;document.querySelectorAll('#admin-sec-students .filter-btn').forEach(b=>{if(b.id&&b.id.startsWith('af-'))b.classList.remove('active');});if(btn)btn.classList.add('active');renderAdminList();}
+function filterProgram(p,btn){_programFilter=p;_adminFilter='all';document.querySelectorAll('#admin-sec-students .filter-btn').forEach(b=>{if(b.id&&b.id.startsWith('pf-'))b.classList.remove('active');});btn.classList.add('active');renderAdminDashboard();renderStatusFilters();renderAdminList();}
+function filterAdmin(f,btn){_adminFilter=f;document.querySelectorAll('#admin-status-filters .filter-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');renderAdminList();}
+
+function renderAdminDashboard(){
+  const dash=document.getElementById('admin-dashboard');
+  if(!dash)return;
+  const list=_adminAllList;
+  const td=today();
+  if(_programFilter==='challenge'){
+    const cList=list.filter(s=>s.program!=='sellzup');
+    const threeDaysAgo=addDays(td,-3);
+    const subCnt=cList.filter(s=>s.resultDate===td).length;
+    const nosubCnt=cList.filter(s=>s.resultDate!==td).length;
+    const stopCnt=cList.filter(s=>!s.lastActive||s.lastActive<threeDaysAgo).length;
+    const todoCnt=cList.filter(s=>s.resultDate===td&&(s.todos||[]).some(t=>!t.done)).length;
+    const inactCnt=cList.filter(s=>!s.lastActive||s.lastActive<threeDaysAgo).length;
+    const cards=[
+      ['✅ 오늘 제출',subCnt,'var(--gb)','var(--g)','submit'],
+      ['⬜ 미제출',nosubCnt,'var(--dbg)','var(--danger)','nosub'],
+      ['🔴 3일이상 멈춤',stopCnt,'var(--dbg)','var(--danger)','stop'],
+      ['⚠️ 투두 미완료',todoCnt,'var(--wbg)','var(--warn)','todo'],
+      ['😴 활동 없음',inactCnt,'var(--card)','var(--m)','inactive'],
+      ['👥 전체',cList.length,'var(--card)','var(--navy)','all'],
+    ];
+    dash.innerHTML=cards.map(([label,cnt,bg,color,f])=>`
+      <div onclick="filterAdmin('${f}',document.getElementById('af-${f}'))" style="background:${bg};border-radius:12px;padding:12px;text-align:center;cursor:pointer">
+        <div style="font-size:22px;font-weight:900;color:${color};line-height:1">${cnt}</div>
+        <div style="font-size:10px;color:${color};margin-top:4px;font-weight:700;opacity:.9">${label}</div>
+      </div>`).join('');
+  } else {
+    const queueCnt=list.filter(s=>queueStatus(s)==='queue').length;
+    const freeReviewCnt=list.filter(s=>queueStatus(s)==='freeReview').length;
+    const noContentCnt=list.filter(s=>queueStatus(s)==='noContent').length;
+    const graduatedCnt=list.filter(s=>s.program==='sellzup'&&s.graduated).length;
+    const cards=[
+      ['⚠️ 미션 확인 대기',queueCnt,'var(--wbg)','var(--warn)','queue'],
+      ['✅ 자유모드 확인 대기',freeReviewCnt,'var(--wbg)','var(--warn)','freeReview'],
+      ['📝 미션 등록 필요',noContentCnt,'var(--card)','var(--m)','noContent'],
+      ['🏆 졸업생',graduatedCnt,'var(--gb)','var(--g)','graduated'],
+    ];
+    dash.innerHTML=cards.map(([label,cnt,bg,color,f])=>`
+      <div onclick="filterAdmin('${f}',document.getElementById('af-${f}'))" style="background:${bg};border-radius:12px;padding:12px;text-align:center;cursor:pointer">
+        <div style="font-size:22px;font-weight:900;color:${color};line-height:1">${cnt}</div>
+        <div style="font-size:10px;color:${color};margin-top:4px;font-weight:700;opacity:.9">${label}</div>
+      </div>`).join('');
+  }
+}
+
+function renderStatusFilters(){
+  const el=document.getElementById('admin-status-filters');
+  if(!el)return;
+  if(_programFilter==='challenge'){
+    el.innerHTML=`
+      <button class="filter-btn active" id="af-all" onclick="filterAdmin('all',this)">전체</button>
+      <button class="filter-btn" id="af-submit" onclick="filterAdmin('submit',this)">✅ 오늘 제출</button>
+      <button class="filter-btn" id="af-nosub" onclick="filterAdmin('nosub',this)">⬜ 미제출</button>
+      <button class="filter-btn" id="af-stop" onclick="filterAdmin('stop',this)" style="background:var(--dbg);color:var(--danger);border-color:#F5C6CB">🔴 3일이상 멈춤</button>
+      <button class="filter-btn" id="af-todo" onclick="filterAdmin('todo',this)">⚠️ 투두미완료</button>
+      <button class="filter-btn" id="af-inactive" onclick="filterAdmin('inactive',this)">😴 활동없음</button>`;
+  } else {
+    el.innerHTML=`
+      <button class="filter-btn active" id="af-all" onclick="filterAdmin('all',this)">전체</button>
+      <button class="filter-btn" id="af-queue" onclick="filterAdmin('queue',this)" style="background:var(--wbg);color:var(--warn);border-color:#EAD9A8">⚠️ 미션 확인 대기</button>
+      <button class="filter-btn" id="af-freeReview" onclick="filterAdmin('freeReview',this)" style="background:var(--wbg);color:var(--warn);border-color:#EAD9A8">✅ 자유모드 확인 대기</button>
+      <button class="filter-btn" id="af-noContent" onclick="filterAdmin('noContent',this)">📝 미션 등록 필요</button>`;
+  }
+}
 
 async function loadAdmin(){
   document.getElementById('admin-summary').textContent='로딩 중...';
@@ -1347,26 +1407,10 @@ async function loadAdmin(){
     const list=Object.entries(data).map(([key,s])=>({...s,_key:key}));
     const sellzupCnt=list.filter(s=>s.program==='sellzup').length;
     const challengeCnt=list.filter(s=>s.program!=='sellzup').length;
-    const queueCnt=list.filter(s=>queueStatus(s)==='queue').length;
-    const freeReviewCnt=list.filter(s=>queueStatus(s)==='freeReview').length;
-    const noContentCnt=list.filter(s=>queueStatus(s)==='noContent').length;
-    const graduatedCnt=list.filter(s=>s.program==='sellzup'&&s.graduated).length;
     document.getElementById('admin-summary').textContent=`총 ${list.length}명 · 셀즈업 ${sellzupCnt}명 · 기존 챌린지 ${challengeCnt}명`;
-    const dash=document.getElementById('admin-dashboard');
-    if(dash){
-      const cards=[
-        ['⚠️ 미션 확인 대기',queueCnt,'var(--wbg)','var(--warn)','queue'],
-        ['✅ 자유모드 확인 대기',freeReviewCnt,'var(--wbg)','var(--warn)','freeReview'],
-        ['📝 미션 등록 필요',noContentCnt,'var(--card)','var(--m)','noContent'],
-        ['🏆 졸업생',graduatedCnt,'var(--gb)','var(--g)','graduated'],
-      ];
-      dash.innerHTML=cards.map(([label,cnt,bg,color,f])=>`
-        <div onclick="filterAdmin('${f}',document.getElementById('af-${f}'))" style="background:${bg};border-radius:12px;padding:12px;text-align:center;cursor:pointer">
-          <div style="font-size:22px;font-weight:900;color:${color};line-height:1">${cnt}</div>
-          <div style="font-size:10px;color:${color};margin-top:4px;font-weight:700;opacity:.9">${label}</div>
-        </div>`).join('');
-    }
     _adminAllList=list;
+    renderAdminDashboard();
+    renderStatusFilters();
     renderAdminList();
   }catch(e){document.getElementById('admin-summary').textContent='오류 발생';console.error(e);}
 }
@@ -1391,16 +1435,21 @@ function renderAdminList(){
   let list=[..._adminAllList];
   if(_programFilter==='sellzup')list=list.filter(s=>s.program==='sellzup');
   if(_programFilter==='challenge')list=list.filter(s=>s.program!=='sellzup');
+  const td=today(); const threeDaysAgo=addDays(td,-3);
   if(_adminFilter==='queue')list=list.filter(s=>queueStatus(s)==='queue');
   if(_adminFilter==='freeReview')list=list.filter(s=>queueStatus(s)==='freeReview');
   if(_adminFilter==='noContent')list=list.filter(s=>queueStatus(s)==='noContent');
   if(_adminFilter==='graduated')list=list.filter(s=>s.program==='sellzup'&&s.graduated);
+  if(_adminFilter==='submit')list=list.filter(s=>s.resultDate===td);
+  if(_adminFilter==='nosub')list=list.filter(s=>s.resultDate!==td);
+  if(_adminFilter==='stop')list=list.filter(s=>!s.lastActive||s.lastActive<threeDaysAgo);
+  if(_adminFilter==='todo')list=list.filter(s=>s.resultDate===td&&(s.todos||[]).some(t=>!t.done));
+  if(_adminFilter==='inactive')list=list.filter(s=>!s.lastActive||s.lastActive<threeDaysAgo);
 
   const container=document.getElementById('admin-list');
   if(!list.length){container.innerHTML=`<div style="padding:32px;text-align:center;color:var(--m);font-size:13px">해당하는 수강생이 없어요 😊</div>`;return;}
   container.innerHTML='';
   list.sort((a,b)=>(b.lastActive||'').localeCompare(a.lastActive||''));
-  const td=today();
   list.forEach(s=>{
     const isSellzup=s.program==='sellzup';
     const card=document.createElement('div');card.className='stu-card';
