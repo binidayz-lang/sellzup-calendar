@@ -264,6 +264,10 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 
   <!-- 캘린더 탭 (미션 모드 / 자유 모드) -->
   <div class="tab-content active" id="tab-calendar">
+    <div class="card" id="today-edu-banner" style="display:none;background:var(--gb);border:1.5px solid var(--g)">
+      <div style="font-size:10.5px;font-weight:700;color:var(--g);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">📢 오늘의 교육일정</div>
+      <div id="today-edu-banner-items" style="font-size:13px;color:var(--t);line-height:1.8"></div>
+    </div>
     <div class="card" id="note-banner" style="display:none;background:linear-gradient(135deg,var(--navy),#24405E);color:#fff">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
         <span style="background:var(--g);color:#fff;font-size:9.5px;font-weight:900;padding:2px 8px;border-radius:20px">NEW</span>
@@ -536,8 +540,8 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 
   <!-- 입점현황 탭 -->
   <div class="admin-tab-section" id="admin-sec-ipjumstat">
-    <div class="admin-hdr"><div><h2>🏪 입점 완료 현황</h2><p id="admin-ipjumstat-summary">로딩 중...</p></div><button class="admin-refresh" onclick="loadAdminIpjumStat()">🔄 새로고침</button></div>
-    <div id="admin-ipjumstat-stats" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:0 14px 12px"></div>
+    <div class="admin-hdr"><div><h2>🏪 입점 완료 현황</h2><p id="admin-ipjumstat-summary">로딩 중...</p></div><div style="display:flex;gap:6px"><button class="admin-refresh" onclick="loadAdminIpjumStat()">🔄 새로고침</button><button class="admin-refresh" onclick="downloadCommCSV()" style="background:rgba(255,255,255,.22)">⬇ 소통방 CSV</button></div></div>
+    <div id="admin-ipjumstat-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 14px 12px"></div>
     <div style="padding:0 14px 12px"><input type="text" id="admin-ipjumstat-search" placeholder="🔍 이름 또는 제품명 검색..." oninput="renderAdminIpjumStat()"></div>
     <div id="admin-ipjumstat-list"><div class="loader">불러오는 중...</div></div>
     <div style="height:16px"></div>
@@ -745,11 +749,36 @@ function renderNoteBanner(){
   }
 }
 
+function loadTodayEduBanner(){
+  if(!DB)return;
+  const banner=document.getElementById('today-edu-banner');
+  const itemsEl=document.getElementById('today-edu-banner-items');
+  if(!banner||!itemsEl)return;
+  const dateStr=today();
+  DB.ref('eduEvents').orderByChild('date').equalTo(dateStr).once('value',snap=>{
+    const data=snap.val()||{};
+    const allEvents=Object.values(data);
+    const holidays=allEvents.filter(e=>e.type==='holiday');
+    const events=allEvents.filter(e=>e.type!=='holiday');
+    if(!events.length&&!holidays.length){banner.style.display='none';return;}
+    if(!events.length&&holidays.length){
+      itemsEl.innerHTML='오늘은 교육 휴무예요 🩶';
+      banner.style.display='block';
+      return;
+    }
+    let html=events.map(e=>{const t=EDU_TYPE[e.type]||EDU_TYPE.etc;return`<div>· ${esc(e.title||t.label)}</div>`;}).join('');
+    if(holidays.length)html+='<div>· 긴급 피드백 외 교육 휴무</div>';
+    itemsEl.innerHTML=html;
+    banner.style.display='block';
+  });
+}
+
 /* ══════════ 미션 모드 렌더 ══════════ */
 function renderAll(){
   document.getElementById('m-name').textContent=S.name;
   document.getElementById('f-name').textContent=S.name;
   checkUnreadBadges();
+  loadTodayEduBanner();
   document.getElementById('m-day').textContent=ordinalKr(S.missionDay)+' 미션';
   renderNoteBanner();
   const missionCard=document.getElementById('mission-mode-card');
@@ -1852,10 +1881,10 @@ async function loadAdminIpjumStat(){
     const snap=await DB.ref('students').once('value');
     const all=snap.val()||{};
     _adminIpjumStatData=[];
-    Object.values(all).forEach(stu=>{
+    Object.entries(all).forEach(([key,stu])=>{
       const items=stu.ipjumItems||[];
       items.filter(i=>i.type==='입점완료').forEach(item=>{
-        _adminIpjumStatData.push({...item,stuName:stu.name||'알수없음',program:stu.program==='sellzup'?'SELLZ UP':'기존 챌린지'});
+        _adminIpjumStatData.push({...item,stuKey:key,stuName:stu.name||'알수없음',program:stu.program==='sellzup'?'SELLZ UP':'기존 챌린지'});
       });
     });
     const total=_adminIpjumStatData.length;
@@ -1864,7 +1893,8 @@ async function loadAdminIpjumStat(){
     const statsEl=document.getElementById('admin-ipjumstat-stats');
     if(statsEl){
       const sellzupCnt=_adminIpjumStatData.filter(i=>i.program==='SELLZ UP').length;
-      statsEl.innerHTML=[['전체 완료',total,'var(--m)','var(--card)'],['셀즈업',sellzupCnt,'var(--g)','var(--gb)']].map(([l,n,c,bg])=>`<div style="background:${bg};border-radius:10px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:900;color:${c}">${n}</div><div style="font-size:10px;color:${c};margin-top:2px;opacity:.85">${l}</div></div>`).join('');
+      const issueCnt=_adminIpjumStatData.filter(i=>i.issueReport).length;
+      statsEl.innerHTML=[['전체 완료',total,'var(--m)','var(--card)'],['⚠ 이슈',issueCnt,'var(--danger)','var(--dbg)'],['셀즈업',sellzupCnt,'var(--g)','var(--gb)']].map(([l,n,c,bg])=>`<div style="background:${bg};border-radius:10px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:900;color:${c}">${n}</div><div style="font-size:10px;color:${c};margin-top:2px;opacity:.85">${l}</div></div>`).join('');
     }
     renderAdminIpjumStat();
   }catch(e){listEl.innerHTML='<div style="padding:16px;color:var(--m);font-size:13px">불러오기 실패. 새로고침 해주세요.</div>';}
@@ -1876,7 +1906,54 @@ function renderAdminIpjumStat(){
   let items=[..._adminIpjumStatData];
   if(q)items=items.filter(i=>(i.stuName||'').toLowerCase().includes(q)||(i.product||'').toLowerCase().includes(q)||(i.companyName||'').toLowerCase().includes(q));
   if(items.length===0){listEl.innerHTML=`<div style="padding:2.5rem;text-align:center;color:var(--m);font-size:13px"><div style="font-size:28px;margin-bottom:8px">🏪</div>${q?'검색 결과가 없어요':'입점완료 항목이 없어요'}</div>`;return;}
-  listEl.innerHTML=items.map(item=>`<div class="sch-card" style="border-left:3px solid var(--g)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><span style="font-size:14px;font-weight:700;color:var(--m)">${esc(item.stuName)}</span><span style="background:var(--gb);color:var(--g);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700">${item.program}</span></div><div class="sch-title">${esc(item.product||'')}</div><div class="sch-detail">${item.companyName?`🏢 ${esc(item.companyName)}<br>`:''}${item.applyDate?`📅 신청일: ${item.applyDate}`:''}</div></div>`).join('');
+  listEl.innerHTML=items.map(item=>`<div class="sch-card" style="border-left:3px solid ${item.issueReport?'var(--danger)':'var(--g)'}"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><span style="font-size:14px;font-weight:700;color:var(--m)">${esc(item.stuName)}</span><span style="background:var(--gb);color:var(--g);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700">${item.program}</span></div><div class="sch-title">${esc(item.product||'')}</div><div class="sch-detail">${item.companyName?`🏢 ${esc(item.companyName)}<br>`:''}${item.applyDate?`📅 신청일: ${item.applyDate}`:''}</div>
+  ${item.issueReport?`<div style="background:var(--dbg);border:1px solid #F5C6CB;border-radius:10px;padding:10px 12px;margin-top:10px"><div style="font-size:10px;font-weight:700;color:var(--danger);margin-bottom:4px">⚠ 수강생 이슈 신고 · ${item.issueReport.date||''}</div><div style="font-size:12px;color:var(--t);line-height:1.6">${esc(item.issueReport.text)}</div><button onclick="resolveAdminIssue('${item.stuKey}',${item.id})" style="margin-top:8px;width:100%;border:none;background:var(--gb);color:var(--g);border-radius:8px;padding:7px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer">✅ 해결 완료로 표시</button></div>`:''}
+  <div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--bd)"><div style="font-size:10px;font-weight:700;color:var(--m);margin-bottom:5px">📝 관리자 메모</div><textarea id="adm-memo-${item.stuKey}-${item.id}" style="min-height:48px;font-size:12px" placeholder="처리 현황 메모...">${esc(item.adminMemo||'')}</textarea><button onclick="saveAdminIpjumMemo('${item.stuKey}',${item.id})" style="margin-top:6px;width:100%;border:none;background:var(--navy);color:#fff;border-radius:8px;padding:7px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">💾 메모 저장</button></div>
+  </div>`).join('');
+}
+
+async function resolveAdminIssue(stuKey,itemId){
+  if(!confirm('이 이슈를 해결 완료로 표시할까요?\n신고 내용이 사라지고 정상으로 바뀌어요.'))return;
+  const snap=await DB.ref('students/'+stuKey+'/ipjumItems').once('value');
+  const items=snap.val()||[];
+  const idx=items.findIndex(i=>i.id===itemId);
+  if(idx<0){showToast('항목을 찾을 수 없어요');return;}
+  delete items[idx].issueReport;
+  await DB.ref('students/'+stuKey+'/ipjumItems').set(items);
+  showToast('✅ 해결 완료로 표시했어요!');
+  loadAdminIpjumStat();
+}
+async function saveAdminIpjumMemo(stuKey,itemId){
+  const el=document.getElementById(`adm-memo-${stuKey}-${itemId}`);
+  const text=el?el.value:'';
+  const snap=await DB.ref('students/'+stuKey+'/ipjumItems').once('value');
+  const items=snap.val()||[];
+  const idx=items.findIndex(i=>i.id===itemId);
+  if(idx<0){showToast('항목을 찾을 수 없어요');return;}
+  items[idx].adminMemo=text;
+  await DB.ref('students/'+stuKey+'/ipjumItems').set(items);
+  showToast('✅ 메모 저장됐어요!');
+}
+
+async function downloadCommCSV(){
+  if(!DB){showToast('연결 오류');return;}
+  showToast('CSV 준비 중...');
+  try{
+    const snap=await DB.ref('shared/rejectList').once('value');
+    const data=snap.val()||{};
+    const items=Object.values(data);
+    if(!items.length){showToast('다운로드할 데이터가 없어요');return;}
+    const header=['업체명','제품명/카테고리','거절이유','등록자','실제등록자','날짜'];
+    const rows=items.map(d=>[d.company||'',d.product||'',(d.reason||'').split('\n').join(' '),d.who||'',d.whoReal||'',d.dateStr||'']);
+    const lines=[header].concat(rows).map(row=>row.map(cell=>'"'+String(cell).split('"').join('""')+'"').join(','));
+    const csvContent='\uFEFF'+lines.join('\r\n');
+    const blob=new Blob([csvContent],{type:'text/csv;charset=utf-8;'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;
+    const d=new Date();a.download='입점소통방_'+d.getFullYear()+'_'+(d.getMonth()+1)+'_'+d.getDate()+'.csv';
+    a.click();URL.revokeObjectURL(url);
+    showToast('✅ CSV 다운로드 완료!');
+  }catch(e){showToast('다운로드 실패');}
 }
 
 /* ══════════ 초기화 ══════════ */
