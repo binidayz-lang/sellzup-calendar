@@ -484,9 +484,10 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 
   <!-- 공지 탭 -->
   <div class="admin-tab-section" id="admin-sec-notice">
-    <div class="admin-hdr"><div><h2>📢 공지 관리</h2><p>셀즈업 성공메이트 전용 공지예요 (기존 챌린지와 별도)</p></div><button class="admin-refresh" onclick="loadAdminNotices()">🔄 새로고침</button></div>
+    <div class="admin-hdr"><div><h2>📢 공지 관리</h2><p>셀즈업과 기존 챌린지, 원하는 대상에 따로 또는 같이 보낼 수 있어요</p></div><button class="admin-refresh" onclick="loadAdminNotices()">🔄 새로고침</button></div>
     <div class="card" style="margin-top:8px">
       <div class="card-ttl">✏️ 새 공지 작성</div>
+      <div class="field"><label>공지 대상</label><select id="adm-target"><option value="sellzup">✦ 셀즈업 전용</option><option value="challenge">🌱 기존 챌린지 전용</option><option value="both">둘 다 보내기</option></select></div>
       <div class="field"><label>제목</label><input type="text" id="adm-title" placeholder="공지 제목"></div>
       <div class="field"><label>내용</label><textarea id="adm-body" placeholder="공지 내용을 자세히 적어주세요"></textarea></div>
       <button class="btn btn-dark" onclick="adminSaveNotice()">📤 공지 등록</button>
@@ -615,6 +616,10 @@ const FIREBASE_CONFIG = {
 };
 const ADMIN_PW = "marryz2026";
 const PROGRAM = "sellzup";
+const LEVELS=['초급','중급','고급','심화','기존수강생'];
+const LV_EMOJI={초급:'🌱',중급:'🌿',고급:'🌳',심화:'🔥',기존수강생:'🔄'};
+const LV_CLR={초급:'#6DB6F0',중급:'#5BAD7F',고급:'#C8956C',심화:'#9B72CF',기존수강생:'#E07A5F'};
+const LV_BG={초급:'#EBF5FD',중급:'#EBF7F1',고급:'#FDF2EA',심화:'#F4EEF9',기존수강생:'#FFF0EC'};
 
 let DB=null, SKEY=null, S={};
 try { firebase.initializeApp(FIREBASE_CONFIG); DB = firebase.database(); } catch(e){ console.warn(e); }
@@ -1395,9 +1400,9 @@ function renderAdminList(){
   if(!list.length){container.innerHTML=`<div style="padding:32px;text-align:center;color:var(--m);font-size:13px">해당하는 수강생이 없어요 😊</div>`;return;}
   container.innerHTML='';
   list.sort((a,b)=>(b.lastActive||'').localeCompare(a.lastActive||''));
+  const td=today();
   list.forEach(s=>{
     const isSellzup=s.program==='sellzup';
-    const qs=queueStatus(s);
     const card=document.createElement('div');card.className='stu-card';
     let rightHtml='';
     if(isSellzup){
@@ -1405,14 +1410,15 @@ function renderAdminList(){
         ? `<div class="sc-right"><span class="status-chip done">🏆 졸업</span></div>`
         : `<div class="sc-right"><div class="sc-day" style="font-size:20px;font-weight:900;color:var(--navy)">${s.missionDay||1}</div><div class="sc-day-lbl" style="font-size:10px;color:var(--m)">번째 미션</div></div>`;
     } else {
-      rightHtml = `<div class="sc-right"><span class="status-chip" style="background:var(--card);color:var(--m)">기존 챌린지</span></div>`;
+      const lv=s.currentLevel||'초급'; const sd=s.levels?.[lv]?.startDate||''; const dayNum=sd?Math.min(Math.max(diffDays(sd,td)+1,1),30):0;
+      rightHtml = `<div class="sc-right"><div class="sc-day" style="font-size:20px;font-weight:900;color:var(--navy)">${dayNum}</div><div class="sc-day-lbl" style="font-size:10px;color:var(--m)">${lv} · 일차</div></div>`;
     }
     card.innerHTML = `<div style="display:flex;align-items:center;gap:12px">
-      <div class="sc-av">${isSellzup?'✦':'🌱'}</div>
+      <div class="sc-av">${isSellzup?'✦':(LV_EMOJI[s.currentLevel]||'🌱')}</div>
       <div class="sc-info"><div class="sc-name">${esc(s.name)}${isSellzup?' <span style=\"font-size:10px;color:var(--g);font-weight:700\">SELLZ UP</span>':''}</div><div class="sc-detail">마지막 접속: ${s.lastActive||'-'}</div></div>
       ${rightHtml}
     </div>
-    <div class="stu-detail" id="detail-${s._key}">${isSellzup?renderSellzupDetail(s):'<div style="font-size:12px;color:var(--m);padding:8px 0">기존 챌린지캘린더 수강생이에요</div>'}
+    <div class="stu-detail" id="detail-${s._key}">${isSellzup?renderSellzupDetail(s):renderChallengeDetail(s)}
       ${isSellzup?renderQuickNoteBox(s):''}
       <div style="padding-top:10px;margin-top:10px;border-top:1px solid var(--bd)">
         <button onclick="event.stopPropagation();deleteStudent('${s._key}','${esc(s.name)}')" style="width:100%;border:none;background:var(--dbg);color:var(--danger);border-radius:8px;padding:8px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer">🗑 이 수강생 완전히 삭제</button>
@@ -1421,6 +1427,45 @@ function renderAdminList(){
     card.addEventListener('click',(e)=>{if(e.target.closest('button')||e.target.closest('textarea')||e.target.closest('input'))return;const d=document.getElementById(`detail-${s._key}`);if(d)d.classList.toggle('open');});
     container.appendChild(card);
   });
+}
+
+function renderChallengeDetail(s){
+  const td=today();
+  const lv=s.currentLevel||'초급'; const sd=s.levels?.[lv]?.startDate||'';
+  const isResult=s.resultDate===td;
+  const hasTodoLeft=(s.todos||[]).some(t=>!t.done);
+  const isStopped=!s.lastActive||s.lastActive<addDays(td,-3);
+  const doneLvs=LEVELS.filter(l=>s.levels?.[l]?.done).map(l=>LV_EMOJI[l]).join('');
+  let statusTag='';
+  if(isStopped) statusTag=`<span class="status-chip" style="background:var(--dbg);color:var(--danger)">🔴 3일이상멈춤</span>`;
+  else if(isResult && hasTodoLeft) statusTag=`<span class="status-chip wait">⚠️ 투두미완료</span>`;
+  else if(isResult) statusTag=`<span class="status-chip done">✅ 결과제출</span>`;
+  else statusTag=`<span class="status-chip" style="background:var(--card);color:var(--m)">⬜ 미제출</span>`;
+
+  const logs=s.dailyLogs||{}; const logDates=Object.keys(logs).sort((a,b)=>b.localeCompare(a)).slice(0,5);
+  const gonguList=(s.gonguSchedules||[]).slice(0,3); const ipjumList=(s.ipjumItems||[]).slice(0,3);
+
+  let html=`<div style="font-size:12.5px;color:var(--m);margin-bottom:8px">${lv} · ${sd?fmtDate(sd)+' 시작':'-'} ${doneLvs} ${statusTag}</div>`;
+  if(logDates.length){
+    html+=`<div style="font-size:11px;font-weight:700;color:var(--m);letter-spacing:.5px;text-transform:uppercase;margin:10px 0 6px">📅 최근 기록</div>`;
+    logDates.forEach(date=>{
+      const log=logs[date];
+      const doneTodos=(log.todos||[]).filter(t=>t.done).map(t=>t.text).join(', ');
+      const result=log.result||'';
+      html+=`<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--bd);font-size:12px"><div style="color:var(--m);flex-shrink:0;min-width:44px">${fmtDate(date)}</div><div style="flex:1">${doneTodos?`✅ ${esc(doneTodos)}<br>`:''}${result?`✨ ${esc(result)}`:(!doneTodos?'<span style="color:var(--m)">기록 없음</span>':'')}</div></div>`;
+    });
+  } else {
+    html+=`<div style="font-size:12px;color:var(--m);padding:8px 0">아직 기록이 없어요</div>`;
+  }
+  if(gonguList.length){
+    html+=`<div style="font-size:11px;font-weight:700;color:var(--m);letter-spacing:.5px;text-transform:uppercase;margin:10px 0 6px">🛒 공구일정 (최근 ${gonguList.length}건)</div>`;
+    gonguList.forEach(g=>{html+=`<div style="display:flex;gap:8px;padding:5px 0;font-size:12px">${typeBadge(g.type)}<span>${esc(g.product)} ${g.startDate?'· '+g.startDate:''}</span></div>`;});
+  }
+  if(ipjumList.length){
+    html+=`<div style="font-size:11px;font-weight:700;color:var(--m);letter-spacing:.5px;text-transform:uppercase;margin:10px 0 6px">🏪 입점 (최근 ${ipjumList.length}건)</div>`;
+    ipjumList.forEach(i=>{html+=`<div style="display:flex;gap:8px;padding:5px 0;font-size:12px">${typeBadge(i.type)}<span>${esc(i.product)} ${i.companyName?'· '+esc(i.companyName):''}</span></div>`;});
+  }
+  return html;
 }
 
 function renderSellzupDetail(s){
@@ -1568,23 +1613,34 @@ function adminSaveNotice(){
   if(!DB){showToast('연결 오류');return;}
   const title=document.getElementById('adm-title').value.trim();
   const body=document.getElementById('adm-body').value.trim();
+  const target=document.getElementById('adm-target').value;
   if(!title){showToast('제목을 입력해주세요');return;}
   const now=new Date();const dateStr=`${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')}`;
-  DB.ref('sellzupNotices').push({title,body,tag:'📢 공지',pinned:false,isNew:true,dateStr,createdAt:Date.now()}).then(()=>{
+  const payload={title,body,tag:'📢 공지',pinned:false,isNew:true,dateStr,createdAt:Date.now()};
+  const tasks=[];
+  if(target==='sellzup'||target==='both') tasks.push(DB.ref('sellzupNotices').push(payload));
+  if(target==='challenge'||target==='both') tasks.push(DB.ref('notices').push(payload));
+  Promise.all(tasks).then(()=>{
     showToast('✅ 공지가 등록됐어요!');document.getElementById('adm-title').value='';document.getElementById('adm-body').value='';loadAdminNotices();
-  });
+  }).catch(()=>showToast('저장 오류'));
 }
-function loadAdminNotices(){
+async function loadAdminNotices(){
   if(!DB)return;
-  DB.ref('sellzupNotices').orderByChild('createdAt').once('value',snap=>{
-    const data=snap.val()||{};
-    const list=Object.entries(data).map(([id,n])=>({id,...n})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
-    const el=document.getElementById('admin-notice-list');
+  const el=document.getElementById('admin-notice-list');
+  el.innerHTML='<div class="empty-state">불러오는 중...</div>';
+  try{
+    const [sellzupSnap,challengeSnap]=await Promise.all([
+      DB.ref('sellzupNotices').orderByChild('createdAt').once('value'),
+      DB.ref('notices').orderByChild('createdAt').once('value')
+    ]);
+    const sellzupList=Object.entries(sellzupSnap.val()||{}).map(([id,n])=>({id,...n,_src:'sellzup'}));
+    const challengeList=Object.entries(challengeSnap.val()||{}).map(([id,n])=>({id,...n,_src:'challenge'}));
+    const list=[...sellzupList,...challengeList].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
     if(!list.length){el.innerHTML='<div class="empty-state">등록된 공지가 없습니다</div>';return;}
-    el.innerHTML=list.map(n=>`<div class="sch-card"><div style="font-weight:700;font-size:13.5px">${esc(n.title)}</div><div style="font-size:11px;color:var(--m);margin-top:3px">${n.dateStr||''}</div><button class="sch-del-btn" style="margin-top:8px" onclick="adminDelNotice('${n.id}')">삭제</button></div>`).join('');
-  });
+    el.innerHTML=list.map(n=>`<div class="sch-card"><span class="sch-type" style="background:${n._src==='sellzup'?'var(--gb)':'var(--card)'};color:${n._src==='sellzup'?'var(--g)':'var(--m)'}">${n._src==='sellzup'?'✦ 셀즈업':'🌱 기존 챌린지'}</span><div style="font-weight:700;font-size:13.5px">${esc(n.title)}</div><div style="font-size:11px;color:var(--m);margin-top:3px">${n.dateStr||''}</div><button class="sch-del-btn" style="margin-top:8px" onclick="adminDelNotice('${n._src}','${n.id}')">삭제</button></div>`).join('');
+  }catch(e){el.innerHTML='<div class="empty-state">불러오기 실패</div>';}
 }
-function adminDelNotice(id){if(!confirm('삭제할까요?'))return;DB.ref('sellzupNotices/'+id).remove().then(()=>{showToast('삭제됐어요');loadAdminNotices();});}
+function adminDelNotice(src,id){if(!confirm('삭제할까요?'))return;const node=src==='sellzup'?'sellzupNotices':'notices';DB.ref(node+'/'+id).remove().then(()=>{showToast('삭제됐어요');loadAdminNotices();});}
 
 /* ══════════ 관리자: 교육일정 ══════════ */
 function adminSaveEdu(){
@@ -1685,6 +1741,8 @@ async function loadAdminGongu(){
     renderAdminGongu();
   }catch(e){listEl.innerHTML='<div style="padding:16px;color:var(--m);font-size:13px">불러오기 실패. 새로고침 해주세요.</div>';}
 }
+let _adminGonguExpandedMonths={};
+function toggleAdminGonguMonth(key){_adminGonguExpandedMonths[key]=!_adminGonguExpandedMonths[key];renderAdminGongu();}
 function renderAdminGongu(){
   const listEl=document.getElementById('admin-gongu-list');
   if(!listEl)return;
@@ -1692,9 +1750,36 @@ function renderAdminGongu(){
   let items=[..._adminGonguData];
   if(q)items=items.filter(i=>(i.stuName||'').toLowerCase().includes(q)||(i.product||'').toLowerCase().includes(q)||(i.seller||'').toLowerCase().includes(q));
   if(items.length===0){listEl.innerHTML=`<div style="padding:2.5rem;text-align:center;color:var(--m);font-size:13px"><div style="font-size:28px;margin-bottom:8px">🛒</div>${q?'검색 결과가 없어요':'확정된 공구 일정이 없어요'}</div>`;return;}
-  listEl.innerHTML=items.map(g=>{
+
+  const curMonth=today().slice(0,7);
+  const groups={};
+  items.forEach(g=>{
+    const mk=g.startDate?g.startDate.slice(0,7):'날짜 미정';
+    if(!groups[mk])groups[mk]=[];
+    groups[mk].push(g);
+  });
+  const monthKeys=Object.keys(groups).sort((a,b)=>{
+    if(a==='날짜 미정')return 1; if(b==='날짜 미정')return -1;
+    return a.localeCompare(b);
+  });
+
+  function renderCard(g){
     let dateLabel='';if(g.startDate&&g.endDate&&g.startDate!==g.endDate){dateLabel=`${g.startDate} ~ ${g.endDate}`;}else if(g.startDate){dateLabel=g.startDate;}
     return `<div class="sch-card" style="border-left:3px solid var(--navy)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><span style="font-size:14px;font-weight:700;color:var(--m)">${esc(g.stuName)}</span><span style="background:var(--gb);color:var(--g);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700">${g.program}</span></div><div class="sch-title">${esc(g.product||'-')}</div><div class="sch-detail">${g.seller?`🏢 ${esc(g.seller)}<br>`:''}${dateLabel?`📅 <strong style="color:var(--t)">${dateLabel}</strong>`:''}${g.memo?`<br>📝 ${esc(g.memo)}`:''}</div></div>`;
+  }
+
+  listEl.innerHTML=monthKeys.map(mk=>{
+    const list=groups[mk];
+    const isPast = mk!=='날짜 미정' && mk<curMonth;
+    const label = mk==='날짜 미정' ? '날짜 미정' : `${mk.split('-')[0]}년 ${parseInt(mk.split('-')[1])}월`;
+    const expanded = q ? true : (!isPast || !!_adminGonguExpandedMonths[mk]);
+    if(!isPast || q){
+      return `<div style="padding:10px 14px 4px;font-size:11px;font-weight:700;color:var(--m);letter-spacing:.3px">${label} (${list.length}건)</div>${list.map(renderCard).join('')}`;
+    }
+    return `<div onclick="toggleAdminGonguMonth('${mk}')" style="display:flex;justify-content:space-between;align-items:center;margin:8px 14px 6px;padding:10px 14px;background:var(--card);border-radius:10px;cursor:pointer">
+      <span style="font-size:12px;font-weight:700;color:var(--m)">📁 ${label} (${list.length}건)</span>
+      <span style="font-size:11px;color:var(--g);font-weight:700">${expanded?'접기 ▲':'펼치기 ▼'}</span>
+    </div>${expanded?list.map(renderCard).join(''):''}`;
   }).join('');
 }
 
