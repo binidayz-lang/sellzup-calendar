@@ -1,0 +1,1748 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>셀즈업 성공메이트</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,600&family=Noto+Serif+KR:wght@700;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:#14243A; --navy2:#1C3350;
+  --bg:#FAF9F6; --card:#F7F4EE; --w:#fff;
+  --t:#14243A; --m:#5B6874;
+  --silver:#A9AFB7; --bd:#E4E1D9;
+  --g:#264C46; --gh:#315A55; --gb:#E7EEEC;
+  --kk:#FEE500;
+  --danger:#C0392B; --dbg:#FDE8E8;
+  --warn:#9A7A2A; --wbg:#FFF3E0;
+  --r:16px; --rs:10px;
+  --sh:0 4px 20px rgba(20,36,58,.08);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--t);min-height:100vh;padding-bottom:82px;font-size:14px}
+.screen{display:none}.screen.active{display:block}
+.hdr{background:radial-gradient(ellipse at 30% -20%,rgba(38,76,70,.28) 0%,rgba(14,26,44,0) 55%),radial-gradient(ellipse at 80% 120%,rgba(169,175,183,.14) 0%,rgba(14,26,44,0) 55%),linear-gradient(160deg,#0E1A2C 0%,var(--navy) 100%);color:#fff;padding:34px 24px 28px;text-align:left;position:relative;overflow:hidden}
+.hdr-brand{font-family:'Playfair Display',serif;font-style:italic;font-weight:700;font-size:13px;letter-spacing:.05em;color:var(--silver);margin-bottom:8px;position:relative;z-index:1}
+.hdr-badge{display:inline-block;background:rgba(38,76,70,.35);border:1px solid rgba(120,180,165,.45);color:#BFE3D8;font-size:10px;font-weight:700;letter-spacing:1.5px;padding:4px 13px;border-radius:20px;margin-bottom:12px;position:relative;z-index:1}
+.hdr h1{font-family:'Noto Serif KR',serif;font-size:25px;font-weight:900;line-height:1.35;position:relative;z-index:1}
+.hdr h1 em{color:var(--silver);font-style:normal}
+.hdr-sub{font-size:12.5px;color:rgba(255,255,255,.55);margin-top:8px;position:relative;z-index:1}
+.welcome-hero{
+  min-height:100vh;
+  min-height:100dvh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:40px 28px;position:relative;
+  background:var(--bg);
+  color:var(--t);
+}
+.welcome-mark{
+  font-family:'Playfair Display',serif;font-style:italic;font-weight:700;
+  font-size:14px;letter-spacing:.08em;color:var(--m);margin-bottom:28px;
+}
+.welcome-star{font-size:24px;color:var(--g);margin-bottom:24px;line-height:1}
+.welcome-hero h1{
+  font-family:'Noto Serif KR',serif;font-weight:900;font-size:22px;line-height:1.75;
+  max-width:320px;color:var(--t);
+}
+.welcome-hero h1 .accent{color:var(--g);}
+.welcome-hero h1 .brand{color:var(--navy);}
+.welcome-btn{
+  margin-top:36px;display:inline-block;background:var(--g);color:#fff;
+  font-size:15px;font-weight:700;padding:16px 44px;border-radius:100px;border:none;
+  cursor:pointer;box-shadow:0 10px 24px rgba(38,76,70,.35);
+  transition:background .15s ease;
+}
+.welcome-btn:hover{background:var(--gh)}
+.card{background:var(--w);border-radius:var(--r);padding:18px;margin:10px 14px 0;box-shadow:var(--sh)}
+.card-ttl{font-size:11px;font-weight:700;color:var(--g);letter-spacing:1px;text-transform:uppercase;margin-bottom:13px;position:relative;padding-left:12px}
+.card-ttl::before{content:'';position:absolute;left:0;top:2px;bottom:2px;width:3px;background:var(--g);border-radius:2px}
+input[type=text],input[type=password],input[type=date],textarea,select{
+  width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:10px 13px;
+  font-family:inherit;font-size:14px;color:var(--t);outline:none;transition:border .2s;background:var(--card)
+}
+input:focus,textarea:focus,select:focus{border-color:var(--g)}
+textarea{resize:vertical;min-height:70px;line-height:1.6}
+label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:5px}
+.field{margin-bottom:13px}.field:last-child{margin-bottom:0}
+.btn{width:100%;border:none;border-radius:var(--rs);padding:13px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .2s,background .2s;margin-top:10px}
+.btn:hover{opacity:.9}
+.btn-dark{background:linear-gradient(135deg,var(--navy),#2C4A6E);color:#fff}
+.btn-acc{background:var(--g);color:#fff}
+.btn-acc:hover{background:var(--gh);opacity:1}
+.btn-out{background:#fff;border:1.5px solid var(--bd);color:var(--m)}
+.btn-out:hover{border-color:var(--g);color:var(--g);opacity:1}
+.btn-row{display:flex;gap:8px;margin-top:11px}
+.btn-row .btn{margin-top:0;flex:1}
+.today-badge{display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-radius:30px;padding:11px 20px;font-size:14px;font-weight:900;margin-bottom:12px;flex-wrap:wrap}
+.status-chip{display:inline-block;font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:20px}
+.status-chip.wait{background:var(--wbg);color:var(--warn)}
+.status-chip.active{background:var(--gb);color:var(--g)}
+.status-chip.done{background:#EAF3F1;color:var(--g)}
+.mission-item{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid #F0EEE7}
+.mission-item:last-child{border-bottom:none}
+.m-chk{width:22px;height:22px;border-radius:6px;border:2px solid var(--bd);background:#fff;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;transition:all .15s;margin-top:1px}
+.m-chk.on{background:var(--g);border-color:var(--g)}
+.m-txt{flex:1;font-size:14px;line-height:1.5}
+.m-txt.cross{text-decoration:line-through;color:var(--m)}
+.wait-box{text-align:center;padding:40px 20px;color:var(--m)}
+.wait-box .em{font-size:40px;margin-bottom:14px}
+.wait-box h3{font-size:16px;font-weight:900;color:var(--t);margin-bottom:6px}
+.wait-box p{font-size:12.5px;line-height:1.8}
+.comment-label{background:var(--card);border-left:3px solid var(--g);border-radius:0 8px 8px 0;padding:9px 12px;font-size:12px;font-weight:700;color:var(--g);margin-bottom:8px}
+.day-pill-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px}
+.day-pill{font-size:11px;font-weight:700;padding:4px 11px;border-radius:20px;background:var(--card);color:var(--m)}
+.journal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(26px,1fr));gap:5px}
+.j-cell{aspect-ratio:1;min-width:26px;border-radius:6px;background:var(--card);border:1.5px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;color:var(--m);cursor:pointer;position:relative}
+.j-cell.done{background:var(--gb);border-color:var(--g);color:var(--g)}
+.j-cell.reviewed::after{content:'✓';position:absolute;top:-5px;right:-5px;width:14px;height:14px;border-radius:50%;background:var(--navy);color:#fff;font-size:8px;display:flex;align-items:center;justify-content:center;font-weight:900;border:1.5px solid var(--bg)}
+.j-cell.today{border-color:var(--navy);box-shadow:0 0 0 2px rgba(20,36,58,.15)}
+.j-cell.future{opacity:.3;cursor:default}
+.day-pill.done{background:var(--gb);color:var(--g)}
+.day-pill.cur{background:var(--navy);color:#fff}
+.todo-list{list-style:none;margin-bottom:10px}
+.todo-item{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid #F0EEE7}
+.todo-item:last-child{border-bottom:none}
+.todo-chk{width:20px;height:20px;border-radius:6px;border:2px solid var(--bd);background:#fff;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:12px;color:#fff}
+.todo-chk.on{background:var(--g);border-color:var(--g)}
+.todo-txt{flex:1;font-size:13px;line-height:1.4}
+.todo-txt.cross{text-decoration:line-through;color:var(--m)}
+.todo-del{background:none;border:none;color:#C9CDD2;font-size:17px;cursor:pointer;padding:0 3px;line-height:1}
+.todo-del:hover{color:var(--danger)}
+.add-row{display:flex;gap:8px}
+.add-row input{flex:1}
+.btn-add{background:var(--g);color:#fff;border:none;border-radius:var(--rs);padding:10px 14px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.btn-add:hover{background:var(--gh)}
+.filter-row{display:flex;gap:5px;flex-wrap:wrap}
+.filter-btn{border:1.5px solid var(--bd);background:#fff;border-radius:20px;padding:5px 12px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;color:var(--m);transition:all .2s;white-space:nowrap}
+.filter-btn.active{background:var(--g);border-color:var(--g);color:#fff}
+.tab-nav{position:fixed;left:0;right:0;bottom:0;z-index:500;display:flex;gap:0;background:#fff;border-top:1px solid var(--bd);box-shadow:0 -6px 20px rgba(20,36,58,.08);padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+.tab-btn{flex:1;border:none;border-radius:12px;padding:9px 4px 7px;font-family:inherit;font-size:10.5px;font-weight:700;cursor:pointer;background:transparent;color:var(--m);display:flex;flex-direction:column;align-items:center;gap:3px;white-space:nowrap;position:relative}
+.tb-badge{position:absolute;top:2px;right:calc(50% - 20px);background:var(--danger);color:#fff;font-size:9px;font-weight:900;min-width:15px;height:15px;border-radius:20px;display:flex;align-items:center;justify-content:center;padding:0 3px;line-height:1}
+.tab-btn .tb-ic{font-size:18px;line-height:1}
+.tab-btn.active{color:var(--g)}
+.tab-btn.active .tb-ic{transform:translateY(-1px)}
+.tab-content{display:none}.tab-content.active{display:block}
+.sch-card{background:var(--w);border-radius:4px 18px 18px 4px;padding:14px 16px 14px 20px;margin:8px 14px 0;box-shadow:var(--sh);position:relative;overflow:hidden}
+.sch-card::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:4px;height:60%;border-radius:4px;background:var(--g)}
+.sch-card .sch-tear{border:none;border-top:1.5px dashed var(--bd);margin:10px 0;height:0}
+.sch-type{display:inline-block;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;margin-bottom:8px}
+.sch-title{font-size:14px;font-weight:900;margin-bottom:5px}
+.sch-detail{font-size:12px;color:var(--m);line-height:1.8}
+.sch-actions{display:flex;gap:8px;margin-top:10px}
+.sch-edit{background:var(--card);border:none;border-radius:8px;padding:6px 12px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;color:var(--m)}
+.sch-del-btn{background:var(--dbg);border:none;border-radius:8px;padding:6px 12px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;color:var(--danger)}
+.share-btn{background:var(--kk);border:none;border-radius:8px;padding:7px 14px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;color:#3B1D1D;width:100%;margin-top:10px}
+.empty-state{text-align:center;padding:32px 20px;color:var(--m);font-size:13px;line-height:2}
+.loader{text-align:center;padding:30px;color:var(--m);font-size:13px}
+.notice-item{background:#fff;border-radius:var(--rs);padding:15px 16px;margin:8px 14px 0;box-shadow:var(--sh);cursor:pointer;position:relative;overflow:hidden}
+.notice-item::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(to bottom,var(--navy),var(--silver))}
+.notice-tag-chip{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--card);color:var(--navy)}
+.notice-item-date{font-size:10.5px;color:var(--m);margin-left:auto}
+.notice-item-title{font-size:14px;font-weight:900;color:var(--t);padding-left:10px}
+.notice-item-body{display:none;font-size:13px;color:var(--t);line-height:1.8;padding:10px 10px 0;border-top:1px solid var(--bd);margin-top:10px;white-space:pre-wrap;word-break:break-all}
+.notice-item.expanded .notice-item-body{display:block}
+.notice-item-top{display:flex;align-items:center;gap:6px;margin-bottom:7px;padding-left:10px}
+.edu-cal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 0}
+.edu-cal-title{font-size:17px;font-weight:900;color:var(--t)}
+.edu-cal-nav{display:flex;gap:6px}
+.edu-cal-nav button{background:var(--card);border:none;border-radius:8px;min-width:32px;height:32px;padding:0 10px;font-size:13px;cursor:pointer;color:var(--m);display:flex;align-items:center;justify-content:center;font-family:inherit;font-weight:700}
+.edu-cal-grid-wrap{padding:10px 14px 0}
+.edu-dow-row{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px}
+.edu-dow{text-align:center;font-size:10px;font-weight:700;color:var(--m);padding:4px 0}
+.edu-dow.sun{color:#C0574F}.edu-dow.sat{color:#3E5A8C}
+.edu-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;grid-auto-rows:62px}
+.edu-cell{height:62px;border-radius:7px;padding:4px 3px;border:1.5px solid var(--bd);background:var(--card);position:relative;overflow:hidden;box-sizing:border-box}
+.edu-cell.edu-other{opacity:.3}
+.edu-cell.edu-today{border-color:var(--g);box-shadow:0 0 0 2px rgba(38,76,70,.18)}
+.edu-cell .edu-dn{font-size:11px;font-weight:700;color:#B7BEC5;line-height:1;margin-bottom:2px}
+.edu-cell.edu-today .edu-dn{color:var(--g)}
+.edu-event{font-size:8px;font-weight:700;border-radius:3px;padding:1px 3px;margin-bottom:1px;line-height:1.3;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.ev-off{background:#FFCDD2;color:#C62828}
+.ev-zoom{background:#E1BEE7;color:#6A1B9A}
+.ev-feedback{background:#FFF9C4;color:#F57F17}
+.ev-holiday{background:#ECEFF1;color:#546E7A}
+.ev-etc{background:#DCE6E3;color:var(--g)}
+.center-row{text-align:center;padding:12px 14px 0}
+.logout-btn{background:none;border:1.5px solid var(--bd);color:var(--m);border-radius:8px;padding:6px 14px;font-family:inherit;font-size:11px;cursor:pointer}
+.footer{text-align:center;padding:24px 20px 10px;font-size:11px;color:var(--m);line-height:2.1}
+.footer strong{color:var(--g)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--navy);color:#fff;padding:11px 22px;border-radius:30px;font-size:13px;font-weight:700;transition:transform .3s cubic-bezier(.4,0,.2,1);z-index:9998;white-space:nowrap;max-width:90vw;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.admin-hdr{background:linear-gradient(135deg,var(--navy),#0E1A2C);color:#fff;padding:20px;margin:10px 14px 0;border-radius:var(--r);display:flex;justify-content:space-between;align-items:center}
+.admin-hdr h2{font-size:18px;font-weight:900}
+.admin-hdr p{font-size:12px;opacity:.65;margin-top:4px}
+.admin-refresh{background:rgba(255,255,255,.14);border:none;color:#fff;border-radius:8px;padding:7px 12px;font-family:inherit;font-size:12px;cursor:pointer}
+.admin-tab-nav{display:flex;gap:6px;padding:10px 14px 6px;position:sticky;top:0;background:var(--bg);z-index:50;overflow-x:auto}
+.admin-tab-btn{flex:1 1 0;min-width:0;border:none;border-radius:var(--rs);padding:9px 6px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;background:var(--card);color:var(--m);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.admin-tab-btn.active{background:var(--navy);color:#fff}
+.admin-tab-section{display:none}
+.admin-tab-section.active{display:block}
+.stu-card{background:var(--w);border-radius:var(--rs);padding:14px 16px;margin:8px 14px 0;box-shadow:var(--sh);cursor:pointer}
+.stu-detail{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--bd)}
+.stu-detail.open{display:block}
+.sc-av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:var(--card)}
+.sc-info{flex:1;min-width:0}
+.sc-name{font-size:15px;font-weight:900}
+.sc-detail{font-size:11px;color:var(--m);margin-top:2px}
+.sc-right{text-align:right;flex-shrink:0}
+.mq-card{background:#fff;border-radius:12px;padding:12px 14px;margin:8px 14px 0;border:1.5px solid var(--bd);border-left:3px solid var(--warn)}
+.sheet-handle{width:36px;height:4px;border-radius:4px;background:var(--bd);margin:0 auto 16px}
+.sheet-hdr{background:linear-gradient(135deg,var(--navy),#24405E);margin:-24px -20px 20px;padding:14px 20px 16px;display:flex;justify-content:space-between;align-items:center}
+.sheet-hdr .sheet-title{font-size:15px;font-weight:900;color:#fff}
+.sheet-hdr .sheet-close{background:rgba(255,255,255,.14);border:none;width:26px;height:26px;border-radius:50%;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mq-card.reviewed{border-left-color:var(--g)}
+.day-admin-form textarea{min-height:100px}
+.kakao-share{display:flex;align-items:center;justify-content:center;gap:6px;background:var(--kk);color:#3B1D1D;border-radius:var(--rs);padding:11px 8px;font-family:inherit;font-size:13px;font-weight:700;text-decoration:none;box-shadow:0 4px 12px rgba(254,229,0,.35)}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-brand">SELLZ UP</div>
+  <div class="hdr-badge">✦ 성공메이트</div>
+  <h1>당신의 <em>성공</em>은<br>여기에서부터</h1>
+  <p class="hdr-sub">오늘의 내가, 내일의 나를 성공으로 이끕니다</p>
+</div>
+
+<div id="sc-welcome" class="screen">
+  <div class="welcome-hero">
+    <div class="welcome-mark">SELLZ UP</div>
+    <div class="welcome-star">✦</div>
+    <h1>안녕하세요.<br>여러분의 <span class="accent">성공메이트</span><br>인플즈메리만의 교육프로그램<br><span class="brand">"셀즈업"</span>입니다.</h1>
+    <button class="welcome-btn" onclick="show('sc-login')">들어가기 →</button>
+  </div>
+</div>
+
+<div id="sc-login" class="screen">
+  <div class="card" style="margin-top:20px">
+    <div class="card-ttl">🙋 반가워요!</div>
+    <div class="field">
+      <label>어떤 상황이신가요?</label>
+      <div style="display:flex;gap:8px">
+        <button type="button" class="filter-btn active" id="ut-new" onclick="chooseUserType('new')" style="flex:1;padding:10px">🌱 처음입니다!</button>
+        <button type="button" class="filter-btn" id="ut-existing" onclick="chooseUserType('existing')" style="flex:1;padding:10px">🔄 기존 수강중입니다!</button>
+      </div>
+    </div>
+    <div class="field"><label>이름</label><input type="text" id="l-name" placeholder="이름 입력 (예: 홍길동)" maxlength="10" onkeydown="if(event.key==='Enter')document.getElementById('l-pin').focus()"></div>
+    <div class="field"><label>나만의 숫자 4자리 비밀번호</label><input type="password" id="l-pin" placeholder="꼭 기억해두세요 😊" maxlength="4" inputmode="numeric" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn btn-dark" onclick="doLogin()">들어갈게요 →</button>
+    <p style="text-align:center;font-size:11px;color:var(--m);margin-top:12px;line-height:1.8">처음이시면 이름+비번 입력 후 바로 시작할 수 있어요 🌱<br>비번은 꼭 기억해두세요! 폰 바꿔도 그대로 이어져요</p>
+  </div>
+</div>
+
+<!-- 셀즈업 이용안내 팝업 (처음 시작할 때만) -->
+<div class="modal-wrap" id="guide-modal" style="position:fixed;inset:0;background:rgba(20,36,58,.55);z-index:9995;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s">
+  <div style="background:#fff;border-radius:22px;width:100%;max-width:400px;overflow:hidden;box-shadow:0 20px 60px rgba(20,36,58,.25)" id="guide-modal-box">
+    <div style="background:linear-gradient(135deg,var(--navy),#24405E);padding:22px 22px 20px">
+      <div style="font-size:16px;font-weight:900;color:#fff">✦ 셀즈업 이용안내</div>
+    </div>
+    <div style="padding:22px;font-size:13px;line-height:1.9;color:var(--t)">
+      <p>이 프로그램의 저작권은 인플즈메리에게 있습니다. 유출·변형·공유 등 법적으로 문제가 되는 행위는 금지합니다.</p>
+      <p style="margin-top:12px">셀즈업 이용이 일주일 이상 없을 경우, 특별한 사유가 없는 한 이용은 종료됩니다. 개인 사정이 있다면 미리 말씀해주세요.</p>
+      <p style="margin-top:14px;font-weight:700;color:var(--g)">지금부터 집중하세요!<br>셀즈업은 여러분들의 성공메이트가 되어줄 겁니다.</p>
+    </div>
+    <div style="padding:0 22px 22px">
+      <button class="btn btn-acc" onclick="confirmGuideAndStart()">동의합니다. 시작할게요 →</button>
+    </div>
+  </div>
+</div>
+
+<div id="sc-main" class="screen">
+  <div class="tab-nav">
+    <button class="tab-btn active" data-tab="calendar" onclick="switchTab('calendar')"><span class="tb-ic">📅</span>오늘</button>
+    <button class="tab-btn" data-tab="gongu" onclick="switchTab('gongu')"><span class="tb-ic">🛒</span>공구<span class="tb-badge" id="badge-gongu" style="display:none">0</span></button>
+    <button class="tab-btn" data-tab="ipjum" onclick="switchTab('ipjum')"><span class="tb-ic">🏪</span>입점<span class="tb-badge" id="badge-ipjum" style="display:none">0</span></button>
+    <button class="tab-btn" data-tab="notice" onclick="switchTab('notice')"><span class="tb-ic">📢</span>공지<span class="tb-badge" id="badge-notice" style="display:none">0</span></button>
+    <button class="tab-btn" data-tab="edu" onclick="switchTab('edu')"><span class="tb-ic">📆</span>교육</button>
+  </div>
+
+  <!-- 캘린더 탭 (미션 모드 / 자유 모드) -->
+  <div class="tab-content active" id="tab-calendar">
+    <div class="card" id="note-banner" style="display:none;background:linear-gradient(135deg,var(--navy),#24405E);color:#fff">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="background:var(--g);color:#fff;font-size:9.5px;font-weight:900;padding:2px 8px;border-radius:20px">NEW</span>
+        <span style="font-size:11px;font-weight:700;color:rgba(255,255,255,.65)">메리의 한마디</span>
+      </div>
+      <div id="note-banner-text" style="font-size:13.5px;line-height:1.7"></div>
+    </div>
+    <div class="card" id="mission-mode-card" style="display:none">
+      <div class="today-badge">
+        <span id="m-emoji">🌱</span><span id="m-name">이름</span>님
+        <span style="opacity:.5;font-size:13px">|</span>
+        <span id="m-day">첫번째 미션</span>
+      </div>
+      <div id="mission-body"></div>
+    </div>
+
+    <div id="freeform-mode" style="display:none">
+      <div class="card">
+        <div class="today-badge">🏆 <span id="f-name">이름</span>님 <span style="opacity:.5;font-size:13px">|</span> 미션 30일 졸업</div>
+        <p style="font-size:12px;color:var(--m);text-align:center;line-height:1.7">이제부터는 자유롭게 오늘의 할 일과 결과를 남겨주세요</p>
+      </div>
+      <div class="card"><div class="card-ttl">📋 오늘의 투두리스트</div><ul class="todo-list" id="todo-list"></ul><div class="add-row"><input type="text" id="todo-inp" placeholder="할 일 입력 후 추가" maxlength="60" onkeydown="if(event.key==='Enter')addTodo()"><button class="btn-add" onclick="addTodo()">+ 추가</button></div></div>
+      <div class="card"><div class="card-ttl">✅ 오늘 해낸 결과</div><p style="font-size:11px;color:var(--m);margin-bottom:8px">수치, 건수, 구체적 성과를 적어보세요</p><textarea id="result-inp" placeholder="예) DM 제안 5명 / 메일 제안 3명..."></textarea><button class="btn btn-acc" onclick="saveResult()">결과 저장</button></div>
+      <div class="card">
+        <div class="card-ttl">📖 나의 기록</div>
+        <div id="journal-badge" style="margin-bottom:10px"></div>
+        <div class="journal-grid" id="journal-grid"></div>
+        <p style="font-size:11px;color:var(--m);margin-top:10px;line-height:1.7">100일을 채우면 다음 100일이 자동으로 이어져요 — 꾸준히 달려봐요 🌱</p>
+      </div>
+    </div>
+
+    <div class="modal-wrap" id="journal-modal" style="position:fixed;inset:0;background:rgba(20,36,58,.5);z-index:9990;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s" onclick="if(event.target===this)closeJournalModal()">
+      <div style="background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 40px;transform:translateY(100%);transition:transform .3s;max-height:80vh;overflow-y:auto" id="journal-modal-box">
+        <div class="sheet-handle"></div>
+        <div class="sheet-hdr"><span class="sheet-title" id="journal-modal-title">기록</span><button onclick="closeJournalModal()" class="sheet-close">×</button></div>
+        <div id="journal-modal-body"></div>
+      </div>
+    </div>
+
+    <div class="center-row"><button class="logout-btn" onclick="doLogout()">로그아웃</button></div>
+    <div class="footer"><strong>인플즈메리 교육생 전용 [ 셀즈업 ]</strong><br>궁금한 점은 미션 코멘트로 남겨주세요 💬</div>
+  </div>
+
+  <!-- 공구 탭 -->
+  <div class="tab-content" id="tab-gongu">
+    <div style="display:flex;gap:6px;padding:12px 14px 0">
+      <button class="filter-btn active" id="gsub-schedule" onclick="switchGonguSub('schedule')">🛒 공구일정</button>
+      <button class="filter-btn" id="gsub-issue" onclick="switchGonguSub('issue')">⚠️ 제품이슈</button>
+    </div>
+
+    <div id="gongu-sec-schedule">
+      <div style="display:flex;gap:8px;padding:12px 14px 0">
+        <a href="https://marryz.co.kr/29" target="_blank" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--navy);color:#fff;border-radius:var(--rs);padding:11px 8px;font-family:inherit;font-size:12.5px;font-weight:700;text-decoration:none;box-shadow:0 4px 12px rgba(20,36,58,.25)">⚡ 5분자동화</a>
+        <a href="https://marryz.co.kr/38" target="_blank" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--g);color:#fff;border-radius:var(--rs);padding:11px 8px;font-family:inherit;font-size:12.5px;font-weight:700;text-decoration:none;box-shadow:0 4px 12px rgba(38,76,70,.3)">📄 제안서(간편)</a>
+        <a href="https://marryz.co.kr/36" target="_blank" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--silver);color:var(--navy);border-radius:var(--rs);padding:11px 8px;font-family:inherit;font-size:12.5px;font-weight:700;text-decoration:none;box-shadow:0 4px 12px rgba(169,175,183,.4)">🃏 공구카드</a>
+      </div>
+      <div class="card" style="padding:14px 18px;margin-top:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <span style="font-size:13px;font-weight:700">🛒 공구일정</span>
+          <button class="btn-add" onclick="openGonguModal()">+ 추가</button>
+        </div>
+        <div class="filter-row" id="gongu-filter">
+          <button class="filter-btn active" onclick="filterGongu('all',this)">전체</button>
+          <button class="filter-btn" onclick="filterGongu('협찬',this)">협찬</button>
+          <button class="filter-btn" onclick="filterGongu('공구예정',this)">공구예정</button>
+          <button class="filter-btn" onclick="filterGongu('공구일정 확정',this)">확정</button>
+        </div>
+      </div>
+      <div id="gongu-list"></div>
+    </div>
+
+    <div id="gongu-sec-issue" style="display:none">
+      <div class="card" style="margin-top:10px">
+        <div class="card-ttl">✏️ 이슈 등록하기</div>
+        <p style="font-size:11px;color:var(--m);margin-bottom:12px">내가 입점하지 않은 상품이어도 알고 있는 이슈라면 등록해주세요!</p>
+        <div class="field"><label>브랜드명</label><input type="text" id="si-brand" placeholder="예) 코드니처" maxlength="30"></div>
+        <div class="field"><label>제품명 (선택)</label><input type="text" id="si-product" placeholder="예) 하수구세정서버" maxlength="50"></div>
+        <div class="field"><label>이슈 내용</label><textarea id="si-body" placeholder="예) 물량 수급중, 공구후 일괄발송 안내"></textarea></div>
+        <button class="btn btn-dark" onclick="submitStudentProductIssue()" style="background:linear-gradient(135deg,#8A3A2E,#B04D3C)">📤 이슈 등록</button>
+      </div>
+      <div style="padding:10px 14px 0;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:var(--m);font-weight:700">수강생 및 메리가 등록한 이슈예요</span>
+        <span id="issue-count" style="font-size:11px;color:var(--m)"></span>
+      </div>
+      <div id="issue-list" style="padding:8px 14px 0">
+        <div class="empty-state">⚠️<br>등록된 이슈가 없어요</div>
+      </div>
+      <div style="height:20px"></div>
+    </div>
+  </div>
+
+  <!-- 입점 탭 -->
+  <div class="tab-content" id="tab-ipjum">
+    <div style="display:flex;gap:6px;padding:12px 14px 0">
+      <button class="filter-btn active" id="isub-search" onclick="switchIpjumSub('search')">🔍 입점서치 메모</button>
+      <button class="filter-btn" id="isub-my" onclick="switchIpjumSub('my')">📋 내 입점관리</button>
+      <button class="filter-btn" id="isub-community" onclick="switchIpjumSub('community')">🤝 입점소통방</button>
+    </div>
+
+    <div id="ipjum-sec-search" style="display:block">
+      <div style="padding:12px 14px 0">
+        <a href="https://marryz.co.kr/39" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,var(--navy),#24405E);color:#fff;border-radius:var(--rs);padding:13px 16px;font-family:inherit;font-size:14px;font-weight:700;text-decoration:none;box-shadow:0 4px 14px rgba(20,36,58,.25)">✉️ 메일 생성기 <span style="font-size:11px;opacity:.75;font-weight:500">입점제안 메일 자동완성 →</span></a>
+      </div>
+      <div class="card" style="margin-top:10px">
+        <div class="card-ttl">✏️ 새 업체 메모하기</div>
+        <p style="font-size:11px;color:var(--m);margin-bottom:12px">서치하다 발견한 곳, 아직 연락 안 했어도 여기 적어두세요</p>
+        <div class="field">
+          <label>회사명</label>
+          <input type="text" id="sm-company" placeholder="예) 헬씨코" onblur="checkSearchMemoReject()">
+          <div id="sm-reject-alert" style="display:none;margin-top:8px;background:#FDF3F0;border:1.5px solid #F0C0C0;border-radius:10px;padding:10px 12px;font-size:12px;color:#a03030;line-height:1.6"></div>
+          <div id="sm-check-status" style="font-size:10.5px;color:var(--g);margin-top:4px"></div>
+        </div>
+        <div class="field"><label>홈페이지주소 (선택)</label><input type="text" id="sm-url" placeholder="예) https://company.com"></div>
+        <div class="field"><label>제안방법</label>
+          <select id="sm-method" onchange="toggleSmEmail()"><option value="메일">메일</option><option value="협찬게시판">협찬게시판</option></select>
+        </div>
+        <div class="field" id="sm-email-wrap"><label>메일주소</label><input type="text" id="sm-email" placeholder="예) md@company.com"></div>
+        <div class="field"><label>제품명 (선택)</label><input type="text" id="sm-product" placeholder="예) 이염방지 세탁볼"></div>
+        <div class="field"><label>메모 (선택)</label><input type="text" id="sm-note" placeholder="예) 3차 진행템, 리뷰 3천+"></div>
+        <button class="btn btn-dark" onclick="addSearchMemo()">📌 메모로 저장</button>
+      </div>
+      <div id="search-memo-list" style="margin-top:4px"></div>
+      <div id="search-memo-empty" class="empty-state">아직 메모한 업체가 없어요 🔍</div>
+      <div style="height:12px"></div>
+    </div>
+
+    <div id="ipjum-sec-my" style="display:none">
+      <div class="card" style="padding:14px 18px;margin-top:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <span style="font-size:13px;font-weight:700">🏪 입점 관리</span>
+          <button class="btn-add" onclick="openIpjumModal()">+ 추가</button>
+        </div>
+        <div class="filter-row" id="ipjum-filter">
+          <button class="filter-btn active" onclick="filterIpjum('all',this)">전체</button>
+          <button class="filter-btn" onclick="filterIpjum('입점제안완료',this)">제안완료</button>
+          <button class="filter-btn" onclick="filterIpjum('입점연락 옴',this)">연락옴</button>
+          <button class="filter-btn" onclick="filterIpjum('입점진행중',this)">진행중</button>
+          <button class="filter-btn" onclick="filterIpjum('신청완료',this)">신청완료</button>
+          <button class="filter-btn" onclick="filterIpjum('입점완료',this)">완료</button>
+          <button class="filter-btn" onclick="filterIpjum('거절',this)" style="background:var(--dbg);color:var(--danger);border-color:#F5C6CB">거절</button>
+          <button class="filter-btn" onclick="filterIpjum('__followup',this)" style="background:var(--wbg);color:var(--warn);border-color:#EAD9A8">⚠️ 팔로업</button>
+        </div>
+      </div>
+      <div id="ipjum-list"></div>
+    </div>
+
+    <div id="ipjum-sec-community" style="display:none">
+      <div style="padding:12px 14px 0">
+        <button class="btn btn-dark" onclick="openCommModal()" style="margin-top:0;background:linear-gradient(135deg,#8A3A2E,#B04D3C)">🔴 거절 업체 등록하기</button>
+      </div>
+      <div style="padding:10px 14px 0"><input type="text" id="comm-search" placeholder="🔍 업체명 또는 제품명 검색..." oninput="commSearchChanged()"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 14px 4px"><span id="comm-count" style="font-size:11px;color:var(--m);font-weight:700">불러오는 중...</span><span style="font-size:10px;color:var(--silver)">🔒 수강생 전용</span></div>
+      <div id="comm-list" style="padding:0 14px"></div>
+      <div id="comm-pagination" style="display:flex;justify-content:center;align-items:center;gap:6px;padding:10px 14px 4px"></div>
+    </div>
+  </div>
+
+  <!-- 모달: 입점소통방 거절 등록 -->
+  <div class="modal-wrap" id="comm-modal" style="position:fixed;inset:0;background:rgba(20,36,58,.5);z-index:9990;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s" onclick="if(event.target===this)closeCommModal()">
+    <div style="background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 40px;transform:translateY(100%);transition:transform .3s;max-height:90vh;overflow-y:auto" id="comm-modal-box">
+      <div class="sheet-handle"></div>
+      <div class="sheet-hdr"><span class="sheet-title">🔴 거절 업체 등록</span><button onclick="closeCommModal()" class="sheet-close">×</button></div>
+      <div id="comm-dup-warn" style="display:none;margin-bottom:12px;background:#FDF3F0;border:1.5px solid #F0C0C0;border-radius:10px;padding:10px 12px;font-size:12px;color:#a03030;line-height:1.6"></div>
+      <div class="field"><label>업체명 *</label><input type="text" id="c-company" placeholder="예) ○○화장품" maxlength="50" oninput="checkCommDup(this.value)"></div>
+      <div class="field"><label>제품명 / 카테고리 *</label><input type="text" id="c-product" placeholder="예) 선크림, 스킨케어" maxlength="50"></div>
+      <div class="field"><label>거절 이유 (선택)</label><textarea id="c-reason" placeholder="예) 자체공구만 진행&#10;담당자 연락두절"></textarea></div>
+      <button class="btn btn-dark" onclick="saveCommReject()">등록하기</button>
+    </div>
+  </div>
+
+  <!-- 공지 탭 -->
+  <div class="tab-content" id="tab-notice">
+    <div class="card" style="margin-top:8px;padding:14px 16px"><div style="font-size:13px;font-weight:900;margin-bottom:2px">📢 공지사항</div><div style="font-size:11px;color:var(--m)">셀즈업 성공메이트만의 공지예요</div></div>
+    <div id="notice-list"><div class="empty-state">불러오는 중...</div></div>
+  </div>
+
+  <!-- 교육일정 탭 -->
+  <div class="tab-content" id="tab-edu">
+    <div class="edu-cal-header"><div class="edu-cal-title" id="edu-month-label"></div><div class="edu-cal-nav"><button onclick="eduCalPrev()">‹</button><button onclick="eduCalToday()">오늘</button><button onclick="eduCalNext()">›</button></div></div>
+    <div class="edu-cal-grid-wrap"><div class="edu-dow-row"><div class="edu-dow sun">일</div><div class="edu-dow">월</div><div class="edu-dow">화</div><div class="edu-dow">수</div><div class="edu-dow">목</div><div class="edu-dow">금</div><div class="edu-dow sat">토</div></div><div class="edu-cal-grid" id="edu-cal-grid"></div></div>
+    <div style="height:20px"></div>
+  </div>
+</div>
+
+<!-- 관리자 로그인 -->
+<div id="sc-admin-login" class="screen">
+  <div class="card" style="margin-top:20px">
+    <div class="card-ttl">🔒 관리자 로그인</div>
+    <div class="field"><label>관리자 비밀번호</label><input type="password" id="a-pw" placeholder="비밀번호 입력" onkeydown="if(event.key==='Enter')doAdminLogin()"></div>
+    <button class="btn btn-dark" onclick="doAdminLogin()">로그인</button>
+  </div>
+</div>
+
+<!-- 관리자 대시보드 -->
+<div id="sc-admin" class="screen">
+  <div class="admin-tab-nav">
+    <button class="admin-tab-btn active" onclick="switchAdminTab('students')">👥 수강생</button>
+    <button class="admin-tab-btn" onclick="switchAdminTab('gongu')">🛒 공구현황</button>
+    <button class="admin-tab-btn" onclick="switchAdminTab('ipjumstat')">🏪 입점현황</button>
+    <button class="admin-tab-btn" onclick="switchAdminTab('notice')">📢 공지</button>
+    <button class="admin-tab-btn" onclick="switchAdminTab('edu')">📆 교육</button>
+    <button class="admin-tab-btn" onclick="switchAdminTab('issue')">⚠️ 이슈</button>
+  </div>
+
+  <!-- 수강생 탭 -->
+  <div class="admin-tab-section active" id="admin-sec-students">
+    <div class="admin-hdr"><div><h2>📊 수강생 현황</h2><p id="admin-summary">로딩 중...</p></div><button class="admin-refresh" onclick="loadAdmin()">🔄 새로고침</button></div>
+    <div id="admin-dashboard" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:10px 14px 0"></div>
+    <div style="display:flex;gap:6px;padding:10px 14px 0">
+      <button class="filter-btn active" id="pf-all" onclick="filterProgram('all',this)">전체</button>
+      <button class="filter-btn" id="pf-sellzup" onclick="filterProgram('sellzup',this)">✦ 셀즈업</button>
+      <button class="filter-btn" id="pf-challenge" onclick="filterProgram('challenge',this)">기존 챌린지</button>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;padding:10px 14px 0">
+      <button class="filter-btn active" id="af-all" onclick="filterAdmin('all',this)">전체</button>
+      <button class="filter-btn" id="af-queue" onclick="filterAdmin('queue',this)" style="background:var(--wbg);color:var(--warn);border-color:#EAD9A8">⚠️ 미션 확인 대기</button>
+      <button class="filter-btn" id="af-freeReview" onclick="filterAdmin('freeReview',this)" style="background:var(--wbg);color:var(--warn);border-color:#EAD9A8">✅ 자유모드 확인 대기</button>
+      <button class="filter-btn" id="af-noContent" onclick="filterAdmin('noContent',this)">📝 미션 등록 필요</button>
+    </div>
+    <div id="admin-list"><div class="loader">불러오는 중...</div></div>
+  </div>
+
+  <!-- 공지 탭 -->
+  <div class="admin-tab-section" id="admin-sec-notice">
+    <div class="admin-hdr"><div><h2>📢 공지 관리</h2><p>셀즈업 성공메이트 전용 공지예요 (기존 챌린지와 별도)</p></div><button class="admin-refresh" onclick="loadAdminNotices()">🔄 새로고침</button></div>
+    <div class="card" style="margin-top:8px">
+      <div class="card-ttl">✏️ 새 공지 작성</div>
+      <div class="field"><label>제목</label><input type="text" id="adm-title" placeholder="공지 제목"></div>
+      <div class="field"><label>내용</label><textarea id="adm-body" placeholder="공지 내용을 자세히 적어주세요"></textarea></div>
+      <button class="btn btn-dark" onclick="adminSaveNotice()">📤 공지 등록</button>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;padding:14px 14px 0">등록된 공지</div>
+    <div id="admin-notice-list"><div class="empty-state">등록된 공지가 없습니다</div></div>
+  </div>
+
+  <!-- 교육일정 탭 -->
+  <div class="admin-tab-section" id="admin-sec-edu">
+    <div class="admin-hdr"><div><h2>📆 교육일정 관리</h2><p>기존 챌린지캘린더와 공유되는 일정이에요</p></div><button class="admin-refresh" onclick="loadAdminEdu()">🔄 새로고침</button></div>
+    <div class="card day-admin-form" style="margin-top:8px">
+      <div class="card-ttl">📆 일정 추가</div>
+      <div class="field"><label>날짜</label><input type="date" id="edu-date"></div>
+      <div class="field"><label>내용</label><input type="text" id="edu-title" placeholder="예) 오프교육 (11-13시)" maxlength="30"></div>
+      <div class="field"><label>유형</label><select id="edu-type"><option value="off">🌸 오프교육</option><option value="zoom">💜 줌스터디/줌교육</option><option value="feedback">💛 피드백만 진행</option><option value="holiday">🩶 휴일</option><option value="etc">🩵 기타</option></select></div>
+      <button class="btn btn-dark" onclick="adminSaveEdu()">📤 일정 등록</button>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;padding:14px 14px 0">등록된 교육일정</div>
+    <div id="admin-edu-list"><div class="empty-state">등록된 일정이 없습니다</div></div>
+  </div>
+
+  <!-- 이슈 탭 -->
+  <div class="admin-tab-section" id="admin-sec-issue">
+    <div class="admin-hdr"><div><h2>⚠️ 제품이슈 관리</h2><p>이슈 직접 등록 및 수강생 이슈 확인</p></div><button class="admin-refresh" onclick="loadAdminProductIssues()">🔄 새로고침</button></div>
+    <div class="card" style="margin-top:8px">
+      <div class="card-ttl">✏️ 이슈 직접 등록</div>
+      <div class="field"><label>브랜드명</label><input type="text" id="pi-brand" placeholder="예) 코드니처" maxlength="30"></div>
+      <div class="field"><label>제품명</label><input type="text" id="pi-product" placeholder="예) 하수구세정서버" maxlength="50"></div>
+      <div class="field"><label>이슈 내용</label><textarea id="pi-body" placeholder="예) 물량 수급중, 공구후 일괄발송 안내"></textarea></div>
+      <button class="btn btn-dark" onclick="adminSaveProductIssue()" style="background:linear-gradient(135deg,#8A3A2E,#B04D3C)">📤 이슈 등록</button>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;padding:14px 14px 4px">등록된 이슈 목록</div>
+    <div id="admin-issue-list" style="padding:0 14px 16px"><div class="empty-state">불러오는 중...</div></div>
+  </div>
+
+  <!-- 공구현황 탭 -->
+  <div class="admin-tab-section" id="admin-sec-gongu">
+    <div class="admin-hdr"><div><h2>🛒 공구 확정 현황</h2><p id="admin-gongu-summary">로딩 중...</p></div><button class="admin-refresh" onclick="loadAdminGongu()">🔄 새로고침</button></div>
+    <div id="admin-gongu-stats" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:0 14px 12px"></div>
+    <div style="padding:0 14px 12px"><input type="text" id="admin-gongu-search" placeholder="🔍 이름 또는 상품명 검색..." oninput="renderAdminGongu()"></div>
+    <div id="admin-gongu-list"><div class="loader">불러오는 중...</div></div>
+    <div style="height:16px"></div>
+  </div>
+
+  <!-- 입점현황 탭 -->
+  <div class="admin-tab-section" id="admin-sec-ipjumstat">
+    <div class="admin-hdr"><div><h2>🏪 입점 완료 현황</h2><p id="admin-ipjumstat-summary">로딩 중...</p></div><button class="admin-refresh" onclick="loadAdminIpjumStat()">🔄 새로고침</button></div>
+    <div id="admin-ipjumstat-stats" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:0 14px 12px"></div>
+    <div style="padding:0 14px 12px"><input type="text" id="admin-ipjumstat-search" placeholder="🔍 이름 또는 제품명 검색..." oninput="renderAdminIpjumStat()"></div>
+    <div id="admin-ipjumstat-list"><div class="loader">불러오는 중...</div></div>
+    <div style="height:16px"></div>
+  </div>
+
+  <div class="center-row" style="padding-bottom:20px">
+    <button class="logout-btn" onclick="show('sc-admin-login')">로그아웃</button>
+  </div>
+</div>
+
+<!-- 모달: 공구 -->
+<div class="modal-wrap" id="gongu-modal" style="position:fixed;inset:0;background:rgba(20,36,58,.5);z-index:9990;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s" onclick="if(event.target===this)closeGonguModal()">
+  <div style="background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 40px;transform:translateY(100%);transition:transform .3s;max-height:90vh;overflow-y:auto" id="gongu-modal-box">
+    <div class="sheet-handle"></div>
+    <div class="sheet-hdr"><span class="sheet-title" id="gongu-modal-title">🛒 공구일정 추가</span><button onclick="closeGonguModal()" class="sheet-close">×</button></div>
+    <div class="field"><label>유형</label><select id="g-type"><option value="공구예정">🛒 공구예정</option><option value="협찬">🎁 협찬</option><option value="공구일정 확정">✅ 공구일정 확정</option></select></div>
+    <div class="field"><label>셀러 인스타 주소</label><input type="text" id="g-seller" placeholder="@인스타아이디" maxlength="50"></div>
+    <div class="field"><label>상품명</label><input type="text" id="g-product" placeholder="예) 유기농 그래놀라" maxlength="50"></div>
+    <div style="display:flex;gap:8px"><div class="field" style="flex:1"><label>시작일</label><input type="date" id="g-start"></div><div class="field" style="flex:1"><label>종료일</label><input type="date" id="g-end"></div></div>
+    <div class="field"><label>메모 (선택)</label><input type="text" id="g-memo" placeholder="추가 메모" maxlength="100"></div>
+    <button class="btn btn-dark" onclick="saveGongu()">저장하기</button>
+  </div>
+</div>
+
+<!-- 모달: 입점 -->
+<div class="modal-wrap" id="ipjum-modal" style="position:fixed;inset:0;background:rgba(20,36,58,.5);z-index:9990;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s" onclick="if(event.target===this)closeIpjumModal()">
+  <div style="background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 40px;transform:translateY(100%);transition:transform .3s;max-height:90vh;overflow-y:auto" id="ipjum-modal-box">
+    <div class="sheet-handle"></div>
+    <div class="sheet-hdr"><span class="sheet-title" id="ipjum-modal-title">🏪 입점 추가</span><button onclick="closeIpjumModal()" class="sheet-close">×</button></div>
+    <div class="field"><label>유형</label><select id="i-type" onchange="toggleCompletionDate()"><option value="입점제안완료">📤 입점제안완료</option><option value="입점연락 옴">📞 입점연락 옴</option><option value="입점진행중">⚙️ 입점진행중</option><option value="신청완료">✅ 신청완료</option><option value="입점완료">🎉 입점완료</option><option value="거절">🔴 거절</option></select></div>
+    <div class="field">
+      <label>회사명</label>
+      <input type="text" id="i-companyname" placeholder="예) 헬씨코" onblur="checkIpjumReject()">
+      <div id="i-reject-alert" style="display:none;margin-top:8px;background:#FDF3F0;border:1.5px solid #F0C0C0;border-radius:10px;padding:10px 12px;font-size:12px;color:#a03030;line-height:1.6"></div>
+    </div>
+    <div class="field"><label>제품명</label><input type="text" id="i-product" placeholder="제품명" maxlength="50"></div>
+    <div class="field"><label>해당 회사 주소 (URL, 선택)</label><input type="text" id="i-company" placeholder="https://company.com" maxlength="100"></div>
+    <div class="field"><label>제안방법</label><select id="i-method" onchange="toggleIEmail()"><option value="메일">메일</option><option value="협찬게시판">협찬게시판</option></select></div>
+    <div class="field" id="i-email-wrap"><label>대표메일</label><input type="text" id="i-email" placeholder="예) md@company.com" maxlength="100"></div>
+    <div class="field"><label>신청일</label><input type="date" id="i-apply"></div>
+    <div class="field"><label>제안발송일 (팔로업 자동계산용, 선택)</label><input type="date" id="i-sentdate"></div>
+    <div class="field" id="i-completion-wrap" style="display:none"><label>입점완료일</label><input type="date" id="i-completion"></div>
+    <div class="field">
+      <label>진행 체크리스트</label>
+      <div style="display:flex;gap:20px;padding:6px 0">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--t);font-weight:600;text-transform:none;letter-spacing:0;margin:0;cursor:pointer"><input type="checkbox" id="i-listchecked" style="width:auto;margin:0">입점사목록 체크</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--t);font-weight:600;text-transform:none;letter-spacing:0;margin:0;cursor:pointer"><input type="checkbox" id="i-roomlogged" style="width:auto;margin:0">입점소통방 기록</label>
+      </div>
+    </div>
+    <div class="field"><label>메모 (선택)</label><textarea id="i-memo" placeholder="수수료, 조건, 메모"></textarea></div>
+    <button class="btn btn-dark" onclick="saveIpjum()">저장하기</button>
+  </div>
+</div>
+
+<!-- 모달: 이슈 신고 -->
+<div class="modal-wrap" id="issue-report-modal" style="position:fixed;inset:0;background:rgba(20,36,58,.5);z-index:9990;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s" onclick="if(event.target===this)closeIssueModal()">
+  <div style="background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 40px;transform:translateY(100%);transition:transform .3s;max-height:90vh;overflow-y:auto" id="issue-report-modal-box">
+    <div class="sheet-handle"></div>
+    <div class="sheet-hdr"><span class="sheet-title">⚠ 이슈 신고</span><button onclick="closeIssueModal()" class="sheet-close">×</button></div>
+    <input type="hidden" id="issue-ipjum-id">
+    <div class="field"><label>어떤 이슈가 발생했나요?</label><textarea id="issue-report-text" style="min-height:100px" placeholder="이슈 내용을 자세히 적어주세요. (예: 입금 지연, 상품 불량, 연락 두절 등)"></textarea></div>
+    <button class="btn btn-dark" onclick="submitIssueReport()" style="background:var(--danger)">📤 전달하기</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyATt-hEuctEFZkHRD9TpxNOXdOq5FyLBb0",
+  authDomain: "marryz-challenge.firebaseapp.com",
+  databaseURL: "https://marryz-challenge-default-rtdb.firebaseio.com",
+  projectId: "marryz-challenge",
+  storageBucket: "marryz-challenge.firebasestorage.app",
+  messagingSenderId: "157658417157",
+  appId: "1:157658417157:web:80cf775131c2d817dcf46c"
+};
+const ADMIN_PW = "marryz2026";
+const PROGRAM = "sellzup";
+
+let DB=null, SKEY=null, S={};
+try { firebase.initializeApp(FIREBASE_CONFIG); DB = firebase.database(); } catch(e){ console.warn(e); }
+
+const today = () => { const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+const diffDays = (a,b) => Math.floor((new Date(b)-new Date(a))/86400000);
+const addDays  = (d,n) => { const dt=new Date(d); dt.setDate(dt.getDate()+n); return dt.toISOString().split('T')[0]; };
+const fmtDate  = d => { const dt=new Date(d); return `${dt.getMonth()+1}/${dt.getDate()}`; };
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+const ORDINAL_KR=['','첫','두','세','네','다섯','여섯','일곱','여덟','아홉','열','열한','열두','열세','열네','열다섯','열여섯','열일곱','열여덟','열아홉','스무','스물한','스물두','스물세','스물네','스물다섯','스물여섯','스물일곱','스물여덟','스물아홉','서른'];
+function ordinalKr(n){return (ORDINAL_KR[n]||n)+'번째';}
+let _tt=null;
+function showToast(msg,duration=3000){const el=document.getElementById('toast');if(!el)return;el.textContent=msg;el.classList.add('show');if(_tt)clearTimeout(_tt);_tt=setTimeout(()=>{el.classList.remove('show');_tt=null;},duration);}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function mkKey(name,pin){return 'sz_'+(name+'_'+pin).replace(/[.#$[\]/]/g,'_');}
+
+function blankState(name,pin){
+  return {
+    name, pin, program: PROGRAM,
+    missionDay: 1, missionStatus: 'awaiting_content', graduated:false,
+    missionContent: {}, missionLogs: {},
+    todos:[], todosDate:'', result:'', resultDate:'', lastActive: today(), dailyLogs:{},
+    gonguSchedules:[], ipjumItems:[], searchMemos:[]
+  };
+}
+
+/* ══════════ 로그인/등록 ══════════ */
+let _userType='new';
+function chooseUserType(type){
+  _userType=type;
+  document.getElementById('ut-new').classList.toggle('active',type==='new');
+  document.getElementById('ut-existing').classList.toggle('active',type==='existing');
+}
+
+let _pendingNew=null;
+async function doLogin(silent=false){
+  const name=document.getElementById('l-name').value.trim();
+  const pin=document.getElementById('l-pin').value.trim();
+  if(!name){showToast('이름을 입력해주세요!');return;}
+  if(!/^\d{4}$/.test(pin)){showToast('숫자 4자리를 입력해주세요!');return;}
+  if(!DB){showToast('연결 오류. 잠시 후 다시 시도해주세요.');return;}
+  const key=mkKey(name,pin);
+  try{
+    const snap=await DB.ref('students/'+key).once('value');
+    let data=snap.val();
+    if(!data){
+      if(silent){
+        try{localStorage.removeItem('sellzup_s');}catch(e){}
+        return;
+      }
+      _pendingNew={name,pin,key};
+      const w=document.getElementById('guide-modal');w.style.opacity=1;w.style.pointerEvents='all';
+      return;
+    }
+    SKEY=key;
+    S=data;
+    if(S.program!==PROGRAM){
+      showToast('이 페이지는 셀즈업 전용이에요. 기존 챌린지캘린더로 접속해주세요.');
+      SKEY=null; S={};
+      return;
+    }
+    if(!S.gonguSchedules)S.gonguSchedules=[];
+    if(!S.ipjumItems)S.ipjumItems=[];
+    if(!S.searchMemos)S.searchMemos=[];
+    if(!S.missionContent)S.missionContent={};
+    if(!S.missionLogs)S.missionLogs={};
+    if(!silent)showToast(`👋 ${name}님, 다시 오셨네요!`);
+    try{localStorage.setItem('sellzup_s',JSON.stringify({name,pin}));}catch(e){}
+    show('sc-main'); renderAll();
+  }catch(e){showToast('연결 오류가 발생했어요.');console.error(e);}
+}
+
+async function confirmGuideAndStart(){
+  if(!_pendingNew)return;
+  const {name,pin,key}=_pendingNew;
+  SKEY=key;
+  S=blankState(name,pin);
+  try{await DB.ref('students/'+SKEY).set(S);}catch(e){showToast('저장 오류');console.error(e);return;}
+  const w=document.getElementById('guide-modal');w.style.opacity=0;w.style.pointerEvents='none';
+  try{localStorage.setItem('sellzup_s',JSON.stringify({name,pin}));}catch(e){}
+  showToast(`🌱 ${name}님, 셀즈업 시작을 환영해요!`);
+  show('sc-main'); renderAll();
+  _pendingNew=null;
+}
+function doLogout(){try{localStorage.removeItem('sellzup_s');}catch(e){}SKEY=null;S={};document.getElementById('l-name').value='';document.getElementById('l-pin').value='';show('sc-welcome');}
+
+async function fbSave(){
+  S.lastActive=today();
+  const payload={
+    lastActive:S.lastActive,
+    todos:S.todos||[], todosDate:S.todosDate||'',
+    result:S.result||'', resultDate:S.resultDate||'',
+    gonguSchedules:S.gonguSchedules||[], ipjumItems:S.ipjumItems||[], searchMemos:S.searchMemos||[]
+  };
+  try{await DB.ref('students/'+SKEY).update(payload);}catch(e){showToast('저장 오류');console.error(e);}
+}
+
+async function saveDailyLogEntry(){
+  if(!S.graduated||!SKEY)return;
+  const d=today();
+  if(!S.dailyLogs)S.dailyLogs={};
+  const entry={todos:JSON.parse(JSON.stringify(S.todos||[])),result:S.result||''};
+  S.dailyLogs[d]={...(S.dailyLogs[d]||{}),...entry};
+  try{
+    await DB.ref('students/'+SKEY).update({
+      [`dailyLogs/${d}/todos`]:entry.todos,
+      [`dailyLogs/${d}/result`]:entry.result
+    });
+  }catch(e){console.error(e);}
+}
+
+function renderNoteBanner(){
+  const banner=document.getElementById('note-banner');
+  const textEl=document.getElementById('note-banner-text');
+  if(!banner||!textEl)return;
+  const note=(S.notes||{})[today()];
+  if(note){
+    banner.style.display='block';
+    textEl.textContent=note;
+  } else {
+    banner.style.display='none';
+  }
+}
+
+/* ══════════ 미션 모드 렌더 ══════════ */
+function renderAll(){
+  document.getElementById('m-name').textContent=S.name;
+  document.getElementById('f-name').textContent=S.name;
+  checkUnreadBadges();
+  document.getElementById('m-day').textContent=ordinalKr(S.missionDay)+' 미션';
+  renderNoteBanner();
+  const missionCard=document.getElementById('mission-mode-card');
+  const freeform=document.getElementById('freeform-mode');
+  if(S.graduated){
+    missionCard.style.display='none'; freeform.style.display='block';
+    syncTodos(); renderTodos(); renderJournal();
+    const ri=document.getElementById('result-inp'); if(ri)ri.value=(S.resultDate===today()?S.result:'')||'';
+  } else {
+    missionCard.style.display='block'; freeform.style.display='none';
+    renderMissionBody();
+  }
+  renderGongu(); renderIpjum();
+}
+
+function renderMissionBody(){
+  const day='day'+S.missionDay;
+  const content=S.missionContent[day];
+  const log=S.missionLogs[day];
+  const body=document.getElementById('mission-body');
+  if(!content){
+    body.innerHTML=`<div class="wait-box"><div class="em">🕊️</div><h3>메리가 오늘의 미션을 준비 중이에요</h3><p>곧 ${ordinalKr(S.missionDay)} 미션이 올라올 거예요.<br>조금만 기다려주세요!</p></div>`;
+    return;
+  }
+  const items=content.items||[];
+  const submitted = log && log.status==='submitted';
+  const checked = (log&&log.checklist) ? log.checklist : items.map(()=>false);
+  let html = `<div class="day-pill-row"><span class="day-pill cur">${ordinalKr(S.missionDay)} 미션</span>${submitted?'<span class="status-chip wait">메리 확인 대기중</span>':'<span class="status-chip active">진행중</span>'}</div>`;
+  if(content.title) html += `<div style="font-size:14px;font-weight:900;margin:10px 0 4px">${esc(content.title)}</div>`;
+  html += `<div style="margin-top:8px">`;
+  items.forEach((it,i)=>{
+    const on=!!checked[i];
+    html += `<div class="mission-item"><div class="m-chk ${on?'on':''}" onclick="toggleMissionItem(${i})">${on?'✓':''}</div><span class="m-txt ${on?'cross':''}">${esc(it)}</span></div>`;
+  });
+  html += `</div>`;
+  html += `<div style="margin-top:16px"><div class="comment-label">💬 메리에게 남길 말</div><textarea id="mission-comment" placeholder="오늘 수행하면서 느낀 점, 궁금한 점을 자유롭게 적어주세요">${esc((log&&log.comment)||'')}</textarea></div>`;
+  if(log&&log.adminReply){
+    html += `<div style="margin-top:12px;background:var(--gb);border-left:3px solid var(--g);border-radius:0 8px 8px 0;padding:10px 12px"><div style="font-size:11px;font-weight:700;color:var(--g);margin-bottom:4px">💌 메리의 답장</div><div style="font-size:13px;line-height:1.7">${esc(log.adminReply)}</div></div>`;
+  }
+  html += `<button class="btn btn-acc" onclick="submitMission()">${submitted?'다시 제출하기':'제출하기'}</button>`;
+  if(submitted) html += `<p style="text-align:center;font-size:11.5px;color:var(--m);margin-top:10px;line-height:1.7">메리가 확인하면 다음 미션이 열려요 🌱</p>`;
+  body.innerHTML=html;
+}
+
+function toggleMissionItem(i){
+  const day='day'+S.missionDay;
+  if(!S.missionLogs[day])S.missionLogs[day]={checklist:[],comment:'',status:'active'};
+  const content=S.missionContent[day];
+  const len=(content.items||[]).length;
+  if(!S.missionLogs[day].checklist||S.missionLogs[day].checklist.length!==len){
+    S.missionLogs[day].checklist=new Array(len).fill(false);
+  }
+  S.missionLogs[day].checklist[i]=!S.missionLogs[day].checklist[i];
+  renderMissionBody();
+}
+
+async function submitMission(){
+  const day='day'+S.missionDay;
+  const comment=document.getElementById('mission-comment').value;
+  if(!S.missionLogs[day])S.missionLogs[day]={checklist:[],comment:'',status:'active'};
+  S.missionLogs[day].comment=comment;
+  S.missionLogs[day].status='submitted';
+  S.missionLogs[day].submittedAt=Date.now();
+  try{
+    await DB.ref('students/'+SKEY).update({
+      [`missionLogs/${day}/checklist`]:S.missionLogs[day].checklist||[],
+      [`missionLogs/${day}/comment`]:comment,
+      [`missionLogs/${day}/status`]:'submitted',
+      [`missionLogs/${day}/submittedAt`]:S.missionLogs[day].submittedAt,
+      lastActive:today()
+    });
+  }catch(e){showToast('저장 오류');console.error(e);return;}
+  renderMissionBody();
+  showToast('📤 제출했어요! 메리 확인을 기다려주세요');
+}
+
+/* ══════════ 자유모드 (졸업 후) ══════════ */
+function syncTodos(){if(S.todosDate!==today()){S.todos=(S.todos||[]).filter(t=>!t.done);S.todosDate=today();}}
+function renderTodos(){const list=document.getElementById('todo-list');if(!list)return;list.innerHTML='';(S.todos||[]).forEach((t,i)=>{const li=document.createElement('li');li.className='todo-item';li.innerHTML=`<div class="todo-chk ${t.done?'on':''}" onclick="toggleTodo(${i})">${t.done?'✓':''}</div><span class="todo-txt ${t.done?'cross':''}">${esc(t.text)}</span><button class="todo-del" onclick="delTodo(${i})">×</button>`;list.appendChild(li);});}
+async function addTodo(){const inp=document.getElementById('todo-inp');const t=inp.value.trim();if(!t)return;if(!S.todos)S.todos=[];S.todos.push({id:Date.now(),text:t,done:false});inp.value='';renderTodos();await fbSave();await saveDailyLogEntry();if(S.graduated)renderJournal();}
+async function toggleTodo(i){S.todos[i].done=!S.todos[i].done;renderTodos();await fbSave();await saveDailyLogEntry();if(S.graduated)renderJournal();}
+async function delTodo(i){S.todos.splice(i,1);renderTodos();await fbSave();await saveDailyLogEntry();if(S.graduated)renderJournal();}
+async function saveResult(){S.result=document.getElementById('result-inp').value;S.resultDate=today();await fbSave();await saveDailyLogEntry();renderJournal();showToast('✅ 결과 저장 완료!');}
+
+/* ══════════ 100일 단위 기록장 (졸업 후) ══════════ */
+function renderJournal(){
+  const badge=document.getElementById('journal-badge');
+  const grid=document.getElementById('journal-grid');
+  if(!badge||!grid)return;
+  const gDate=S.graduatedDate||today();
+  const elapsed=diffDays(gDate,today())+1;
+  const blockNum=Math.max(1,Math.ceil(elapsed/100));
+  const dayInBlock=elapsed-(blockNum-1)*100;
+  const blockStart=addDays(gDate,(blockNum-1)*100);
+  const rangeLo=(blockNum-1)*100+1, rangeHi=blockNum*100;
+  badge.innerHTML=`<span class="day-pill cur">${elapsed}일차</span> <span class="day-pill">${rangeLo}~${rangeHi}일 구간 (${blockNum===1?'1':blockNum}번째 100일)</span>`;
+  let html='';
+  for(let d=1; d<=100; d++){
+    const cellDate=addDays(blockStart,d-1);
+    const isFuture=d>dayInBlock;
+    const isToday=cellDate===today();
+    const log=(S.dailyLogs||{})[cellDate];
+    const hasLog=log&&((log.todos&&log.todos.length>0)||log.result);
+    let cls='j-cell';
+    if(isFuture)cls+=' future'; else if(hasLog)cls+=' done';
+    if(isToday)cls+=' today';
+    if(log&&log.reviewed)cls+=' reviewed';
+    const onclick=isFuture?'':`onclick="showJournalDay('${cellDate}',${rangeLo+d-1})"`;
+    html+=`<div class="${cls}" ${onclick}>${rangeLo+d-1}</div>`;
+  }
+  grid.innerHTML=html;
+}
+function showJournalDay(dateStr,dayNum){
+  const log=(S.dailyLogs||{})[dateStr]||{todos:[],result:''};
+  const dt=new Date(dateStr);
+  document.getElementById('journal-modal-title').textContent=`${dayNum}일차 · ${dt.getMonth()+1}월 ${dt.getDate()}일`;
+  const todos=log.todos||[];
+  let html='';
+  if(todos.length){
+    html+=`<div style="font-size:11px;font-weight:700;color:var(--m);margin-bottom:8px">📋 그날의 할 일</div>`;
+    todos.forEach(t=>{html+=`<div style="display:flex;gap:8px;padding:6px 0;font-size:13px"><span>${t.done?'✅':'⬜'}</span><span style="${t.done?'text-decoration:line-through;color:var(--m)':''}">${esc(t.text)}</span></div>`;});
+  }
+  if(log.result){
+    html+=`<div style="font-size:11px;font-weight:700;color:var(--m);margin:14px 0 6px">✨ 그날 해낸 것</div><div style="background:var(--card);border-radius:10px;padding:12px;font-size:13px;line-height:1.7;white-space:pre-wrap">${esc(log.result)}</div>`;
+  }
+  if(!todos.length&&!log.result){
+    html='<div style="text-align:center;padding:24px 0;color:var(--m);font-size:13px">이날은 기록이 없어요</div>';
+  }
+  if(log.reviewed){
+    html+=`<div style="margin-top:14px;text-align:center;font-size:11.5px;color:var(--g);font-weight:700">✓ 메리가 확인했어요</div>`;
+  }
+  document.getElementById('journal-modal-body').innerHTML=html;
+  const w=document.getElementById('journal-modal');w.style.opacity=1;w.style.pointerEvents='all';document.getElementById('journal-modal-box').style.transform='translateY(0)';
+}
+function closeJournalModal(){const w=document.getElementById('journal-modal');w.style.opacity=0;w.style.pointerEvents='none';document.getElementById('journal-modal-box').style.transform='translateY(100%)';}
+
+/* ══════════ 하단 탭 안읽음 배지 ══════════ */
+function getNoticeReadIds(){try{return JSON.parse(localStorage.getItem('sz_notice_read')||'[]');}catch(e){return[];}}
+function saveNoticeReadIds(ids){try{localStorage.setItem('sz_notice_read',JSON.stringify(ids));}catch(e){}}
+function markAllNoticesRead(ids){const cur=getNoticeReadIds();saveNoticeReadIds([...new Set([...cur,...ids])]);}
+function markIssuesSeen(){try{localStorage.setItem('sz_issue_seen',String(Date.now()));}catch(e){}const b=document.getElementById('badge-gongu');if(b)b.style.display='none';}
+function markCommSeen(){try{localStorage.setItem('sz_comm_seen',String(Date.now()));}catch(e){}const b=document.getElementById('badge-ipjum');if(b)b.style.display='none';}
+function setBadge(id,count){const el=document.getElementById(id);if(!el)return;if(count>0){el.textContent=count>99?'99+':count;el.style.display='flex';}else{el.style.display='none';}}
+async function checkUnreadBadges(){
+  if(!DB)return;
+  try{
+    const noticeSnap=await DB.ref('sellzupNotices').once('value');
+    const noticeData=noticeSnap.val()||{};
+    const readIds=getNoticeReadIds();
+    const unreadNotices=Object.keys(noticeData).filter(id=>!readIds.includes(id));
+    setBadge('badge-notice',unreadNotices.length);
+  }catch(e){}
+  try{
+    const issueSnap=await DB.ref('shared/productIssues').once('value');
+    const issueData=issueSnap.val()||{};
+    const issueSeen=Number(localStorage.getItem('sz_issue_seen')||0);
+    const unreadIssues=Object.values(issueData).filter(v=>(v.ts||0)>issueSeen);
+    setBadge('badge-gongu',unreadIssues.length);
+  }catch(e){}
+  try{
+    const commSnap=await DB.ref('shared/rejectList').once('value');
+    const commData=commSnap.val()||{};
+    const commSeen=Number(localStorage.getItem('sz_comm_seen')||0);
+    const unreadComm=Object.values(commData).filter(v=>(v.ts||0)>commSeen);
+    setBadge('badge-ipjum',unreadComm.length);
+  }catch(e){}
+}
+
+/* ══════════ 탭 전환 ══════════ */
+function switchTab(tab){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.querySelector(`.tab-btn[data-tab="${tab}"]`).classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+  if(tab==='notice')renderNotices();
+  if(tab==='edu')renderEduCal();
+  if(tab==='ipjum')switchIpjumSub('search');
+  if(tab==='gongu')switchGonguSub('schedule');
+}
+
+function switchGonguSub(sub){
+  document.getElementById('gongu-sec-schedule').style.display=sub==='schedule'?'block':'none';
+  document.getElementById('gongu-sec-issue').style.display=sub==='issue'?'block':'none';
+  document.getElementById('gsub-schedule').classList.toggle('active',sub==='schedule');
+  document.getElementById('gsub-issue').classList.toggle('active',sub==='issue');
+  if(sub==='schedule')renderGongu();
+  if(sub==='issue'){loadProductIssues();markIssuesSeen();}
+}
+
+function switchIpjumSub(sub){
+  document.getElementById('ipjum-sec-search').style.display=sub==='search'?'block':'none';
+  document.getElementById('ipjum-sec-my').style.display=sub==='my'?'block':'none';
+  document.getElementById('ipjum-sec-community').style.display=sub==='community'?'block':'none';
+  document.getElementById('isub-search').classList.toggle('active',sub==='search');
+  document.getElementById('isub-my').classList.toggle('active',sub==='my');
+  document.getElementById('isub-community').classList.toggle('active',sub==='community');
+  if(sub==='search')ensureRejectCache(()=>renderSearchMemos());
+  if(sub==='my')renderIpjum();
+  if(sub==='community'){loadComm();markCommSeen();}
+}
+
+/* ══════════ 공구 ══════════ */
+const TYPE_CLR={'협찬':{bg:'#FDF0EC',c:'#B25A3E'},'공구예정':{bg:'#E9EEF5',c:'#3E5A8C'},'공구일정 확정':{bg:'#E7EEEC',c:'#264C46'},'입점제안완료':{bg:'#E9EEF5',c:'#3E5A8C'},'입점연락 옴':{bg:'#FFF3E0',c:'#9A7A2A'},'입점진행중':{bg:'#FDF0EC',c:'#B25A3E'},'신청완료':{bg:'#E7EEEC',c:'#264C46'},'입점완료':{bg:'#E7EEEC',c:'#264C46'},'거절':{bg:'#FDE8E8',c:'#C0392B'}};
+function typeBadge(t){const c=TYPE_CLR[t]||{bg:'#F0EEE7',c:'#5B6874'};return`<span class="sch-type" style="background:${c.bg};color:${c.c}">${t}</span>`;}
+let _gonguId=null,_gonguFilter='all';
+function openGonguModal(id=null){_gonguId=id;document.getElementById('gongu-modal-title').textContent=id?'🛒 공구일정 수정':'🛒 공구일정 추가';if(id){const g=(S.gonguSchedules||[]).find(x=>x.id===id);if(g){document.getElementById('g-type').value=g.type;document.getElementById('g-seller').value=g.seller||'';document.getElementById('g-product').value=g.product||'';document.getElementById('g-start').value=g.startDate||'';document.getElementById('g-end').value=g.endDate||'';document.getElementById('g-memo').value=g.memo||'';}}else{document.getElementById('g-type').value='공구예정';['g-seller','g-product','g-memo'].forEach(i=>document.getElementById(i).value='');document.getElementById('g-start').value=today();document.getElementById('g-end').value='';}const w=document.getElementById('gongu-modal');w.style.opacity=1;w.style.pointerEvents='all';document.getElementById('gongu-modal-box').style.transform='translateY(0)';}
+function closeGonguModal(){const w=document.getElementById('gongu-modal');w.style.opacity=0;w.style.pointerEvents='none';document.getElementById('gongu-modal-box').style.transform='translateY(100%)';_gonguId=null;}
+async function saveGongu(){const type=document.getElementById('g-type').value;const seller=document.getElementById('g-seller').value.trim();const product=document.getElementById('g-product').value.trim();const startDate=document.getElementById('g-start').value;const endDate=document.getElementById('g-end').value;const memo=document.getElementById('g-memo').value.trim();if(!product){showToast('상품명을 입력해주세요!');return;}if(!S.gonguSchedules)S.gonguSchedules=[];if(_gonguId){const idx=S.gonguSchedules.findIndex(g=>g.id===_gonguId);if(idx>=0)S.gonguSchedules[idx]={...S.gonguSchedules[idx],type,seller,product,startDate,endDate,memo};}else{S.gonguSchedules.unshift({id:Date.now(),type,seller,product,startDate,endDate,memo});}await fbSave();closeGonguModal();renderGongu();showToast(_gonguId?'✅ 수정됐어요!':'🛒 추가됐어요!');}
+async function delGongu(id){if(!confirm('삭제할까요?'))return;S.gonguSchedules=(S.gonguSchedules||[]).filter(g=>g.id!==id);await fbSave();renderGongu();showToast('삭제됐어요');}
+function filterGongu(f,btn){_gonguFilter=f;document.querySelectorAll('#gongu-filter .filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderGongu();}
+function shareGongu(id){const g=(S.gonguSchedules||[]).find(x=>x.id===id);if(!g)return;const dateStr=g.startDate&&g.endDate?`${g.startDate} ~ ${g.endDate}`:g.startDate||'-';const msg=`🛒 [${g.type}] 공유드려요!\n\n셀러: ${g.seller||'-'}\n상품: ${g.product}\n일정: ${dateStr}${g.memo?'\n메모: '+g.memo:''}`;navigator.clipboard.writeText(msg).then(()=>showToast('📋 복사됐어요! 메리님께 전달해주세요')).catch(()=>{});}
+function renderGongu(){const list=document.getElementById('gongu-list');if(!list)return;let items=(S.gonguSchedules||[]);if(_gonguFilter!=='all')items=items.filter(g=>g.type===_gonguFilter);if(items.length===0){list.innerHTML=`<div class="empty-state">아직 공구일정이 없어요 🛒<br>+ 추가 버튼으로 등록해보세요!</div>`;return;}list.innerHTML=items.map(g=>`<div class="sch-card">${typeBadge(g.type)}<div class="sch-title">${esc(g.product)}</div><div class="sch-detail">${g.seller?`📱 ${esc(g.seller)}<br>`:''}${g.startDate?`📅 ${g.startDate}${g.endDate?' ~ '+g.endDate:''}<br>`:''}${g.memo?`📝 ${esc(g.memo)}`:''}</div><div class="sch-actions"><button class="sch-edit" onclick="openGonguModal(${g.id})">✏️ 수정</button><button class="sch-del-btn" onclick="delGongu(${g.id})">🗑 삭제</button></div>${(g.type==='공구일정 확정'||g.type==='협찬')?`<button class="share-btn" onclick="shareGongu(${g.id})">📋 공유 문구 복사</button>`:''}</div>`).join('');}
+
+/* ══════════ 제품이슈 (전체 공유) ══════════ */
+function loadProductIssues(){
+  if(!DB)return;
+  const listEl=document.getElementById('issue-list');
+  const countEl=document.getElementById('issue-count');
+  if(listEl)listEl.innerHTML='<div style="text-align:center;padding:24px;color:var(--m);font-size:13px">불러오는 중...</div>';
+  DB.ref('shared/productIssues').once('value',snap=>{
+    const data=snap.val()||{};
+    const items=Object.entries(data).map(([id,v])=>({id,...v})).sort((a,b)=>(b.ts||0)-(a.ts||0));
+    if(countEl)countEl.textContent=`총 ${items.length}건`;
+    if(!listEl)return;
+    if(!items.length){listEl.innerHTML='<div class="empty-state">⚠️<br>등록된 이슈가 없어요</div>';return;}
+    listEl.innerHTML=items.map(item=>`
+      <div class="sch-card" style="border-left:3px solid var(--warn)">
+        <div style="font-size:11px;color:var(--m);margin-bottom:5px">📅 ${item.dateStr||''}${item.who?' · '+esc(item.who)+' 님 제보':(item.from==='admin'?' · 메리':'')}</div>
+        <div class="sch-title">${esc(item.brand||'')}${item.product?' - '+esc(item.product):''}</div>
+        <div style="font-size:13px;color:var(--warn);background:var(--wbg);border-radius:8px;padding:8px 10px;line-height:1.6">${esc(item.body||'')}</div>
+      </div>`).join('');
+  },err=>{
+    if(listEl)listEl.innerHTML='<div class="empty-state">⚠️<br>불러오기 실패. 새로고침해주세요.</div>';
+  });
+}
+function submitStudentProductIssue(){
+  if(!DB){showToast('연결 오류');return;}
+  const brand=document.getElementById('si-brand').value.trim();
+  const product=document.getElementById('si-product').value.trim();
+  const body=document.getElementById('si-body').value.trim();
+  if(!brand){showToast('브랜드명을 입력해주세요');return;}
+  if(!body){showToast('이슈 내용을 입력해주세요');return;}
+  const now=new Date(); const dateStr=(now.getMonth()+1)+'/'+now.getDate();
+  const maskedName=S.name.length>=2?S.name[0]+'○'.repeat(S.name.length-1):S.name;
+  DB.ref('shared/productIssues').push({brand,product,body,dateStr,from:'student',who:maskedName,whoReal:S.name,ts:Date.now()}).then(()=>{
+    showToast('✅ 이슈가 등록됐어요! 전체 수강생에게 공개됩니다.');
+    markIssuesSeen();
+    document.getElementById('si-brand').value=''; document.getElementById('si-product').value=''; document.getElementById('si-body').value='';
+    loadProductIssues();
+  }).catch(()=>showToast('오류가 발생했어요'));
+}
+
+/* ══════════ 입점 (입점소통방 공유) ══════════ */
+let _commCache=[],_commCacheLoaded=false,_commPage=0;
+const COMM_PER_PAGE=20;
+function ensureRejectCache(cb){if(!DB)return;if(_commCacheLoaded){if(cb)cb();return;}DB.ref('shared/rejectList').once('value').then(snap=>{const items=[];snap.forEach(c=>{const v=c.val();items.push({id:c.key,company:v.company||'',product:v.product||'',reason:v.reason||'',who:v.who||'',dateStr:v.dateStr||''});});_commCache=items;_commCacheLoaded=true;if(cb)cb();});}
+function findRejectMatches(company){const q=(company||'').trim();if(!q||q.length<2)return[];return _commCache.filter(r=>r.company&&(r.company.includes(q)||q.includes(r.company)));}
+
+/* ══════════ 입점소통방 (전체 공유 거절 이력) ══════════ */
+function loadComm(){
+  if(!DB){renderComm();return;}
+  const el=document.getElementById('comm-list');
+  if(el)el.innerHTML='<div style="text-align:center;padding:24px;color:var(--m);font-size:13px">불러오는 중...</div>';
+  DB.ref('shared/rejectList').once('value',snap=>{
+    const items=[];snap.forEach(c=>{const v=c.val();items.push({id:c.key,company:v.company||'',product:v.product||'',reason:v.reason||'',who:v.who||'',dateStr:v.dateStr||'',ts:v.ts||0});});
+    items.reverse();_commCache=items;_commCacheLoaded=true;_commPage=0;renderComm();
+  });
+}
+function commSearchChanged(){_commPage=0;renderComm();}
+function goCommPage(page){_commPage=page;renderComm();document.getElementById('ipjum-sec-community')?.scrollIntoView({behavior:'smooth',block:'start'});}
+function renderComm(){
+  const q=(document.getElementById('comm-search')?.value||'').trim().toLowerCase();
+  let data=q?_commCache.filter(d=>(d.company||'').toLowerCase().includes(q)||(d.product||'').toLowerCase().includes(q)):_commCache;
+  const countEl=document.getElementById('comm-count');
+  if(countEl)countEl.textContent=`총 ${data.length}건 등록됨`;
+  const el=document.getElementById('comm-list');
+  const pgEl=document.getElementById('comm-pagination');
+  if(!el)return;
+  if(!data.length){
+    el.innerHTML=`<div style="text-align:center;padding:36px 0;color:var(--m)"><div style="font-size:36px;margin-bottom:10px">${q?'🔍':'🎉'}</div><div style="font-size:13px;line-height:1.6">${q?`"${q}" 검색 결과가 없어요`:'아직 등록된 거절 업체가 없어요<br>첫 번째로 등록해보세요!'}</div></div>`;
+    if(pgEl)pgEl.innerHTML='';
+    return;
+  }
+  const totalPages=Math.ceil(data.length/COMM_PER_PAGE);
+  if(_commPage>=totalPages)_commPage=totalPages-1;
+  if(_commPage<0)_commPage=0;
+  const pageData=data.slice(_commPage*COMM_PER_PAGE,(_commPage+1)*COMM_PER_PAGE);
+  el.innerHTML=pageData.map(d=>`<div class="sch-card" style="border-left:3px solid var(--danger)"><div style="display:flex;align-items:center;margin-bottom:6px;gap:6px"><span class="sch-type" style="background:var(--dbg);color:var(--danger)">🔴 거절</span><span style="font-size:14px;font-weight:900">${esc(d.company)}</span></div><div class="sch-detail">📦 ${esc(d.product)}</div>${d.reason?`<div style="font-size:12px;color:var(--danger);background:var(--dbg);border-radius:8px;padding:8px 10px;margin-top:6px;line-height:1.6">💬 ${esc(d.reason)}</div>`:''}<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--m);margin-top:8px"><span>👤 ${esc(d.who)}</span><span>${d.dateStr}</span></div></div>`).join('');
+  if(pgEl){
+    if(totalPages<=1){pgEl.innerHTML='';}
+    else{
+      let pgHtml='';
+      pgHtml+=`<button onclick="goCommPage(${_commPage-1})" ${_commPage===0?'disabled':''} style="border:1.5px solid var(--bd);background:#fff;border-radius:8px;padding:7px 12px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;color:var(--m);opacity:${_commPage===0?'.35':'1'}">‹</button>`;
+      const start=Math.max(0,Math.min(_commPage-2,totalPages-5));
+      const end=Math.min(totalPages,start+5);
+      for(let i=start;i<end;i++){
+        const isActive=i===_commPage;
+        pgHtml+=`<button onclick="goCommPage(${i})" style="border:1.5px solid ${isActive?'var(--g)':'var(--bd)'};background:${isActive?'var(--g)':'#fff'};border-radius:8px;padding:7px 11px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;color:${isActive?'#fff':'var(--m)'}">${i+1}</button>`;
+      }
+      pgHtml+=`<button onclick="goCommPage(${_commPage+1})" ${_commPage===totalPages-1?'disabled':''} style="border:1.5px solid var(--bd);background:#fff;border-radius:8px;padding:7px 12px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;color:var(--m);opacity:${_commPage===totalPages-1?'.35':'1'}">›</button>`;
+      pgEl.innerHTML=pgHtml;
+    }
+  }
+}
+function checkCommDup(v){
+  const q=v.trim().toLowerCase();const warn=document.getElementById('comm-dup-warn');
+  if(!q||!_commCache.length){warn.style.display='none';return;}
+  const found=_commCache.find(d=>(d.company||'').toLowerCase().includes(q));
+  if(found){warn.innerHTML=`⚠️ 이미 등록된 업체예요!<br><strong>${esc(found.company)}</strong> — ${esc(found.who)} 등록 · ${found.dateStr}`;warn.style.display='block';}
+  else{warn.style.display='none';}
+}
+function openCommModal(){
+  document.getElementById('c-company').value='';document.getElementById('c-product').value='';document.getElementById('c-reason').value='';document.getElementById('comm-dup-warn').style.display='none';
+  ensureRejectCache();
+  const w=document.getElementById('comm-modal');w.style.opacity=1;w.style.pointerEvents='all';document.getElementById('comm-modal-box').style.transform='translateY(0)';
+}
+function closeCommModal(){const w=document.getElementById('comm-modal');w.style.opacity=0;w.style.pointerEvents='none';document.getElementById('comm-modal-box').style.transform='translateY(100%)';}
+async function saveCommReject(){
+  const company=document.getElementById('c-company').value.trim();
+  const product=document.getElementById('c-product').value.trim();
+  const reason=document.getElementById('c-reason').value.trim();
+  if(!company||!product){showToast('업체명과 제품명을 입력해주세요!');return;}
+  if(!DB){showToast('연결 오류');return;}
+  const d=new Date();const dateStr=`${d.getMonth()+1}/${d.getDate()}`;
+  const maskedName=S.name.length>=2?S.name[0]+'○'.repeat(S.name.length-1):S.name;
+  const entry={company,product,reason,who:maskedName,whoReal:S.name,dateStr,ts:Date.now()};
+  try{
+    await DB.ref('shared/rejectList').push(entry);
+    _commCache.unshift({id:'temp_'+Date.now(),...entry});
+    closeCommModal();renderComm();
+    showToast('✅ 등록됐어요! 수강생 모두에게 공유됩니다 🙌');
+    markCommSeen();
+  }catch(e){showToast('저장 오류');}
+}
+
+function checkIpjumReject(){const val=document.getElementById('i-companyname').value;const alertEl=document.getElementById('i-reject-alert');if(!val.trim()){alertEl.style.display='none';return;}ensureRejectCache(()=>{const matches=findRejectMatches(val);if(matches.length){alertEl.style.display='block';alertEl.innerHTML=`🚫 <b>입점소통방에 이력 있음</b> (${matches.length}건)<br>`+matches.slice(0,2).map(m=>`· ${esc(m.product||'')} — ${esc(m.reason||'')}`).join('<br>');}else{alertEl.style.display='none';}});}
+
+/* ══════════ 입점서치 메모 ══════════ */
+function checkSearchMemoReject(){
+  const val=document.getElementById('sm-company').value;
+  const alertEl=document.getElementById('sm-reject-alert');
+  const statusEl=document.getElementById('sm-check-status');
+  if(!val.trim()){alertEl.style.display='none';statusEl.textContent='';return;}
+  ensureRejectCache(()=>{
+    const matches=findRejectMatches(val);
+    if(matches.length){alertEl.style.display='block';alertEl.innerHTML=`🚫 <b>입점소통방에 이력 있음</b> (${matches.length}건)<br>`+matches.slice(0,2).map(m=>`· ${esc(m.product||'')} — ${esc(m.reason||'')}`).join('<br>');statusEl.textContent='';}
+    else{alertEl.style.display='none';statusEl.textContent='✓ 입점소통방에 이력 없음';}
+  });
+}
+function toggleSmEmail(){
+  const method=document.getElementById('sm-method').value;
+  const wrap=document.getElementById('sm-email-wrap');
+  if(wrap)wrap.style.display=method==='메일'?'block':'none';
+}
+async function addSearchMemo(){
+  const company=document.getElementById('sm-company').value.trim();
+  const url=document.getElementById('sm-url').value.trim();
+  const method=document.getElementById('sm-method').value;
+  const email=method==='메일'?document.getElementById('sm-email').value.trim():'';
+  const product=document.getElementById('sm-product').value.trim();
+  const note=document.getElementById('sm-note').value.trim();
+  if(!company){showToast('회사명을 입력해주세요!');return;}
+  if(!S.searchMemos)S.searchMemos=[];
+  S.searchMemos.unshift({id:Date.now(),company,url,method,email,product,note});
+  await fbSave();
+  document.getElementById('sm-company').value='';document.getElementById('sm-url').value='';document.getElementById('sm-product').value='';document.getElementById('sm-note').value='';document.getElementById('sm-email').value='';document.getElementById('sm-method').value='메일';toggleSmEmail();
+  document.getElementById('sm-reject-alert').style.display='none';document.getElementById('sm-check-status').textContent='';
+  renderSearchMemos();
+  showToast('📌 메모로 저장됐어요!');
+}
+async function deleteSearchMemo(id){
+  if(!confirm('이 메모를 삭제할까요?'))return;
+  S.searchMemos=(S.searchMemos||[]).filter(m=>m.id!==id);
+  await fbSave(); renderSearchMemos(); showToast('삭제됐어요');
+}
+async function moveSearchMemoToIpjum(id){
+  const memo=(S.searchMemos||[]).find(m=>m.id===id);
+  if(!memo)return;
+  S.searchMemos=(S.searchMemos||[]).filter(m=>m.id!==id);
+  if(!S.ipjumItems)S.ipjumItems=[];
+  S.ipjumItems.unshift({
+    id:Date.now(), type:'입점제안완료', product:memo.product||'', companyName:memo.company||'',
+    memo:memo.note||'', applyDate:today()
+  });
+  await fbSave(); renderSearchMemos(); renderIpjum();
+  showToast('🏪 입점관리로 옮겼어요! "입점제안완료" 상태로 등록됐어요');
+}
+function renderSearchMemos(){
+  const list=document.getElementById('search-memo-list'); const empty=document.getElementById('search-memo-empty');
+  if(!list||!empty)return;
+  const memos=S.searchMemos||[];
+  if(memos.length===0){list.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  list.innerHTML=memos.map(m=>{
+    const matches=findRejectMatches(m.company);
+    return `<div class="sch-card" style="border-left:3px solid var(--navy)">
+      <span class="sch-type" style="background:var(--card);color:var(--navy)">📌 서치</span>
+      <div class="sch-title">${esc(m.company)}</div>
+      <div class="sch-detail">${m.url?`🔗 ${esc(m.url)}<br>`:''}${m.method?`📧 제안방법: ${esc(m.method)}${m.method==='메일'&&m.email?' — '+esc(m.email):''}`:''}</div>
+      ${m.product?`<div class="sch-detail">📦 ${esc(m.product)}</div>`:''}
+      ${m.note?`<div style="font-size:12px;color:var(--t);background:var(--card);border-radius:8px;padding:8px 10px;margin-top:6px;line-height:1.6">${esc(m.note)}</div>`:''}
+      ${matches.length?`<div style="margin-top:8px;background:#FDF3F0;border:1.5px solid #F0C0C0;border-radius:10px;padding:10px 12px;font-size:12px;color:#a03030;line-height:1.6">🚫 <b>입점소통방에 이력 있음</b> (${matches.length}건)<br>`+matches.slice(0,2).map(mm=>`· ${esc(mm.product||'')} — ${esc(mm.reason||'')}`).join('<br>')+`</div>`:''}
+      <div class="sch-actions">
+        <button class="sch-edit" onclick="moveSearchMemoToIpjum(${m.id})">🏪 입점관리로 옮기기</button>
+        <button class="sch-del-btn" onclick="deleteSearchMemo(${m.id})">🗑 삭제</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+let _ipjumId=null,_ipjumFilter='all';
+function toggleCompletionDate(){const t=document.getElementById('i-type').value;const wrap=document.getElementById('i-completion-wrap');if(wrap)wrap.style.display=t==='입점완료'?'block':'none';}
+function toggleIEmail(){const m=document.getElementById('i-method').value;const wrap=document.getElementById('i-email-wrap');if(wrap)wrap.style.display=m==='메일'?'block':'none';}
+function openIpjumModal(id=null){
+  _ipjumId=id;document.getElementById('ipjum-modal-title').textContent=id?'🏪 입점 수정':'🏪 입점 추가';
+  document.getElementById('i-reject-alert').style.display='none'; ensureRejectCache();
+  if(id){
+    const i=(S.ipjumItems||[]).find(x=>x.id===id);
+    if(i){
+      document.getElementById('i-type').value=i.type||'입점제안완료';
+      document.getElementById('i-companyname').value=i.companyName||'';
+      document.getElementById('i-product').value=i.product||'';
+      document.getElementById('i-company').value=i.company||'';
+      document.getElementById('i-method').value=i.method||'메일';
+      document.getElementById('i-email').value=i.email||'';
+      document.getElementById('i-apply').value=i.applyDate||'';
+      document.getElementById('i-sentdate').value=i.sentDate||'';
+      document.getElementById('i-completion').value=i.completionDate||'';
+      document.getElementById('i-listchecked').checked=!!i.listChecked;
+      document.getElementById('i-roomlogged').checked=!!i.roomLogged;
+      document.getElementById('i-memo').value=i.memo||'';
+    }
+  }else{
+    document.getElementById('i-type').value='입점제안완료';
+    ['i-companyname','i-product','i-company','i-memo','i-email'].forEach(x=>document.getElementById(x).value='');
+    document.getElementById('i-method').value='메일';
+    document.getElementById('i-apply').value=today();
+    document.getElementById('i-sentdate').value='';
+    document.getElementById('i-completion').value='';
+    document.getElementById('i-listchecked').checked=false;
+    document.getElementById('i-roomlogged').checked=false;
+  }
+  toggleCompletionDate(); toggleIEmail();
+  const w=document.getElementById('ipjum-modal');w.style.opacity=1;w.style.pointerEvents='all';document.getElementById('ipjum-modal-box').style.transform='translateY(0)';
+}
+function closeIpjumModal(){const w=document.getElementById('ipjum-modal');w.style.opacity=0;w.style.pointerEvents='none';document.getElementById('ipjum-modal-box').style.transform='translateY(100%)';_ipjumId=null;}
+async function saveIpjum(){
+  const type=document.getElementById('i-type').value;
+  const companyName=document.getElementById('i-companyname').value.trim();
+  const product=document.getElementById('i-product').value.trim();
+  const company=document.getElementById('i-company').value.trim();
+  const method=document.getElementById('i-method').value;
+  const email=method==='메일'?document.getElementById('i-email').value.trim():'';
+  const applyDate=document.getElementById('i-apply').value;
+  const sentDate=document.getElementById('i-sentdate').value;
+  const completionDate=type==='입점완료'?document.getElementById('i-completion').value:'';
+  const listChecked=document.getElementById('i-listchecked').checked;
+  const roomLogged=document.getElementById('i-roomlogged').checked;
+  const memo=document.getElementById('i-memo').value.trim();
+  if(!product){showToast('제품명을 입력해주세요!');return;}
+  if(!S.ipjumItems)S.ipjumItems=[];
+  if(_ipjumId){
+    const idx=S.ipjumItems.findIndex(i=>i.id===_ipjumId);
+    if(idx>=0)S.ipjumItems[idx]={...S.ipjumItems[idx],type,companyName,product,company,method,email,applyDate,sentDate,completionDate,listChecked,roomLogged,memo};
+  }else{
+    S.ipjumItems.unshift({id:Date.now(),type,companyName,product,company,method,email,applyDate,sentDate,completionDate,listChecked,roomLogged,memo});
+  }
+  if(type==='거절'&&companyName&&DB){
+    const d=new Date();const dateStr=`${d.getMonth()+1}/${d.getDate()}`;
+    const maskedName=S.name.length>=2?S.name[0]+'○'.repeat(S.name.length-1):S.name;
+    try{await DB.ref('shared/rejectList').push({company:companyName,product,reason:memo,who:maskedName,whoReal:S.name,dateStr,ts:Date.now()});}catch(e){}
+  }
+  await fbSave();closeIpjumModal();renderIpjum();showToast(_ipjumId?'✅ 수정됐어요!':'🏪 추가됐어요!');
+}
+async function delIpjum(id){if(!confirm('삭제할까요?'))return;S.ipjumItems=(S.ipjumItems||[]).filter(i=>i.id!==id);await fbSave();renderIpjum();showToast('삭제됐어요');}
+
+function daysBetween(dateStr){const then=new Date(dateStr);const now=new Date();return Math.floor((now-then)/86400000);}
+function followupStatusIpjum(item){
+  if(!item.sentDate||item.type==='거절'||item.type==='입점완료')return null;
+  const days=daysBetween(item.sentDate);
+  if(days>=7)return {text:`⚠️ ${days}일 경과 — 팔로업 필요`,cls:'due'};
+  return {text:`대기 (${days}일)`,cls:'wait'};
+}
+function toggleRejectInlineForm(id){
+  const form=document.getElementById('ipjum-reject-form-'+id);
+  if(form)form.style.display=form.style.display==='none'?'block':'none';
+}
+async function registerIpjumReject(id){
+  const reasonEl=document.getElementById('ipjum-reject-reason-'+id);
+  const reason=reasonEl?reasonEl.value.trim():'';
+  if(!reason){showToast('거절 사유를 입력해주세요!');return;}
+  const idx=(S.ipjumItems||[]).findIndex(i=>i.id===id);
+  if(idx<0)return;
+  const item=S.ipjumItems[idx];
+  if(!DB){showToast('연결 오류');return;}
+  const d=new Date(); const dateStr=`${d.getMonth()+1}/${d.getDate()}`;
+  const maskedName=S.name.length>=2?S.name[0]+'○'.repeat(S.name.length-1):S.name;
+  const entry={company:item.companyName||'',product:item.product||'',reason,who:maskedName,whoReal:S.name,dateStr,ts:Date.now()};
+  try{
+    await DB.ref('shared/rejectList').push(entry);
+    _commCache.unshift({id:'temp_'+Date.now(),...entry});
+    markCommSeen();
+    item.type='거절'; item.rejectReason=reason;
+    await fbSave();
+    renderIpjum();
+    showToast('✅ 거절 등록 + 입점소통방에 자동 공유됐어요!');
+  }catch(e){showToast('저장 오류');}
+}
+
+function openIssueModal(id){
+  document.getElementById('issue-ipjum-id').value=id;
+  const item=(S.ipjumItems||[]).find(i=>i.id===id);
+  document.getElementById('issue-report-text').value=item?.issueReport?.text||'';
+  const w=document.getElementById('issue-report-modal');w.style.opacity=1;w.style.pointerEvents='all';document.getElementById('issue-report-modal-box').style.transform='translateY(0)';
+}
+function closeIssueModal(){const w=document.getElementById('issue-report-modal');w.style.opacity=0;w.style.pointerEvents='none';document.getElementById('issue-report-modal-box').style.transform='translateY(100%)';}
+async function submitIssueReport(){
+  const id=parseInt(document.getElementById('issue-ipjum-id').value);
+  const text=document.getElementById('issue-report-text').value.trim();
+  if(!text){showToast('이슈 내용을 입력해주세요!');return;}
+  const idx=(S.ipjumItems||[]).findIndex(i=>i.id===id);
+  if(idx<0)return;
+  S.ipjumItems[idx].issueReport={text,date:today()};
+  await fbSave();
+  if(DB){
+    const item=S.ipjumItems[idx];
+    const now=new Date(); const dateStr=(now.getMonth()+1)+'/'+now.getDate();
+    await DB.ref('shared/productIssues').push({brand:item.product||'',product:'',body:text,dateStr,from:'student',ts:Date.now()});
+  }
+  closeIssueModal();
+  renderIpjum();
+  showToast('⚠ 이슈가 등록됐어요! 전체 수강생에게 공개됩니다.');
+}
+
+function filterIpjum(f,btn){_ipjumFilter=f;document.querySelectorAll('#ipjum-filter .filter-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');renderIpjum();}
+function renderIpjum(){
+  const list=document.getElementById('ipjum-list');if(!list)return;
+  let items=(S.ipjumItems||[]);
+  if(_ipjumFilter==='__followup') items=items.filter(i=>{const fu=followupStatusIpjum(i);return fu&&fu.cls==='due';});
+  else if(_ipjumFilter!=='all') items=items.filter(i=>i.type===_ipjumFilter);
+  if(items.length===0){list.innerHTML=`<div class="empty-state">아직 입점 항목이 없어요 🏪<br>+ 추가 버튼으로 등록해보세요!</div>`;return;}
+  list.innerHTML=items.map(i=>{
+    const fu=followupStatusIpjum(i);
+    const matches=i.companyName?findRejectMatches(i.companyName):[];
+    const isRejected=i.type==='거절';
+    return `<div class="sch-card">${typeBadge(i.type)}<div class="sch-title">${esc(i.product)}</div>
+    ${i.companyName?`<div style="font-size:12.5px;color:var(--m);font-weight:700;margin-bottom:4px">🏢 ${esc(i.companyName)}</div>`:''}
+    <div class="sch-detail">${i.method?`📧 제안방법: ${esc(i.method)}${i.method==='메일'&&i.email?' — '+esc(i.email):''}<br>`:''}${i.company?`🔗 ${esc(i.company)}<br>`:''}${i.applyDate?`📅 신청일: ${i.applyDate}<br>`:''}${i.sentDate?`📤 제안발송일: ${i.sentDate}<br>`:''}${i.completionDate?`✅ 완료일: ${i.completionDate}<br>`:''}${i.memo?`📝 ${esc(i.memo)}`:''}</div>
+    <div style="display:flex;gap:14px;margin:8px 0;font-size:11.5px;color:var(--m);font-weight:700">
+      <span>${i.listChecked?'☑':'☐'} 입점사목록</span>
+      <span>${i.roomLogged?'☑':'☐'} 소통방 기록</span>
+    </div>
+    ${fu?`<span class="sch-type" style="background:${fu.cls==='due'?'var(--dbg)':'var(--wbg)'};color:${fu.cls==='due'?'var(--danger)':'var(--warn)'}">${fu.text}</span>`:''}
+    ${matches.length&&!isRejected?`<div style="margin-top:8px;background:#FDF3F0;border:1.5px solid #F0C0C0;border-radius:10px;padding:10px 12px;font-size:12px;color:#a03030;line-height:1.6">🚫 <b>입점소통방에 이력 있음</b> (${matches.length}건)<br>`+matches.slice(0,2).map(m=>`· ${esc(m.product||'')} — ${esc(m.reason||'')}`).join('<br>')+`</div>`:''}
+    ${isRejected?`<div style="font-size:11.5px;color:#a03030;background:#FDF3F0;border-radius:8px;padding:8px 10px;margin-top:8px;line-height:1.6">🔴 <b>거절 등록됨</b> — 입점소통방에도 공유됐어요${i.rejectReason?'<br>사유: '+esc(i.rejectReason):''}</div>`:''}
+    <div class="sch-actions"><button class="sch-edit" onclick="openIpjumModal(${i.id})">✏️ 수정</button><button class="sch-del-btn" onclick="delIpjum(${i.id})">🗑 삭제</button></div>
+    ${!isRejected?`
+      <div id="ipjum-reject-form-${i.id}" style="display:none;margin-top:10px;background:#FFF8F8;border:1.5px solid #F5C6CB;border-radius:10px;padding:10px">
+        <label style="font-size:11px;color:#a03030;font-weight:700;margin-bottom:5px;display:block">거절 사유</label>
+        <input type="text" id="ipjum-reject-reason-${i.id}" placeholder="예) 자체공구만 진행" style="margin-bottom:8px">
+        <button class="btn" style="background:var(--danger);color:#fff;margin-top:0" onclick="registerIpjumReject(${i.id})">🔴 거절 등록 + 소통방 자동 공유</button>
+      </div>
+      <button class="sch-del-btn" style="width:100%;margin-top:8px" onclick="toggleRejectInlineForm(${i.id})">🔴 이 업체 거절 처리하기</button>
+    `:''}
+    ${i.type==='입점완료'?`<div style="margin-top:6px">${i.issueReport?`<div style="background:var(--dbg);border:1px solid #F5C6CB;border-radius:8px;padding:7px 10px;font-size:11px;color:var(--danger);margin-bottom:5px"><span style="font-size:10px;font-weight:700;display:block;margin-bottom:2px">⚠ 내가 신고한 이슈</span>${esc(i.issueReport.text)}</div><button class="share-btn" style="background:var(--dbg);color:var(--danger)" onclick="openIssueModal(${i.id})">✏ 이슈 수정</button>`:`<button class="share-btn" style="background:var(--dbg);color:var(--danger)" onclick="openIssueModal(${i.id})">⚠ 이슈 발생 신고</button>`}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+/* ══════════ 공지 (기존 챌린지캘린더와 완전 공유) ══════════ */
+function getTagStyle(){return'background:var(--card);color:var(--navy)';}
+function renderNotices(){const wrap=document.getElementById('notice-list');if(!wrap||!DB)return;DB.ref('sellzupNotices').orderByChild('createdAt').once('value',snap=>{const data=snap.val()||{};const notices=Object.entries(data).map(([id,n])=>({id,...n})).sort((a,b)=>{if(a.pinned&&!b.pinned)return -1;if(!a.pinned&&b.pinned)return 1;return(b.createdAt||0)-(a.createdAt||0);});if(!notices.length){wrap.innerHTML='<div class="empty-state">📢<br>등록된 공지가 없습니다</div>';setBadge('badge-notice',0);return;}wrap.innerHTML=notices.map(n=>`<div class="notice-item" onclick="this.classList.toggle('expanded')"><div class="notice-item-top">${n.pinned?'<span class="notice-tag-chip">📌 고정</span>':''}<span class="notice-tag-chip">${n.tag||'📢 공지'}</span><span class="notice-item-date">${n.dateStr||''}</span></div><div class="notice-item-title">${esc(n.title)}</div><div class="notice-item-body">${esc(n.body||'').replace(/\n/g,'<br>')}</div></div>`).join('');markAllNoticesRead(notices.map(n=>n.id));setBadge('badge-notice',0);});}
+
+/* ══════════ 교육일정 (기존 챌린지캘린더와 완전 공유) ══════════ */
+let _eduCalDate=new Date();
+const EDU_TYPE={off:{label:'오프교육',cls:'ev-off'},zoom:{label:'줌스터디/줌교육',cls:'ev-zoom'},feedback:{label:'피드백만 진행',cls:'ev-feedback'},holiday:{label:'휴일',cls:'ev-holiday'},etc:{label:'기타',cls:'ev-etc'}};
+function eduCalPrev(){_eduCalDate=new Date(_eduCalDate.getFullYear(),_eduCalDate.getMonth()-1,1);renderEduCal();}
+function eduCalNext(){_eduCalDate=new Date(_eduCalDate.getFullYear(),_eduCalDate.getMonth()+1,1);renderEduCal();}
+function eduCalToday(){_eduCalDate=new Date();renderEduCal();}
+function renderEduCal(){const year=_eduCalDate.getFullYear();const month=_eduCalDate.getMonth();document.getElementById('edu-month-label').textContent=year+'년 '+(month+1)+'월';const firstDow=new Date(year,month,1).getDay();const lastDate=new Date(year,month+1,0).getDate();const _td=new Date();const todayStr=_td.getFullYear()+'-'+String(_td.getMonth()+1).padStart(2,'0')+'-'+String(_td.getDate()).padStart(2,'0');const monthKey=year+'-'+String(month+1).padStart(2,'0');if(!DB){renderEduGrid(firstDow,lastDate,todayStr,year,month,[]);return;}DB.ref('eduEvents').orderByChild('date').startAt(monthKey+'-01').endAt(monthKey+'-31').once('value',snap=>{const data=snap.val()||{};const events=Object.values(data);renderEduGrid(firstDow,lastDate,todayStr,year,month,events);});}
+function renderEduGrid(firstDow,lastDate,todayStr,year,month,events){const grid=document.getElementById('edu-cal-grid');if(!grid)return;let html='';for(let i=0;i<firstDow;i++)html+=`<div class="edu-cell edu-other"></div>`;for(let d=1;d<=lastDate;d++){const dateStr=year+'-'+String(month+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');const isToday=dateStr===todayStr;const dayEvts=events.filter(e=>e.date===dateStr);let evHtml=dayEvts.map(e=>{const t=EDU_TYPE[e.type]||EDU_TYPE.etc;return`<span class="edu-event ${t.cls}">${e.title||t.label}</span>`;}).join('');html+=`<div class="edu-cell${isToday?' edu-today':''}"><div class="edu-dn">${d}</div>${evHtml}</div>`;}grid.innerHTML=html;}
+
+/* ══════════ 관리자 ══════════ */
+function doAdminLogin(){const pw=document.getElementById('a-pw').value;if(pw!==ADMIN_PW){showToast('비밀번호가 틀렸습니다');return;}show('sc-admin');switchAdminTab('students');}
+function switchAdminTab(tab){document.querySelectorAll('.admin-tab-btn').forEach((b,i)=>b.classList.toggle('active',['students','gongu','ipjumstat','notice','edu','issue'][i]===tab));document.querySelectorAll('.admin-tab-section').forEach(s=>s.classList.remove('active'));document.getElementById('admin-sec-'+tab).classList.add('active');if(tab==='students')loadAdmin();if(tab==='notice')loadAdminNotices();if(tab==='edu')loadAdminEdu();if(tab==='issue')loadAdminProductIssues();if(tab==='gongu')loadAdminGongu();if(tab==='ipjumstat')loadAdminIpjumStat();}
+
+let _adminAllList=[],_adminFilter='all',_programFilter='all';
+function filterProgram(p,btn){_programFilter=p;document.querySelectorAll('#admin-sec-students .filter-btn').forEach(b=>{if(b.id&&b.id.startsWith('pf-'))b.classList.remove('active');});btn.classList.add('active');renderAdminList();}
+function filterAdmin(f,btn){_adminFilter=f;document.querySelectorAll('#admin-sec-students .filter-btn').forEach(b=>{if(b.id&&b.id.startsWith('af-'))b.classList.remove('active');});if(btn)btn.classList.add('active');renderAdminList();}
+
+async function loadAdmin(){
+  document.getElementById('admin-summary').textContent='로딩 중...';
+  document.getElementById('admin-list').innerHTML='<div class="loader">불러오는 중...</div>';
+  try{
+    const snap=await DB.ref('students').once('value');const data=snap.val();
+    if(!data){document.getElementById('admin-summary').textContent='등록된 수강생이 없습니다';document.getElementById('admin-list').innerHTML='';document.getElementById('admin-dashboard').innerHTML='';return;}
+    const list=Object.entries(data).map(([key,s])=>({...s,_key:key}));
+    const sellzupCnt=list.filter(s=>s.program==='sellzup').length;
+    const challengeCnt=list.filter(s=>s.program!=='sellzup').length;
+    const queueCnt=list.filter(s=>queueStatus(s)==='queue').length;
+    const freeReviewCnt=list.filter(s=>queueStatus(s)==='freeReview').length;
+    const noContentCnt=list.filter(s=>queueStatus(s)==='noContent').length;
+    const graduatedCnt=list.filter(s=>s.program==='sellzup'&&s.graduated).length;
+    document.getElementById('admin-summary').textContent=`총 ${list.length}명 · 셀즈업 ${sellzupCnt}명 · 기존 챌린지 ${challengeCnt}명`;
+    const dash=document.getElementById('admin-dashboard');
+    if(dash){
+      const cards=[
+        ['⚠️ 미션 확인 대기',queueCnt,'var(--wbg)','var(--warn)','queue'],
+        ['✅ 자유모드 확인 대기',freeReviewCnt,'var(--wbg)','var(--warn)','freeReview'],
+        ['📝 미션 등록 필요',noContentCnt,'var(--card)','var(--m)','noContent'],
+        ['🏆 졸업생',graduatedCnt,'var(--gb)','var(--g)','graduated'],
+      ];
+      dash.innerHTML=cards.map(([label,cnt,bg,color,f])=>`
+        <div onclick="filterAdmin('${f}',document.getElementById('af-${f}'))" style="background:${bg};border-radius:12px;padding:12px;text-align:center;cursor:pointer">
+          <div style="font-size:22px;font-weight:900;color:${color};line-height:1">${cnt}</div>
+          <div style="font-size:10px;color:${color};margin-top:4px;font-weight:700;opacity:.9">${label}</div>
+        </div>`).join('');
+    }
+    _adminAllList=list;
+    renderAdminList();
+  }catch(e){document.getElementById('admin-summary').textContent='오류 발생';console.error(e);}
+}
+
+function queueStatus(s){
+  if(s.program!=='sellzup')return null;
+  if(s.graduated){
+    const logs=s.dailyLogs||{};
+    const dates=Object.keys(logs).sort((a,b)=>b.localeCompare(a));
+    if(dates.length && !logs[dates[0]].reviewed) return 'freeReview';
+    return null;
+  }
+  const day='day'+(s.missionDay||1);
+  const content=(s.missionContent||{})[day];
+  const log=(s.missionLogs||{})[day];
+  if(!content)return 'noContent';
+  if(log&&log.status==='submitted')return 'queue';
+  return null;
+}
+
+function renderAdminList(){
+  let list=[..._adminAllList];
+  if(_programFilter==='sellzup')list=list.filter(s=>s.program==='sellzup');
+  if(_programFilter==='challenge')list=list.filter(s=>s.program!=='sellzup');
+  if(_adminFilter==='queue')list=list.filter(s=>queueStatus(s)==='queue');
+  if(_adminFilter==='freeReview')list=list.filter(s=>queueStatus(s)==='freeReview');
+  if(_adminFilter==='noContent')list=list.filter(s=>queueStatus(s)==='noContent');
+  if(_adminFilter==='graduated')list=list.filter(s=>s.program==='sellzup'&&s.graduated);
+
+  const container=document.getElementById('admin-list');
+  if(!list.length){container.innerHTML=`<div style="padding:32px;text-align:center;color:var(--m);font-size:13px">해당하는 수강생이 없어요 😊</div>`;return;}
+  container.innerHTML='';
+  list.sort((a,b)=>(b.lastActive||'').localeCompare(a.lastActive||''));
+  list.forEach(s=>{
+    const isSellzup=s.program==='sellzup';
+    const qs=queueStatus(s);
+    const card=document.createElement('div');card.className='stu-card';
+    let rightHtml='';
+    if(isSellzup){
+      rightHtml = s.graduated
+        ? `<div class="sc-right"><span class="status-chip done">🏆 졸업</span></div>`
+        : `<div class="sc-right"><div class="sc-day" style="font-size:20px;font-weight:900;color:var(--navy)">${s.missionDay||1}</div><div class="sc-day-lbl" style="font-size:10px;color:var(--m)">번째 미션</div></div>`;
+    } else {
+      rightHtml = `<div class="sc-right"><span class="status-chip" style="background:var(--card);color:var(--m)">기존 챌린지</span></div>`;
+    }
+    card.innerHTML = `<div style="display:flex;align-items:center;gap:12px">
+      <div class="sc-av">${isSellzup?'✦':'🌱'}</div>
+      <div class="sc-info"><div class="sc-name">${esc(s.name)}${isSellzup?' <span style=\"font-size:10px;color:var(--g);font-weight:700\">SELLZ UP</span>':''}</div><div class="sc-detail">마지막 접속: ${s.lastActive||'-'}</div></div>
+      ${rightHtml}
+    </div>
+    <div class="stu-detail" id="detail-${s._key}">${isSellzup?renderSellzupDetail(s):'<div style="font-size:12px;color:var(--m);padding:8px 0">기존 챌린지캘린더 수강생이에요</div>'}
+      ${isSellzup?renderQuickNoteBox(s):''}
+      <div style="padding-top:10px;margin-top:10px;border-top:1px solid var(--bd)">
+        <button onclick="event.stopPropagation();deleteStudent('${s._key}','${esc(s.name)}')" style="width:100%;border:none;background:var(--dbg);color:var(--danger);border-radius:8px;padding:8px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer">🗑 이 수강생 완전히 삭제</button>
+      </div>
+    </div>`;
+    card.addEventListener('click',(e)=>{if(e.target.closest('button')||e.target.closest('textarea')||e.target.closest('input'))return;const d=document.getElementById(`detail-${s._key}`);if(d)d.classList.toggle('open');});
+    container.appendChild(card);
+  });
+}
+
+function renderSellzupDetail(s){
+  if(s.graduated){
+    return renderFreeformAdminDetail(s);
+  }
+  const day='day'+(s.missionDay||1);
+  const content=(s.missionContent||{})[day];
+  const log=(s.missionLogs||{})[day];
+  let html='';
+  if(log&&log.status==='submitted'){
+    const items=(content&&content.items)||[];
+    const checked=log.checklist||[];
+    html += `<div class="mq-card" style="margin:0 0 10px;border-left-color:var(--warn)">
+      <div style="font-size:11px;font-weight:700;color:var(--warn);margin-bottom:6px">⚠️ ${ordinalKr(s.missionDay)} 미션 제출 · 확인 대기중</div>
+      ${items.map((it,i)=>`<div style="font-size:12.5px;padding:3px 0">${checked[i]?'✅':'⬜'} ${esc(it)}</div>`).join('')}
+      ${log.comment?`<div style="margin-top:8px;background:var(--card);border-radius:8px;padding:8px 10px;font-size:12px;line-height:1.6">💬 ${esc(log.comment)}</div>`:'<div style="margin-top:8px;font-size:11px;color:var(--m)">코멘트 없음</div>'}
+      ${log.adminReply?`<div style="margin-top:6px;background:var(--gb);border-radius:8px;padding:8px 10px;font-size:12px;line-height:1.6;color:var(--g)">💌 내 답장: ${esc(log.adminReply)}</div>`:''}
+      <div class="field" style="margin-top:8px"><label>답장 남기기 (선택)</label><textarea id="reply-${s._key}" placeholder="이 사람에게 남길 답장" style="min-height:52px">${esc(log.adminReply||'')}</textarea></div>
+      <button onclick="event.stopPropagation();saveMissionReply('${s._key}')" style="width:100%;border:none;background:var(--card);color:var(--g);border:1.5px solid var(--g);border-radius:8px;padding:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:8px">💌 답장만 저장 (다음 미션은 아직 안 열림)</button>
+      <button onclick="event.stopPropagation();approveMission('${s._key}')" style="margin-top:0;width:100%;border:none;background:var(--g);color:#fff;border-radius:8px;padding:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">✅ 확인 완료 + 다음 미션 열기</button>
+    </div>`;
+  } else if(!content){
+    html += `<div style="font-size:12px;color:var(--warn);font-weight:700;margin-bottom:8px">📝 ${ordinalKr(s.missionDay)} 미션을 아직 등록하지 않았어요</div>`;
+  } else {
+    html += `<div style="font-size:12px;color:var(--m);margin-bottom:8px">${ordinalKr(s.missionDay)} 미션 진행중 (아직 미제출)</div>`;
+  }
+  html += `<div class="day-admin-form" style="background:var(--card);border-radius:10px;padding:12px;margin-top:6px" onclick="event.stopPropagation()">
+    <div style="font-size:11px;font-weight:700;color:var(--m);margin-bottom:8px">✏️ ${ordinalKr(s.missionDay)} 미션 ${content?'수정':'등록'}</div>
+    <div class="field"><label>제목 (선택)</label><input type="text" id="mc-title-${s._key}" value="${esc((content&&content.title)||'')}" placeholder="예) 기초 다지기"></div>
+    <div class="field"><label>할 일 목록 (한 줄에 하나씩)</label><textarea id="mc-items-${s._key}" placeholder="교육사이트 공부하기&#10;인플즈 공지사항 확인하기">${esc(((content&&content.items)||[]).join('\n'))}</textarea></div>
+    <button onclick="event.stopPropagation();saveMissionContent('${s._key}')" style="width:100%;border:none;background:var(--navy);color:#fff;border-radius:8px;padding:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;margin-top:4px">📤 ${ordinalKr(s.missionDay)} 미션 올리기</button>
+  </div>`;
+  return html;
+}
+
+function renderFreeformAdminDetail(s){
+  const logs=s.dailyLogs||{};
+  const dates=Object.keys(logs).sort((a,b)=>b.localeCompare(a));
+  if(!dates.length){
+    return `<div style="font-size:12.5px;color:var(--m);line-height:1.8">아직 자유모드 기록이 없어요.</div>`;
+  }
+  const latestDate=dates[0];
+  const log=logs[latestDate];
+  const reviewed=!!log.reviewed;
+  const todos=log.todos||[];
+  const unreviewedCount=dates.filter(d=>!logs[d].reviewed).length;
+  let html=`<div class="mq-card ${reviewed?'reviewed':''}" style="margin:0 0 10px;border-left-color:${reviewed?'var(--g)':'var(--warn)'}">
+    <div style="font-size:11px;font-weight:700;color:${reviewed?'var(--g)':'var(--warn)'};margin-bottom:6px">${reviewed?'✅':'⚠️'} ${latestDate} 기록 ${reviewed?'· 확인 완료':'· 확인 대기중'}</div>
+    ${todos.length?todos.map(t=>`<div style="font-size:12.5px;padding:3px 0">${t.done?'✅':'⬜'} ${esc(t.text)}</div>`).join(''):'<div style="font-size:12px;color:var(--m)">등록된 할 일 없음</div>'}
+    ${log.result?`<div style="margin-top:8px;background:var(--card);border-radius:8px;padding:8px 10px;font-size:12px;line-height:1.6">✨ ${esc(log.result)}</div>`:''}
+    <button onclick="event.stopPropagation();toggleReviewLog('${s._key}','${latestDate}',${!reviewed})" style="margin-top:10px;width:100%;border:${reviewed?'1.5px solid var(--bd)':'none'};background:${reviewed?'#fff':'var(--g)'};color:${reviewed?'var(--m)':'#fff'};border-radius:8px;padding:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">${reviewed?'확인완료 취소':'✅ 확인 완료로 체크'}</button>
+  </div>
+  ${unreviewedCount>1?`<div style="font-size:11px;color:var(--warn);margin-bottom:6px">그 외 확인 대기 중인 날 ${unreviewedCount-1}건</div>`:''}`;
+  return html;
+}
+
+async function toggleReviewLog(key,date,val){
+  try{
+    await DB.ref('students/'+key).update({[`dailyLogs/${date}/reviewed`]:val});
+  }catch(e){showToast('저장 오류');return;}
+  showToast(val?'✅ 확인 완료로 체크했어요':'확인 표시를 취소했어요');
+  loadAdmin();
+}
+
+function renderQuickNoteBox(s){
+  const notes=s.notes||{};
+  const todayNote=notes[today()]||'';
+  return `<div class="day-admin-form" style="background:var(--card);border-radius:10px;padding:12px;margin-top:10px" onclick="event.stopPropagation()">
+    <div style="font-size:11px;font-weight:700;color:var(--m);margin-bottom:8px">💬 오늘의 한마디 (미션과 무관, 하루만 NEW로 표시돼요)</div>
+    <textarea id="qnote-${s._key}" placeholder="예) 오늘 진행상황 잘 보고 있어요! 화이팅이에요" style="min-height:52px">${esc(todayNote)}</textarea>
+    <button onclick="event.stopPropagation();saveQuickNote('${s._key}')" style="width:100%;border:none;background:var(--navy);color:#fff;border-radius:8px;padding:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;margin-top:6px">💬 한마디 남기기</button>
+  </div>`;
+}
+async function saveQuickNote(key){
+  const el=document.getElementById('qnote-'+key);
+  const text=el.value.trim();
+  if(!text){showToast('내용을 입력해주세요!');return;}
+  try{
+    await DB.ref('students/'+key).update({[`notes/${today()}`]:text});
+  }catch(e){showToast('저장 오류');return;}
+  showToast('💬 한마디를 남겼어요!');
+  loadAdmin();
+}
+
+async function saveMissionContent(key){
+  const titleEl=document.getElementById('mc-title-'+key);
+  const itemsEl=document.getElementById('mc-items-'+key);
+  const title=titleEl.value.trim();
+  const items=itemsEl.value.split('\n').map(x=>x.trim()).filter(Boolean);
+  if(!items.length){showToast('할 일을 한 줄 이상 입력해주세요!');return;}
+  // missionDay는 자주 안 바뀌는 값이라 최신값 확인 차 한 번만 읽음 (그 뒤 쓰기는 해당 day 경로에만 국한)
+  const snap=await DB.ref('students/'+key+'/missionDay').once('value');
+  const missionDay=snap.val()||1;
+  const day='day'+missionDay;
+  try{
+    await DB.ref('students/'+key).update({[`missionContent/${day}`]:{title,items}});
+  }catch(e){showToast('저장 오류');return;}
+  showToast('📤 미션이 올라갔어요!');
+  loadAdmin();
+}
+
+async function saveMissionReply(key){
+  const replyEl=document.getElementById('reply-'+key);
+  const reply=replyEl.value.trim();
+  const snap=await DB.ref('students/'+key+'/missionDay').once('value');
+  const missionDay=snap.val()||1;
+  const day='day'+missionDay;
+  try{
+    await DB.ref('students/'+key).update({[`missionLogs/${day}/adminReply`]:reply});
+  }catch(e){showToast('저장 오류');return;}
+  showToast('💌 답장을 남겼어요!');
+  loadAdmin();
+}
+
+async function approveMission(key){
+  if(!confirm('이 미션을 확인 완료하고 다음 미션을 열까요?'))return;
+  const snap=await DB.ref('students/'+key+'/missionDay').once('value');
+  const missionDay=snap.val()||1;
+  const day='day'+missionDay;
+  const graduating=missionDay>=30;
+  const patch={[`missionLogs/${day}/status`]:'approved'};
+  if(graduating){
+    patch.graduated=true;
+    patch.graduatedDate=today();
+    patch.todos=[]; patch.todosDate=''; patch.result=''; patch.resultDate='';
+  } else {
+    patch.missionDay=missionDay+1;
+  }
+  try{
+    await DB.ref('students/'+key).update(patch);
+  }catch(e){showToast('저장 오류');return;}
+  showToast(graduating?'🏆 30일 미션 졸업! 자유모드로 전환됐어요':'✅ 다음 미션 오픈 준비됐어요');
+  loadAdmin();
+}
+
+async function deleteStudent(key,name){
+  if(!confirm(`정말 "${name}" 수강생을 삭제할까요?\n모든 데이터가 영구적으로 사라져요.`))return;
+  if(!confirm(`한 번 더 확인할게요. 되돌릴 수 없어요.`))return;
+  try{await DB.ref('students/'+key).remove();showToast(`🗑 "${name}" 수강생이 삭제됐어요`);loadAdmin();}catch(e){showToast('삭제 오류');}
+}
+
+/* ══════════ 관리자: 공지 ══════════ */
+function adminSaveNotice(){
+  if(!DB){showToast('연결 오류');return;}
+  const title=document.getElementById('adm-title').value.trim();
+  const body=document.getElementById('adm-body').value.trim();
+  if(!title){showToast('제목을 입력해주세요');return;}
+  const now=new Date();const dateStr=`${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')}`;
+  DB.ref('sellzupNotices').push({title,body,tag:'📢 공지',pinned:false,isNew:true,dateStr,createdAt:Date.now()}).then(()=>{
+    showToast('✅ 공지가 등록됐어요!');document.getElementById('adm-title').value='';document.getElementById('adm-body').value='';loadAdminNotices();
+  });
+}
+function loadAdminNotices(){
+  if(!DB)return;
+  DB.ref('sellzupNotices').orderByChild('createdAt').once('value',snap=>{
+    const data=snap.val()||{};
+    const list=Object.entries(data).map(([id,n])=>({id,...n})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+    const el=document.getElementById('admin-notice-list');
+    if(!list.length){el.innerHTML='<div class="empty-state">등록된 공지가 없습니다</div>';return;}
+    el.innerHTML=list.map(n=>`<div class="sch-card"><div style="font-weight:700;font-size:13.5px">${esc(n.title)}</div><div style="font-size:11px;color:var(--m);margin-top:3px">${n.dateStr||''}</div><button class="sch-del-btn" style="margin-top:8px" onclick="adminDelNotice('${n.id}')">삭제</button></div>`).join('');
+  });
+}
+function adminDelNotice(id){if(!confirm('삭제할까요?'))return;DB.ref('sellzupNotices/'+id).remove().then(()=>{showToast('삭제됐어요');loadAdminNotices();});}
+
+/* ══════════ 관리자: 교육일정 ══════════ */
+function adminSaveEdu(){
+  if(!DB){showToast('연결 오류');return;}
+  const date=document.getElementById('edu-date').value;
+  const title=document.getElementById('edu-title').value.trim();
+  const type=document.getElementById('edu-type').value;
+  if(!date){showToast('날짜를 선택해주세요');return;}
+  if(!title){showToast('내용을 입력해주세요');return;}
+  DB.ref('eduEvents').push({date,title,type,createdAt:Date.now()}).then(()=>{
+    showToast('✅ 일정이 등록됐어요!');document.getElementById('edu-date').value='';document.getElementById('edu-title').value='';loadAdminEdu();
+  });
+}
+function loadAdminEdu(){
+  if(!DB)return;
+  DB.ref('eduEvents').orderByChild('date').once('value',snap=>{
+    const data=snap.val()||{};
+    const list=Object.entries(data).map(([id,e])=>({id,...e})).sort((a,b)=>a.date>b.date?-1:1);
+    const el=document.getElementById('admin-edu-list');
+    if(!list.length){el.innerHTML='<div class="empty-state">등록된 일정이 없습니다</div>';return;}
+    el.innerHTML=list.map(e=>{const t=EDU_TYPE[e.type]||EDU_TYPE.etc;return`<div class="sch-card"><span class="edu-event ${t.cls}" style="display:inline-block;margin-bottom:5px">${t.label}</span><div style="font-weight:700;font-size:13.5px">${esc(e.title)}</div><div style="font-size:11px;color:var(--m);margin-top:3px">${e.date}</div><button class="sch-del-btn" style="margin-top:8px" onclick="adminDelEdu('${e.id}')">삭제</button></div>`;}).join('');
+  });
+}
+function adminDelEdu(id){if(!confirm('삭제할까요?'))return;DB.ref('eduEvents/'+id).remove().then(()=>{showToast('삭제됐어요');loadAdminEdu();});}
+
+/* ══════════ 관리자: 제품이슈 ══════════ */
+function adminSaveProductIssue(){
+  if(!DB){showToast('연결 오류');return;}
+  const brand=document.getElementById('pi-brand').value.trim();
+  const product=document.getElementById('pi-product').value.trim();
+  const body=document.getElementById('pi-body').value.trim();
+  if(!brand){showToast('브랜드명을 입력해주세요');return;}
+  if(!body){showToast('이슈 내용을 입력해주세요');return;}
+  const now=new Date(); const dateStr=(now.getMonth()+1)+'/'+now.getDate();
+  DB.ref('shared/productIssues').push({brand,product,body,dateStr,from:'admin',ts:Date.now()}).then(()=>{
+    showToast('✅ 이슈가 등록됐어요!');
+    document.getElementById('pi-brand').value=''; document.getElementById('pi-product').value=''; document.getElementById('pi-body').value='';
+    loadAdminProductIssues();
+  });
+}
+function loadAdminProductIssues(){
+  if(!DB)return;
+  const listEl=document.getElementById('admin-issue-list');
+  if(listEl)listEl.innerHTML='<div class="empty-state">불러오는 중...</div>';
+  DB.ref('shared/productIssues').once('value',snap=>{
+    const data=snap.val()||{};
+    const items=Object.entries(data).map(([id,v])=>({id,...v})).sort((a,b)=>(b.ts||0)-(a.ts||0));
+    if(!listEl)return;
+    if(!items.length){listEl.innerHTML='<div class="empty-state">등록된 이슈가 없어요</div>';return;}
+    listEl.innerHTML=items.map(item=>`
+      <div class="sch-card" style="border-left:3px solid var(--warn)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+          <span style="font-size:11px;color:var(--m)">📅 ${item.dateStr||''}</span>
+          <span style="font-size:10px;background:${item.from==='admin'?'var(--card)':'var(--wbg)'};color:${item.from==='admin'?'var(--navy)':'var(--warn)'};border-radius:20px;padding:2px 8px;font-weight:700">${item.from==='admin'?'메리 등록':('수강생 신고'+(item.whoReal?' · '+esc(item.whoReal):''))}</span>
+        </div>
+        <div class="sch-title">${esc(item.brand||'')}${item.product?' - '+esc(item.product):''}</div>
+        <div style="font-size:12px;color:var(--warn);background:var(--wbg);border-radius:8px;padding:8px 10px;line-height:1.6">${esc(item.body||'')}</div>
+        <button class="sch-del-btn" style="margin-top:8px;width:100%" onclick="adminDelProductIssue('${item.id}')">🗑 삭제</button>
+      </div>`).join('');
+  });
+}
+function adminDelProductIssue(id){
+  if(!confirm('이 이슈를 삭제할까요?'))return;
+  DB.ref('shared/productIssues/'+id).remove().then(()=>{
+    showToast('🗑 삭제됐어요');
+    loadAdminProductIssues();
+    if(document.getElementById('gongu-sec-issue')?.style.display!=='none')loadProductIssues();
+  });
+}
+
+/* ══════════ 관리자: 공구 확정 현황 ══════════ */
+let _adminGonguData=[];
+async function loadAdminGongu(){
+  const listEl=document.getElementById('admin-gongu-list');
+  const summEl=document.getElementById('admin-gongu-summary');
+  if(!listEl)return;
+  listEl.innerHTML='<div class="loader">불러오는 중...</div>';
+  try{
+    const snap=await DB.ref('students').once('value');
+    const all=snap.val()||{};
+    _adminGonguData=[];
+    Object.values(all).forEach(stu=>{
+      const items=stu.gonguSchedules||[];
+      items.filter(g=>g.type==='공구일정 확정').forEach(g=>{
+        _adminGonguData.push({...g,stuName:stu.name||'알수없음',program:stu.program==='sellzup'?'SELLZ UP':'기존 챌린지'});
+      });
+    });
+    _adminGonguData.sort((a,b)=>(a.startDate||'').localeCompare(b.startDate||''));
+    const total=_adminGonguData.length;
+    if(summEl)summEl.textContent=`확정된 공구 총 ${total}건`;
+    const statsEl=document.getElementById('admin-gongu-stats');
+    if(statsEl){
+      const now=new Date();
+      const thisMonth=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+      const thisMonthCount=_adminGonguData.filter(g=>(g.startDate||'').startsWith(thisMonth)).length;
+      statsEl.innerHTML=[['전체 확정',total,'var(--m)','var(--card)'],['이번 달',thisMonthCount,'var(--navy)','#E9EEF5']].map(([l,n,c,bg])=>`<div style="background:${bg};border-radius:10px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:900;color:${c}">${n}</div><div style="font-size:10px;color:${c};margin-top:2px;opacity:.85">${l}</div></div>`).join('');
+    }
+    renderAdminGongu();
+  }catch(e){listEl.innerHTML='<div style="padding:16px;color:var(--m);font-size:13px">불러오기 실패. 새로고침 해주세요.</div>';}
+}
+function renderAdminGongu(){
+  const listEl=document.getElementById('admin-gongu-list');
+  if(!listEl)return;
+  const q=(document.getElementById('admin-gongu-search')?.value||'').toLowerCase();
+  let items=[..._adminGonguData];
+  if(q)items=items.filter(i=>(i.stuName||'').toLowerCase().includes(q)||(i.product||'').toLowerCase().includes(q)||(i.seller||'').toLowerCase().includes(q));
+  if(items.length===0){listEl.innerHTML=`<div style="padding:2.5rem;text-align:center;color:var(--m);font-size:13px"><div style="font-size:28px;margin-bottom:8px">🛒</div>${q?'검색 결과가 없어요':'확정된 공구 일정이 없어요'}</div>`;return;}
+  listEl.innerHTML=items.map(g=>{
+    let dateLabel='';if(g.startDate&&g.endDate&&g.startDate!==g.endDate){dateLabel=`${g.startDate} ~ ${g.endDate}`;}else if(g.startDate){dateLabel=g.startDate;}
+    return `<div class="sch-card" style="border-left:3px solid var(--navy)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><span style="font-size:14px;font-weight:700;color:var(--m)">${esc(g.stuName)}</span><span style="background:var(--gb);color:var(--g);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700">${g.program}</span></div><div class="sch-title">${esc(g.product||'-')}</div><div class="sch-detail">${g.seller?`🏢 ${esc(g.seller)}<br>`:''}${dateLabel?`📅 <strong style="color:var(--t)">${dateLabel}</strong>`:''}${g.memo?`<br>📝 ${esc(g.memo)}`:''}</div></div>`;
+  }).join('');
+}
+
+/* ══════════ 관리자: 입점 완료 현황 ══════════ */
+let _adminIpjumStatData=[];
+async function loadAdminIpjumStat(){
+  const listEl=document.getElementById('admin-ipjumstat-list');
+  const summEl=document.getElementById('admin-ipjumstat-summary');
+  if(!listEl)return;
+  listEl.innerHTML='<div class="loader">불러오는 중...</div>';
+  try{
+    const snap=await DB.ref('students').once('value');
+    const all=snap.val()||{};
+    _adminIpjumStatData=[];
+    Object.values(all).forEach(stu=>{
+      const items=stu.ipjumItems||[];
+      items.filter(i=>i.type==='입점완료').forEach(item=>{
+        _adminIpjumStatData.push({...item,stuName:stu.name||'알수없음',program:stu.program==='sellzup'?'SELLZ UP':'기존 챌린지'});
+      });
+    });
+    const total=_adminIpjumStatData.length;
+    if(summEl)summEl.textContent=`전체 입점완료 ${total}건`;
+    const statsEl=document.getElementById('admin-ipjumstat-stats');
+    if(statsEl){
+      const sellzupCnt=_adminIpjumStatData.filter(i=>i.program==='SELLZ UP').length;
+      statsEl.innerHTML=[['전체 완료',total,'var(--m)','var(--card)'],['셀즈업',sellzupCnt,'var(--g)','var(--gb)']].map(([l,n,c,bg])=>`<div style="background:${bg};border-radius:10px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:900;color:${c}">${n}</div><div style="font-size:10px;color:${c};margin-top:2px;opacity:.85">${l}</div></div>`).join('');
+    }
+    renderAdminIpjumStat();
+  }catch(e){listEl.innerHTML='<div style="padding:16px;color:var(--m);font-size:13px">불러오기 실패. 새로고침 해주세요.</div>';}
+}
+function renderAdminIpjumStat(){
+  const listEl=document.getElementById('admin-ipjumstat-list');
+  if(!listEl)return;
+  const q=(document.getElementById('admin-ipjumstat-search')?.value||'').toLowerCase();
+  let items=[..._adminIpjumStatData];
+  if(q)items=items.filter(i=>(i.stuName||'').toLowerCase().includes(q)||(i.product||'').toLowerCase().includes(q)||(i.companyName||'').toLowerCase().includes(q));
+  if(items.length===0){listEl.innerHTML=`<div style="padding:2.5rem;text-align:center;color:var(--m);font-size:13px"><div style="font-size:28px;margin-bottom:8px">🏪</div>${q?'검색 결과가 없어요':'입점완료 항목이 없어요'}</div>`;return;}
+  listEl.innerHTML=items.map(item=>`<div class="sch-card" style="border-left:3px solid var(--g)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><span style="font-size:14px;font-weight:700;color:var(--m)">${esc(item.stuName)}</span><span style="background:var(--gb);color:var(--g);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700">${item.program}</span></div><div class="sch-title">${esc(item.product||'')}</div><div class="sch-detail">${item.companyName?`🏢 ${esc(item.companyName)}<br>`:''}${item.applyDate?`📅 신청일: ${item.applyDate}`:''}</div></div>`).join('');
+}
+
+/* ══════════ 초기화 ══════════ */
+window.addEventListener('load',()=>{
+  show('sc-welcome');
+  const isAdmin=location.search.includes('admin')||location.hash.includes('admin');
+  if(isAdmin){show('sc-admin-login');return;}
+  if(!DB)return;
+  try{const sess=localStorage.getItem('sellzup_s');if(sess){const {name,pin}=JSON.parse(sess);document.getElementById('l-name').value=name;document.getElementById('l-pin').value=pin;doLogin(true);}}catch(e){}
+});
+</script>
+</body>
+</html>
