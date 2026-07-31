@@ -1852,6 +1852,7 @@ async function loadAdminIpjumStat(){
       });
     });
     const total=_adminIpjumStatData.length;
+    _adminIpjumStatData.sort((a,b)=>(b.completionDate||b.applyDate||'').localeCompare(a.completionDate||a.applyDate||''));
     if(summEl)summEl.textContent=`전체 입점완료 ${total}건`;
     const statsEl=document.getElementById('admin-ipjumstat-stats');
     if(statsEl){
