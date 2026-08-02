@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>셀즈업 성공메이트</title>
+<title>New Project</title>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,600&family=Noto+Serif+KR:wght@700;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -199,6 +199,10 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 .admin-app-hdr .aicon{width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
 .admin-app-hdr .atxt{font-size:15px;font-weight:900}
 .admin-app-hdr .asub{font-size:11px;color:rgba(255,255,255,.55);margin-top:2px}
+@keyframes bannerSlideIn{0%{opacity:0;transform:translateY(-16px) scale(.95)}100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes badgePulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(255,255,255,.55)}50%{transform:scale(1.1);box-shadow:0 0 0 7px rgba(255,255,255,0)}}
+#mission-new-banner.anim-in{animation:bannerSlideIn .5s cubic-bezier(.34,1.56,.64,1) both}
+#mission-new-banner .new-chip{animation:badgePulse 1.7s ease-in-out infinite}
 </style>
 </head>
 <body>
@@ -267,6 +271,14 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
     <div class="card" id="today-edu-banner" style="display:none;background:var(--gb);border:1.5px solid var(--g)">
       <div style="font-size:10.5px;font-weight:700;color:var(--g);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">📢 오늘의 교육일정</div>
       <div id="today-edu-banner-items" style="font-size:13px;color:var(--t);line-height:1.8"></div>
+    </div>
+    <div class="card" id="mission-new-banner" style="display:none;background:linear-gradient(135deg,var(--g),var(--gh));color:#fff;cursor:pointer;text-align:center" onclick="confirmMissionSeen()">
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px">
+        <span class="new-chip" style="background:#fff;color:var(--g);font-size:9.5px;font-weight:900;padding:2px 8px;border-radius:20px">NEW</span>
+        <span style="font-size:11px;font-weight:700;color:rgba(255,255,255,.85)">미션 알림</span>
+      </div>
+      <div id="mission-new-banner-text" style="font-size:14.5px;font-weight:700;line-height:1.7;text-align:center"></div>
+      <div style="font-size:11px;color:rgba(255,255,255,.75);margin-top:8px;text-align:center">탭하면 확인 완료로 표시돼요 →</div>
     </div>
     <div class="card" id="note-banner" style="display:none;background:linear-gradient(135deg,var(--navy),#24405E);color:#fff">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
@@ -645,7 +657,7 @@ function blankState(name,pin){
   return {
     name, pin, program: PROGRAM,
     missionDay: 1, missionStatus: 'awaiting_content', graduated:false,
-    missionContent: {}, missionLogs: {},
+    missionContent: {}, missionLogs: {}, missionSeenDay: 0,
     todos:[], todosDate:'', result:'', resultDate:'', lastActive: today(), dailyLogs:{},
     gonguSchedules:[], ipjumItems:[], searchMemos:[]
   };
@@ -691,6 +703,7 @@ async function doLogin(silent=false){
     if(!S.searchMemos)S.searchMemos=[];
     if(!S.missionContent)S.missionContent={};
     if(!S.missionLogs)S.missionLogs={};
+    if(S.missionSeenDay===undefined)S.missionSeenDay=0;
     if(!silent)showToast(`👋 ${name}님, 다시 오셨네요!`);
     try{localStorage.setItem('sellzup_s',JSON.stringify({name,pin}));}catch(e){}
     show('sc-main'); renderAll();
@@ -749,6 +762,33 @@ function renderNoteBanner(){
   }
 }
 
+function renderMissionNewBanner(){
+  const banner=document.getElementById('mission-new-banner');
+  const textEl=document.getElementById('mission-new-banner-text');
+  if(!banner||!textEl)return;
+  if(S.graduated){banner.style.display='none';return;}
+  const day='day'+S.missionDay;
+  const content=S.missionContent[day];
+  const seen=S.missionSeenDay||0;
+  if(content && seen<S.missionDay){
+    textEl.innerHTML=`${ordinalKr(S.missionDay)} 메리강사가 보낸 미션이 있습니다!<br>확인해주세요!`;
+    banner.style.display='block';
+    banner.classList.remove('anim-in');
+    void banner.offsetWidth;
+    banner.classList.add('anim-in');
+  } else {
+    banner.style.display='none';
+  }
+}
+
+async function confirmMissionSeen(){
+  S.missionSeenDay=S.missionDay;
+  const banner=document.getElementById('mission-new-banner');
+  if(banner)banner.style.display='none';
+  try{await DB.ref('students/'+SKEY).update({missionSeenDay:S.missionSeenDay});}catch(e){console.error(e);}
+  document.getElementById('mission-mode-card')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
 function loadTodayEduBanner(){
   if(!DB)return;
   const banner=document.getElementById('today-edu-banner');
@@ -781,6 +821,7 @@ function renderAll(){
   loadTodayEduBanner();
   document.getElementById('m-day').textContent=ordinalKr(S.missionDay)+' 미션';
   renderNoteBanner();
+  renderMissionNewBanner();
   const missionCard=document.getElementById('mission-mode-card');
   const freeform=document.getElementById('freeform-mode');
   if(S.graduated){
@@ -1585,6 +1626,7 @@ function renderSellzupDetail(s){
     <div class="field"><label>제목 (선택)</label><input type="text" id="mc-title-${s._key}" value="${esc((content&&content.title)||'')}" placeholder="예) 기초 다지기"></div>
     <div class="field"><label>할 일 목록 (한 줄에 하나씩)</label><textarea id="mc-items-${s._key}" placeholder="교육사이트 공부하기&#10;인플즈 공지사항 확인하기">${esc(((content&&content.items)||[]).join('\n'))}</textarea></div>
     <button onclick="event.stopPropagation();saveMissionContent('${s._key}')" style="width:100%;border:none;background:var(--navy);color:#fff;border-radius:8px;padding:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;margin-top:4px">📤 ${ordinalKr(s.missionDay)} 미션 올리기</button>
+    ${content?`<button onclick="event.stopPropagation();deleteMissionContent('${s._key}')" style="width:100%;border:1.5px solid #F5C6CB;background:var(--dbg);color:var(--danger);border-radius:8px;padding:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;margin-top:8px">🗑 이 미션 삭제</button>`:''}
   </div>`;
   return html;
 }
@@ -1644,14 +1686,34 @@ async function saveMissionContent(key){
   const title=titleEl.value.trim();
   const items=itemsEl.value.split('\n').map(x=>x.trim()).filter(Boolean);
   if(!items.length){showToast('할 일을 한 줄 이상 입력해주세요!');return;}
-  // missionDay는 자주 안 바뀌는 값이라 최신값 확인 차 한 번만 읽음 (그 뒤 쓰기는 해당 day 경로에만 국한)
-  const snap=await DB.ref('students/'+key+'/missionDay').once('value');
-  const missionDay=snap.val()||1;
+  // missionDay와 missionSeenDay는 자주 안 바뀌는 값이라 최신값 확인 차 한 번만 읽음
+  const snap=await DB.ref('students/'+key).once('value');
+  const stu=snap.val()||{};
+  const missionDay=stu.missionDay||1;
+  const day='day'+missionDay;
+  const patch={[`missionContent/${day}`]:{title,items}};
+  // 새 미션이 올라왔으니 학생 화면에 다시 NEW 알림이 뜨도록 확인여부를 리셋
+  if((stu.missionSeenDay||0)>=missionDay) patch.missionSeenDay=missionDay-1;
+  try{
+    await DB.ref('students/'+key).update(patch);
+  }catch(e){showToast('저장 오류');return;}
+  showToast('📤 미션이 올라갔어요! 학생 화면에 알림이 떠요');
+  loadAdmin();
+}
+
+async function deleteMissionContent(key){
+  if(!confirm('이 미션을 삭제할까요?\n학생이 이미 체크/제출한 내용도 함께 사라지고, "미션 준비 중" 대기 화면으로 돌아가요.'))return;
+  const snap=await DB.ref('students/'+key).once('value');
+  const stu=snap.val()||{};
+  const missionDay=stu.missionDay||1;
   const day='day'+missionDay;
   try{
-    await DB.ref('students/'+key).update({[`missionContent/${day}`]:{title,items}});
-  }catch(e){showToast('저장 오류');return;}
-  showToast('📤 미션이 올라갔어요!');
+    await DB.ref('students/'+key).update({
+      [`missionContent/${day}`]:null,
+      [`missionLogs/${day}`]:null
+    });
+  }catch(e){showToast('삭제 오류');return;}
+  showToast('🗑 미션이 삭제됐어요. 다시 올리면 새 알림으로 떠요');
   loadAdmin();
 }
 
