@@ -201,7 +201,7 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 .admin-app-hdr .asub{font-size:11px;color:rgba(255,255,255,.55);margin-top:2px}
 @keyframes bannerSlideIn{0%{opacity:0;transform:translateY(-16px) scale(.95)}100%{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes badgePulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(255,255,255,.55)}50%{transform:scale(1.1);box-shadow:0 0 0 7px rgba(255,255,255,0)}}
-#mission-new-banner.anim-in{animation:bannerSlideIn .5s cubic-bezier(.34,1.56,.64,1) both}
+#mission-new-banner.anim-in,#mission-mode-card.anim-in{animation:bannerSlideIn .5s cubic-bezier(.34,1.56,.64,1) both}
 #mission-new-banner .new-chip{animation:badgePulse 1.7s ease-in-out infinite}
 </style>
 </head>
@@ -829,8 +829,20 @@ function renderAll(){
     syncTodos(); renderTodos(); renderJournal();
     const ri=document.getElementById('result-inp'); if(ri)ri.value=(S.resultDate===today()?S.result:'')||'';
   } else {
-    missionCard.style.display='block'; freeform.style.display='none';
+    freeform.style.display='none';
     renderMissionBody();
+    const bannerShowing=document.getElementById('mission-new-banner').style.display==='block';
+    if(bannerShowing){
+      missionCard.style.display='none';
+      setTimeout(()=>{
+        missionCard.style.display='block';
+        missionCard.classList.remove('anim-in');
+        void missionCard.offsetWidth;
+        missionCard.classList.add('anim-in');
+      },900);
+    } else {
+      missionCard.style.display='block';
+    }
   }
   renderGongu(); renderIpjum();
 }
