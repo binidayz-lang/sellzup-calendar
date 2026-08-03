@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>New Project</title>
+<title>셀즈업 성공메이트</title>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,600&family=Noto+Serif+KR:wght@700;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -2257,6 +2257,23 @@ window.addEventListener('load',()=>{
   if(!DB)return;
   try{const sess=localStorage.getItem('sellzup_s');if(sess){const {name,pin}=JSON.parse(sess);document.getElementById('l-name').value=name;document.getElementById('l-pin').value=pin;doLogin(true);}}catch(e){}
 });
+
+/* ══════════ iframe 자동 높이 조절 (아임웹 등 외부 삽입용) ══════════ */
+(function(){
+  if(window.self===window.top)return; // iframe 안이 아니면 실행 안 함
+  let lastH=0;
+  function reportHeight(){
+    const h=document.body.scrollHeight;
+    if(Math.abs(h-lastH)>4){
+      lastH=h;
+      parent.postMessage({sellzupHeight:h},'*');
+    }
+  }
+  new ResizeObserver(reportHeight).observe(document.body);
+  new MutationObserver(reportHeight).observe(document.body,{childList:true,subtree:true,attributes:true});
+  window.addEventListener('load',reportHeight);
+  setInterval(reportHeight,600);
+})();
 </script>
 </body>
 </html>
