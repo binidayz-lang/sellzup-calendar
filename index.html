@@ -199,6 +199,43 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 .admin-app-hdr .aicon{width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
 .admin-app-hdr .atxt{font-size:15px;font-weight:900}
 .admin-app-hdr .asub{font-size:11px;color:rgba(255,255,255,.55);margin-top:2px}
+
+/* 수강생 리포트 카드 */
+.rpt-hdr{background:radial-gradient(ellipse at 25% -10%,rgba(38,76,70,.35) 0%,rgba(14,26,44,0) 55%),linear-gradient(165deg,#0E1A2C 0%,var(--navy) 100%);color:#fff;border-radius:20px;padding:22px 20px 20px;margin-top:6px}
+.rpt-eyebrow{font-family:'Playfair Display',serif;font-style:italic;font-weight:700;font-size:11px;letter-spacing:.08em;color:#9FB4C8}
+.rpt-top{display:flex;align-items:center;gap:14px;margin-top:14px}
+.rpt-ring-wrap{position:relative;width:70px;height:70px;flex-shrink:0}
+.rpt-ring-wrap svg{transform:rotate(-90deg)}
+.rpt-ring-bg{fill:none;stroke:rgba(255,255,255,.14);stroke-width:6}
+.rpt-ring-fill{fill:none;stroke:#8FCBB6;stroke-width:6;stroke-linecap:round;stroke-dasharray:207.3;stroke-dashoffset:207.3;transition:stroke-dashoffset 1s cubic-bezier(.22,1,.36,1)}
+.rpt-ring-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif KR',serif;font-weight:900;font-size:15px}
+.rpt-name{font-family:'Noto Serif KR',serif;font-weight:900;font-size:19px}
+.rpt-sub{font-size:11.5px;color:rgba(255,255,255,.55);margin-top:4px}
+.rpt-badge{display:inline-block;background:rgba(38,76,70,.4);border:1px solid rgba(120,180,165,.4);color:#BFE3D8;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;margin-top:7px}
+.rpt-chip-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px}
+.rpt-chip{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:10px 6px;text-align:center}
+.rpt-chip .n{font-family:'Noto Serif KR',serif;font-weight:900;font-size:16px;color:#fff}
+.rpt-chip .l{font-size:9px;color:rgba(255,255,255,.55);margin-top:3px;font-weight:700}
+.rpt-tab-nav{display:flex;gap:6px;margin:14px 0}
+.rpt-tab-btn{flex:1;border:1.5px solid var(--bd);background:var(--w);border-radius:12px;padding:10px 6px;font-family:inherit;font-size:11.5px;font-weight:700;color:var(--m);cursor:pointer;transition:all .25s ease}
+.rpt-tab-btn.active{background:var(--navy);border-color:var(--navy);color:#fff}
+.rpt-panel{display:none}
+.rpt-panel.active{display:block;animation:panelFade .35s ease both}
+@keyframes panelFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.rpt-card{background:var(--w);border-radius:16px;padding:16px;box-shadow:var(--sh)}
+.rpt-card-ttl{font-size:10.5px;font-weight:700;color:var(--g);letter-spacing:.4px;text-transform:uppercase;margin-bottom:12px}
+.rpt-bar-bg{height:8px;background:var(--card);border-radius:8px;overflow:hidden}
+.rpt-bar-fill{height:100%;background:linear-gradient(90deg,var(--g),var(--gh));border-radius:8px;width:0;transition:width 1s cubic-bezier(.22,1,.36,1)}
+.rpt-bar-label{font-size:11px;color:var(--m);margin-top:7px;font-weight:700;text-align:right}
+.rpt-day-row{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid #F0EEE7;align-items:flex-start;font-size:12.5px}
+.rpt-day-row:last-child{border-bottom:none}
+.rpt-day-chk{width:20px;height:20px;border-radius:6px;background:var(--g);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:1px}
+.rpt-item-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F0EEE7}
+.rpt-item-row:last-child{border-bottom:none}
+.rpt-item-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;flex-shrink:0}
+.rpt-item-name{font-size:12.5px;font-weight:700;flex:1}
+.rpt-item-date{font-size:10.5px;color:var(--m);flex-shrink:0}
+.rpt-empty{text-align:center;padding:20px 0;color:var(--m);font-size:12px}
 @keyframes bannerSlideIn{0%{opacity:0;transform:translateY(-16px) scale(.95)}100%{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes badgePulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(255,255,255,.55)}50%{transform:scale(1.1);box-shadow:0 0 0 7px rgba(255,255,255,0)}}
 #mission-new-banner.anim-in,#mission-mode-card.anim-in{animation:bannerSlideIn .5s cubic-bezier(.34,1.56,.64,1) both}
@@ -619,6 +656,66 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
   </div>
 </div>
 
+<!-- 모달: 수강생 리포트 카드 -->
+<div class="modal-wrap" id="report-modal" style="position:fixed;inset:0;background:rgba(20,36,58,.55);z-index:9993;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s" onclick="if(event.target===this)closeStudentReport()">
+  <div style="background:var(--bg);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:16px 16px 32px;transform:translateY(100%);transition:transform .3s;max-height:92vh;overflow-y:auto" id="report-modal-box">
+    <div class="sheet-handle"></div>
+    <div style="display:flex;justify-content:flex-end;margin-bottom:-6px"><button onclick="closeStudentReport()" style="background:var(--card);border:none;width:28px;height:28px;border-radius:50%;color:var(--m);font-size:16px;cursor:pointer">×</button></div>
+
+    <div class="rpt-hdr">
+      <div class="rpt-eyebrow">SELLZ UP · 성공메이트</div>
+      <div class="rpt-top">
+        <div class="rpt-ring-wrap">
+          <svg width="74" height="74" viewBox="0 0 74 74"><circle class="rpt-ring-bg" cx="37" cy="37" r="33"></circle><circle class="rpt-ring-fill" id="rpt-ring" cx="37" cy="37" r="33"></circle></svg>
+          <div class="rpt-ring-pct" id="rpt-ring-pct">0%</div>
+        </div>
+        <div>
+          <div class="rpt-name" id="rpt-name">-</div>
+          <div class="rpt-sub" id="rpt-sub">-</div>
+          <a href="#" id="rpt-edit-link" onclick="event.preventDefault();toggleJoinedEdit()" style="display:inline-block;margin-top:3px;font-size:10.5px;color:#8FCBB6;text-decoration:underline">시작일 입력/수정</a>
+          <div id="rpt-edit-wrap" style="display:none;gap:6px;margin-top:6px">
+            <input type="date" id="rpt-edit-date" style="border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;border-radius:8px;padding:6px 8px;font-family:inherit;font-size:11.5px">
+            <button onclick="saveJoinedDate()" style="border:none;background:var(--g);color:#fff;border-radius:8px;padding:6px 12px;font-family:inherit;font-size:11.5px;font-weight:700;cursor:pointer;margin-top:4px">저장</button>
+          </div>
+          <div class="rpt-badge" id="rpt-badge">-</div>
+        </div>
+      </div>
+      <div class="rpt-chip-row">
+        <div class="rpt-chip"><div class="n" id="rpt-chip-mission">0%</div><div class="l">미션 진행률</div></div>
+        <div class="rpt-chip"><div class="n" id="rpt-chip-gongu">0</div><div class="l">확정 공구</div></div>
+        <div class="rpt-chip"><div class="n" id="rpt-chip-ipjum">0</div><div class="l">입점 완료</div></div>
+      </div>
+    </div>
+
+    <div class="rpt-tab-nav">
+      <button class="rpt-tab-btn active" data-rtab="mission" onclick="switchReportTab('mission')">🌱 미션수행</button>
+      <button class="rpt-tab-btn" data-rtab="gongu" onclick="switchReportTab('gongu')">🛒 확정공구일정</button>
+      <button class="rpt-tab-btn" data-rtab="ipjum" onclick="switchReportTab('ipjum')">🏪 입점완료</button>
+    </div>
+
+    <div class="rpt-panel active" id="rpt-panel-mission">
+      <div class="rpt-card">
+        <div class="rpt-card-ttl">🌱 미션 진행률</div>
+        <div class="rpt-bar-bg"><div class="rpt-bar-fill" id="rpt-mission-bar"></div></div>
+        <div class="rpt-bar-label" id="rpt-bar-label">0 / 30일차</div>
+        <div id="rpt-day-list"></div>
+      </div>
+    </div>
+    <div class="rpt-panel" id="rpt-panel-gongu">
+      <div class="rpt-card">
+        <div class="rpt-card-ttl">🛒 확정 공구 일정</div>
+        <div id="rpt-gongu-list"></div>
+      </div>
+    </div>
+    <div class="rpt-panel" id="rpt-panel-ipjum">
+      <div class="rpt-card">
+        <div class="rpt-card-ttl">🏪 입점 완료 현황</div>
+        <div id="rpt-ipjum-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -657,7 +754,7 @@ function blankState(name,pin){
   return {
     name, pin, program: PROGRAM,
     missionDay: 1, missionStatus: 'awaiting_content', graduated:false,
-    missionContent: {}, missionLogs: {}, missionSeenDay: 0,
+    missionContent: {}, missionLogs: {}, missionSeenDay: 0, joinedDate: today(),
     todos:[], todosDate:'', result:'', resultDate:'', lastActive: today(), dailyLogs:{},
     gonguSchedules:[], ipjumItems:[], searchMemos:[]
   };
@@ -1556,7 +1653,9 @@ function renderAdminList(){
       <div class="sc-info"><div class="sc-name">${esc(s.name)}${isSellzup?' <span style=\"font-size:10px;color:var(--g);font-weight:700\">SELLZ UP</span>':''}</div><div class="sc-detail">마지막 접속: ${s.lastActive||'-'}</div></div>
       ${rightHtml}
     </div>
-    <div class="stu-detail" id="detail-${s._key}">${isSellzup?renderSellzupDetail(s):renderChallengeDetail(s)}
+    <div class="stu-detail" id="detail-${s._key}">
+      ${isSellzup?`<button onclick="event.stopPropagation();openStudentReport('${s._key}')" style="width:100%;border:none;background:linear-gradient(135deg,var(--navy),#24405E);color:#fff;border-radius:10px;padding:10px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:10px">📊 이 수강생 리포트 카드 보기</button>`:''}
+      ${isSellzup?renderSellzupDetail(s):renderChallengeDetail(s)}
       ${isSellzup?renderQuickNoteBox(s):''}
       <div style="padding-top:10px;margin-top:10px;border-top:1px solid var(--bd)">
         <button onclick="event.stopPropagation();deleteStudent('${s._key}','${esc(s.name)}')" style="width:100%;border:none;background:var(--dbg);color:var(--danger);border-radius:8px;padding:8px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer">🗑 이 수강생 완전히 삭제</button>
@@ -1670,6 +1769,93 @@ async function toggleReviewLog(key,date,val){
   }catch(e){showToast('저장 오류');return;}
   showToast(val?'✅ 확인 완료로 체크했어요':'확인 표시를 취소했어요');
   loadAdmin();
+}
+
+/* ══════════ 수강생 리포트 카드 ══════════ */
+let _reportKey=null;
+function openStudentReport(key){
+  _reportKey=key;
+  const s=_adminAllList.find(x=>x._key===key);
+  if(!s){showToast('수강생 정보를 찾을 수 없어요');return;}
+  const missionDay=s.missionDay||1;
+  const pct=s.graduated?100:Math.min(100,Math.round((missionDay/30)*100));
+  const joined=s.joinedDate||null;
+  const daysActive=joined?diffDays(joined,today())+1:null;
+
+  document.getElementById('rpt-name').textContent=s.name+'님';
+  document.getElementById('rpt-sub').textContent=joined?`${joined.replace(/-/g,'.')} 시작 · 오늘로 ${daysActive}일째`:'시작일 정보 없음';
+  document.getElementById('rpt-edit-link').textContent=joined?'시작일 수정':'시작일 입력하기';
+  document.getElementById('rpt-edit-wrap').style.display='none';
+  document.getElementById('rpt-edit-date').value=joined||'';
+  document.getElementById('rpt-badge').textContent=s.graduated?'🏆 30일 미션 졸업':`🔥 ${ordinalKr(missionDay)} 미션 진행중`;
+  document.getElementById('rpt-chip-mission').textContent=pct+'%';
+
+  const gonguConfirmed=(s.gonguSchedules||[]).filter(g=>g.type==='공구일정 확정');
+  const ipjumDone=(s.ipjumItems||[]).filter(i=>i.type==='입점완료');
+  document.getElementById('rpt-chip-gongu').textContent=gonguConfirmed.length;
+  document.getElementById('rpt-chip-ipjum').textContent=ipjumDone.length;
+
+  document.getElementById('rpt-bar-label').textContent=s.graduated?'30 / 30일차 · 졸업':`${missionDay} / 30일차`;
+  document.getElementById('rpt-day-list').innerHTML=renderReportDayList(s,missionDay);
+
+  document.getElementById('rpt-gongu-list').innerHTML=gonguConfirmed.length
+    ? gonguConfirmed.slice(0,15).map(g=>`<div class="rpt-item-row"><span class="rpt-item-badge" style="background:var(--gb);color:var(--g)">확정</span><span class="rpt-item-name">${esc(g.product)}</span><span class="rpt-item-date">${g.startDate||''}${g.endDate?'~'+g.endDate:''}</span></div>`).join('')
+    : `<div class="rpt-empty">아직 확정된 공구가 없어요</div>`;
+
+  document.getElementById('rpt-ipjum-list').innerHTML=ipjumDone.length
+    ? ipjumDone.slice(0,15).map(i=>`<div class="rpt-item-row"><span class="rpt-item-badge" style="background:var(--gb);color:var(--g)">완료</span><span class="rpt-item-name">${esc(i.companyName||i.product)}</span><span class="rpt-item-date">${i.completionDate||i.applyDate||''}</span></div>`).join('')
+    : `<div class="rpt-empty">아직 입점 완료 항목이 없어요</div>`;
+
+  switchReportTab('mission');
+  const w=document.getElementById('report-modal');w.style.opacity=1;w.style.pointerEvents='all';document.getElementById('report-modal-box').style.transform='translateY(0)';
+
+  const ring=document.getElementById('rpt-ring');
+  const pctEl=document.getElementById('rpt-ring-pct');
+  const circumference=2*Math.PI*33;
+  ring.style.strokeDasharray=circumference;
+  ring.style.strokeDashoffset=circumference;
+  requestAnimationFrame(()=>{
+    ring.style.strokeDashoffset=circumference-(circumference*pct/100);
+    let s2=null;
+    function step(ts){ if(!s2)s2=ts; const p=Math.min((ts-s2)/900,1); pctEl.textContent=Math.round(pct*(1-Math.pow(1-p,3)))+'%'; if(p<1)requestAnimationFrame(step); }
+    requestAnimationFrame(step);
+  });
+  setTimeout(()=>{document.getElementById('rpt-mission-bar').style.width=pct+'%';},50);
+}
+function renderReportDayList(s,missionDay){
+  const rows=[];
+  for(let d=missionDay-1;d>=Math.max(1,missionDay-4);d--){
+    const content=(s.missionContent||{})['day'+d];
+    const log=(s.missionLogs||{})['day'+d];
+    if(!content)continue;
+    const txt=content.title||(content.items||[]).slice(0,2).join(', ')||'미션';
+    const done=log&&(log.status==='approved'||log.status==='submitted');
+    rows.push(`<div class="rpt-day-row"><div class="rpt-day-chk" style="${done?'':'background:#fff;border:2px solid var(--bd)'}">${done?'✓':''}</div><div style="min-width:44px;font-size:10.5px;font-weight:700;color:var(--m)">${d}일차</div><div style="flex:1">${esc(txt)}</div></div>`);
+  }
+  return rows.length?rows.join(''):`<div class="rpt-empty">아직 진행한 미션 기록이 없어요</div>`;
+}
+function toggleJoinedEdit(){
+  const w=document.getElementById('rpt-edit-wrap');
+  w.style.display=(w.style.display==='none')?'flex':'none';
+}
+async function saveJoinedDate(){
+  const val=document.getElementById('rpt-edit-date').value;
+  if(!val){showToast('날짜를 선택해주세요!');return;}
+  if(!_reportKey)return;
+  try{
+    await DB.ref('students/'+_reportKey).update({joinedDate:val});
+  }catch(e){showToast('저장 오류');return;}
+  const s=_adminAllList.find(x=>x._key===_reportKey);
+  if(s)s.joinedDate=val;
+  showToast('✅ 시작일을 저장했어요!');
+  openStudentReport(_reportKey);
+}
+function switchReportTab(tab){
+  document.querySelectorAll('.rpt-tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.rtab===tab));
+  document.querySelectorAll('.rpt-panel').forEach(p=>p.classList.toggle('active',p.id==='rpt-panel-'+tab));
+}
+function closeStudentReport(){
+  const w=document.getElementById('report-modal');w.style.opacity=0;w.style.pointerEvents='none';document.getElementById('report-modal-box').style.transform='translateY(100%)';
 }
 
 function renderQuickNoteBox(s){
