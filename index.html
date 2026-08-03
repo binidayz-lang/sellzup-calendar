@@ -1654,7 +1654,7 @@ function renderAdminList(){
       ${rightHtml}
     </div>
     <div class="stu-detail" id="detail-${s._key}">
-      ${isSellzup?`<button onclick="event.stopPropagation();openStudentReport('${s._key}')" style="width:100%;border:none;background:linear-gradient(135deg,var(--navy),#24405E);color:#fff;border-radius:10px;padding:10px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:10px">📊 이 수강생 리포트 카드 보기</button>`:''}
+      <button onclick="event.stopPropagation();openStudentReport('${s._key}')" style="width:100%;border:none;background:linear-gradient(135deg,var(--navy),#24405E);color:#fff;border-radius:10px;padding:10px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:10px">📊 이 수강생 리포트 카드 보기</button>
       ${isSellzup?renderSellzupDetail(s):renderChallengeDetail(s)}
       ${isSellzup?renderQuickNoteBox(s):''}
       <div style="padding-top:10px;margin-top:10px;border-top:1px solid var(--bd)">
@@ -1777,17 +1777,40 @@ function openStudentReport(key){
   _reportKey=key;
   const s=_adminAllList.find(x=>x._key===key);
   if(!s){showToast('수강생 정보를 찾을 수 없어요');return;}
-  const missionDay=s.missionDay||1;
-  const pct=s.graduated?100:Math.min(100,Math.round((missionDay/30)*100));
-  const joined=s.joinedDate||null;
-  const daysActive=joined?diffDays(joined,today())+1:null;
+  const isSellzup=s.program==='sellzup';
+  const td=today();
+
+  let pct, badgeText, barLabel, firstTabLabel, firstTabTtl, joined, daysActive;
+  if(isSellzup){
+    const missionDay=s.missionDay||1;
+    pct=s.graduated?100:Math.min(100,Math.round((missionDay/30)*100));
+    badgeText=s.graduated?'🏆 30일 미션 졸업':`🔥 ${ordinalKr(missionDay)} 미션 진행중`;
+    barLabel=s.graduated?'30 / 30일차 · 졸업':`${missionDay} / 30일차`;
+    firstTabLabel='🌱 미션수행'; firstTabTtl='🌱 미션 진행률';
+    joined=s.joinedDate||null;
+    daysActive=joined?diffDays(joined,td)+1:null;
+    document.getElementById('rpt-day-list').innerHTML=renderReportDayList(s,missionDay);
+  } else {
+    const lv=s.currentLevel||'초급';
+    const sd=s.levels?.[lv]?.startDate||'';
+    const dayNum=sd?Math.min(Math.max(diffDays(sd,td)+1,1),30):0;
+    pct=Math.round((dayNum/30)*100);
+    badgeText=`${LV_EMOJI[lv]||'🌱'} ${lv} 진행중 (${dayNum}일차)`;
+    barLabel=`${dayNum} / 30일차 · ${lv}`;
+    firstTabLabel='📈 진행 기록'; firstTabTtl='📈 최근 진행 기록';
+    joined=s.joinedDate||sd||null;
+    daysActive=joined?diffDays(joined,td)+1:null;
+    document.getElementById('rpt-day-list').innerHTML=renderReportDayListChallenge(s);
+  }
+  document.querySelector('.rpt-tab-btn[data-rtab="mission"]').textContent=firstTabLabel;
+  document.querySelector('#rpt-panel-mission .rpt-card-ttl').textContent=firstTabTtl;
 
   document.getElementById('rpt-name').textContent=s.name+'님';
   document.getElementById('rpt-sub').textContent=joined?`${joined.replace(/-/g,'.')} 시작 · 오늘로 ${daysActive}일째`:'시작일 정보 없음';
   document.getElementById('rpt-edit-link').textContent=joined?'시작일 수정':'시작일 입력하기';
   document.getElementById('rpt-edit-wrap').style.display='none';
   document.getElementById('rpt-edit-date').value=joined||'';
-  document.getElementById('rpt-badge').textContent=s.graduated?'🏆 30일 미션 졸업':`🔥 ${ordinalKr(missionDay)} 미션 진행중`;
+  document.getElementById('rpt-badge').textContent=badgeText;
   document.getElementById('rpt-chip-mission').textContent=pct+'%';
 
   const gonguConfirmed=(s.gonguSchedules||[]).filter(g=>g.type==='공구일정 확정');
@@ -1795,8 +1818,7 @@ function openStudentReport(key){
   document.getElementById('rpt-chip-gongu').textContent=gonguConfirmed.length;
   document.getElementById('rpt-chip-ipjum').textContent=ipjumDone.length;
 
-  document.getElementById('rpt-bar-label').textContent=s.graduated?'30 / 30일차 · 졸업':`${missionDay} / 30일차`;
-  document.getElementById('rpt-day-list').innerHTML=renderReportDayList(s,missionDay);
+  document.getElementById('rpt-bar-label').textContent=barLabel;
 
   document.getElementById('rpt-gongu-list').innerHTML=gonguConfirmed.length
     ? gonguConfirmed.slice(0,15).map(g=>`<div class="rpt-item-row"><span class="rpt-item-badge" style="background:var(--gb);color:var(--g)">확정</span><span class="rpt-item-name">${esc(g.product)}</span><span class="rpt-item-date">${g.startDate||''}${g.endDate?'~'+g.endDate:''}</span></div>`).join('')
@@ -1821,6 +1843,17 @@ function openStudentReport(key){
     requestAnimationFrame(step);
   });
   setTimeout(()=>{document.getElementById('rpt-mission-bar').style.width=pct+'%';},50);
+}
+function renderReportDayListChallenge(s){
+  const logs=s.dailyLogs||{};
+  const dates=Object.keys(logs).sort((a,b)=>b.localeCompare(a)).slice(0,5);
+  if(!dates.length)return `<div class="rpt-empty">아직 기록이 없어요</div>`;
+  return dates.map(date=>{
+    const log=logs[date];
+    const doneTodos=(log.todos||[]).filter(t=>t.done).map(t=>t.text).join(', ');
+    const txt=doneTodos||log.result||'기록 없음';
+    return `<div class="rpt-day-row"><div class="rpt-day-chk">${doneTodos||log.result?'✓':''}</div><div style="min-width:52px;font-size:10.5px;font-weight:700;color:var(--m)">${fmtDate(date)}</div><div style="flex:1">${esc(txt)}</div></div>`;
+  }).join('');
 }
 function renderReportDayList(s,missionDay){
   const rows=[];
