@@ -3,701 +3,2277 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>말하는대로 메리처럼 | 인플즈메리 소개</title>
-<meta property="og:title" content="말하는대로 메리처럼 | 인플즈메리">
-<meta property="og:description" content="예비맘 시절 시작한 온라인 부업이 연 1,000명+을 가르치는 강사의 삶이 됐습니다.">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700;900&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<title>셀즈업 성공메이트</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,600&family=Noto+Serif+KR:wght@700;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
 :root {
-  --coral: #264C46;
-  --coral-soft: #E4EDEB;
-  --peach: #C98B6B;
-  --blush: #A9AFB7;
-  --cream: #F7F4EE;
-  --warm: #FAF9F6;
-  --brown: #14243A;
-  --mid: #57626C;
-  --light: #A9AFB7;
-  --gold: #C98B6B;
-  --gold-soft: #F0E4DA;
-  --sage: #8BAF8B;
-  --sage-soft: #EBF3EB;
+  --navy:#14243A; --navy2:#1C3350;
+  --bg:#FAF9F6; --card:#F7F4EE; --w:#fff;
+  --t:#14243A; --m:#5B6874;
+  --silver:#A9AFB7; --bd:#E4E1D9;
+  --g:#264C46; --gh:#315A55; --gb:#E7EEEC;
+  --kk:#FEE500;
+  --danger:#C0392B; --dbg:#FDE8E8;
+  --warn:#9A7A2A; --wbg:#FFF3E0;
+  --r:16px; --rs:10px;
+  --sh:0 4px 20px rgba(20,36,58,.08);
 }
-*{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{font-family:'Noto Sans KR',sans-serif;background:var(--warm);color:var(--brown);word-break:keep-all;overflow-x:hidden}
-
-/* ── D-DAY COUNTDOWN ── */
-.dday-bar{position:fixed;top:0;left:0;right:0;z-index:1000;background:linear-gradient(90deg,#14243A 0%,#1D3350 50%,#14243A 100%);color:white;height:52px;display:flex;align-items:center;justify-content:center;gap:16px;padding:0 16px;font-family:'Noto Sans KR',sans-serif}
-.dday-label{font-size:.72rem;font-weight:700;letter-spacing:.06em;opacity:.8;white-space:nowrap}
-.dday-title{font-size:.8rem;font-weight:700;color:#C98B6B;white-space:nowrap;letter-spacing:-.01em}
-.dday-units{display:flex;align-items:center;gap:6px}
-.dday-unit{display:flex;flex-direction:column;align-items:center;background:rgba(255,255,255,.12);border-radius:8px;padding:4px 10px;min-width:44px}
-.dday-num{font-size:1.05rem;font-weight:900;line-height:1;letter-spacing:-.02em;font-family:'Noto Serif KR',serif}
-.dday-sub{font-size:.55rem;opacity:.75;margin-top:1px;letter-spacing:.03em}
-.dday-sep{font-size:1rem;font-weight:700;opacity:.5;margin-bottom:6px}
-.dday-open{font-size:.85rem;font-weight:700;color:#C98B6B;animation:pulse 1.5s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
-@media(max-width:420px){.dday-title{display:none}.dday-unit{min-width:36px;padding:3px 7px}.dday-num{font-size:.9rem}}
-
-/* ── NAV ── */
-.nav{position:fixed;top:52px;left:0;right:0;z-index:900;background:rgba(255,253,249,.95);backdrop-filter:blur(12px);border-bottom:1px solid #DDE1DD;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
-.nav-logo{font-family:'Noto Serif KR',serif;font-size:.95rem;font-weight:700;color:var(--brown);text-decoration:none;letter-spacing:-.02em}
-.nav-cta{background:var(--coral);color:white;border:none;border-radius:50px;padding:8px 18px;font-size:.78rem;font-weight:700;cursor:pointer;text-decoration:none;font-family:'Noto Sans KR',sans-serif}
-
-/* ── 오른쪽 사이드 바로가기 ── */
-.side-nav{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:800;display:flex;flex-direction:column;gap:0}
-.side-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;width:56px;padding:12px 6px;background:white;border-left:3px solid var(--coral);border-top:1px solid #DDE1DD;border-bottom:none;text-decoration:none;color:var(--brown);font-size:.58rem;font-weight:700;gap:4px;transition:all .2s;cursor:pointer}
-.side-btn:first-child{border-radius:12px 0 0 0}
-.side-btn:last-child{border-radius:0 0 0 12px;border-bottom:1px solid #DDE1DD}
-.side-btn:hover{background:var(--coral);color:white;width:68px}
-.side-btn .side-icon{font-size:1.2rem}
-.side-btn .side-label{text-align:center;line-height:1.2}
-
-.notice{display:none}
-
-/* ── HERO ── */
-.hero{min-height:90vh;display:flex;align-items:center;background:linear-gradient(160deg,#EEF1EF 0%,var(--warm) 60%);padding:120px 24px 60px;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;top:-80px;right:-80px;width:400px;height:400px;background:radial-gradient(circle,rgba(38,76,70,.08) 0%,transparent 70%);pointer-events:none}
-.hero-inner{max-width:660px;margin:0 auto;width:100%}
-.hero-tag{display:inline-flex;align-items:center;gap:6px;background:white;border:1.5px solid var(--blush);border-radius:50px;padding:6px 16px;font-size:.73rem;font-weight:700;color:var(--coral);margin-bottom:24px}
-.hero-title{font-family:'Noto Serif KR',serif;font-size:clamp(1.8rem,5.5vw,2.8rem);font-weight:900;line-height:1.25;color:var(--brown);margin-bottom:16px;letter-spacing:-.04em}
-.hero-title em{color:var(--coral);font-style:normal}
-.hero-sub{font-size:clamp(.9rem,2.5vw,1rem);color:var(--mid);line-height:1.85;margin-bottom:32px}
-.hero-sub strong{color:var(--brown)}
-.hero-btns{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:44px}
-.btn-primary{background:var(--coral);color:white;border:none;border-radius:50px;padding:14px 28px;font-size:.88rem;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block;font-family:'Noto Sans KR',sans-serif}
-.btn-outline{background:white;color:var(--brown);border:1.5px solid #C9CFCB;border-radius:50px;padding:13px 24px;font-size:.85rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block;font-family:'Noto Sans KR',sans-serif}
-.hero-stats{display:flex;gap:28px;flex-wrap:wrap}
-.stat-item{text-align:left}
-.stat-num{font-family:'Noto Serif KR',serif;font-size:1.6rem;font-weight:900;color:var(--coral);line-height:1}
-.stat-label{font-size:.72rem;color:var(--mid);margin-top:3px}
-
-/* ── PROFILE CARD ── */
-.profile-section{background:white;padding:64px 24px}
-.profile-inner{max-width:660px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
-.profile-photo-wrap{position:relative}
-.profile-photo{width:100%;aspect-ratio:3/4;object-fit:cover;object-position:center top;border-radius:20px;box-shadow:0 20px 60px rgba(20,36,58,.15)}
-.profile-badge{position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);background:var(--coral);color:white;border-radius:50px;padding:8px 20px;font-size:.75rem;font-weight:700;white-space:nowrap;box-shadow:0 4px 16px rgba(38,76,70,.4)}
-.profile-text{}
-.sec-tag{display:inline-block;font-size:.68rem;font-weight:700;padding:4px 12px;border-radius:50px;background:var(--coral-soft);color:var(--coral);margin-bottom:14px;letter-spacing:.04em}
-.sec-title{font-family:'Noto Serif KR',serif;font-size:clamp(1.5rem,3.5vw,2rem);font-weight:900;line-height:1.3;color:var(--brown);margin-bottom:16px;letter-spacing:-.03em}
-.sec-title em{color:var(--coral);font-style:normal}
-.profile-body{font-size:.88rem;color:var(--mid);line-height:1.95;margin-bottom:24px}
-.profile-body strong{color:var(--brown)}
-.profile-body em{color:var(--coral);font-style:normal}
-.career-list{list-style:none;display:flex;flex-direction:column;gap:10px}
-.career-item{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;background:var(--cream);border-radius:12px;border-left:3px solid var(--coral)}
-.career-dot{width:8px;height:8px;background:var(--coral);border-radius:50%;margin-top:5px;flex-shrink:0}
-.career-content{}
-.career-title{font-size:.82rem;font-weight:700;color:var(--brown)}
-.career-sub{font-size:.73rem;color:var(--light);margin-top:2px}
-.quote-box{background:linear-gradient(135deg,var(--coral-soft),#DCE7E3);border-radius:16px;padding:20px;margin-top:20px;border-left:4px solid var(--coral)}
-.quote-text{font-family:'Noto Serif KR',serif;font-size:.88rem;color:var(--brown);line-height:1.85;font-style:italic}
-
-/* ── EDUCATION ── */
-.edu-section{background:var(--cream);padding:64px 24px}
-.edu-inner{max-width:660px;margin:0 auto}
-.edu-grid{display:grid;gap:16px;margin-top:32px}
-.edu-card{background:white;border-radius:20px;padding:24px;border:1.5px solid #DDE1DD;display:flex;gap:16px;align-items:flex-start;transition:transform .2s,box-shadow .2s}
-.edu-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(20,36,58,.08)}
-.edu-icon{width:52px;height:52px;border-radius:16px;background:var(--coral-soft);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
-.edu-content{}
-.edu-title{font-size:.95rem;font-weight:700;color:var(--brown);margin-bottom:6px}
-.edu-desc{font-size:.8rem;color:var(--mid);line-height:1.75;margin-bottom:10px}
-.edu-tags{display:flex;flex-wrap:wrap;gap:6px}
-.edu-tag{font-size:.68rem;background:var(--cream);color:var(--mid);border-radius:50px;padding:3px 10px;border:1px solid #D6DAD3}
-.edu-tag.hot{background:var(--coral);color:white;border-color:var(--coral)}
-.edu-tag-link{font-size:.68rem;font-weight:700;background:white;color:var(--coral);border-radius:50px;padding:3px 12px;border:1.5px solid var(--coral);text-decoration:none;display:inline-flex;align-items:center;gap:3px;transition:all .2s}
-.edu-tag-link:hover{background:var(--coral);color:white}
-
-/* ── INFLZ 활동분야 ── */
-.inflz-section{background:white;padding:64px 24px}
-.inflz-inner{max-width:660px;margin:0 auto}
-.inflz-grid{display:grid;gap:14px;margin-top:32px}
-.inflz-card{background:var(--cream);border-radius:20px;padding:22px;border:1.5px solid #DDE1DD;position:relative;overflow:hidden;transition:transform .2s}
-.inflz-card:hover{transform:translateX(6px)}
-.inflz-card::before{content:'';position:absolute;left:0;top:0;width:4px;height:100%;border-radius:0}
-.c1::before{background:linear-gradient(180deg,#264C46,#3E6960)}
-.c2::before{background:linear-gradient(180deg,#5BB890,#A8E6CF)}
-.c3::before{background:linear-gradient(180deg,#C8903A,#FFD93D)}
-.c4::before{background:linear-gradient(180deg,#7070D0,#B0B0F0)}
-.c5::before{background:linear-gradient(180deg,#264C46,#57626C)}
-.inflz-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.inflz-num{width:30px;height:30px;border-radius:8px;background:var(--coral);color:white;font-size:.72rem;font-weight:700;display:flex;align-items:center;justify-content:center}
-.inflz-title{font-size:.92rem;font-weight:700;color:var(--brown)}
-.inflz-cat{display:inline-block;font-size:.65rem;font-weight:700;padding:3px 10px;border-radius:50px;margin-bottom:10px}
-.cat-a{background:#FFF0E8;color:#C47030;border:1px solid #F0C898}
-.cat-b{background:#E8F8EE;color:#1E7A50;border:1px solid #A8E6C4}
-.cat-c{background:#FFF9E0;color:#8A6A00;border:1px solid #E8D87A}
-.cat-d{background:#F0F0FF;color:#5050C8;border:1px solid #B0B0F0}
-.inflz-points{list-style:none;display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
-.inflz-points li{font-size:.78rem;color:var(--mid);padding-left:14px;position:relative;line-height:1.6}
-.inflz-points li::before{content:'·';position:absolute;left:0;color:var(--coral);font-weight:700}
-.inflz-income{display:inline-block;background:var(--brown);color:white;border-radius:50px;padding:5px 14px;font-size:.72rem;font-weight:700}
-
-/* ── STATS ── */
-.stats-section{background:var(--coral);padding:56px 24px;text-align:center}
-.stats-inner{max-width:660px;margin:0 auto}
-.stats-title{font-family:'Noto Serif KR',serif;font-size:clamp(1.3rem,3vw,1.8rem);font-weight:900;color:white;margin-bottom:36px;letter-spacing:-.03em}
-.stats-title em{opacity:.7;font-style:normal}
-.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
-.stat-card{background:rgba(255,255,255,.15);border-radius:16px;padding:24px 16px;backdrop-filter:blur(8px)}
-.stat-big{font-family:'Noto Serif KR',serif;font-size:2.2rem;font-weight:900;color:white;line-height:1}
-.stat-small{font-size:.75rem;color:rgba(255,255,255,.8);margin-top:6px;line-height:1.5}
-
-/* ── REVIEWS ── */
-.reviews-section{background:var(--cream);padding:64px 24px}
-.reviews-inner{max-width:660px;margin:0 auto}
-.reviews-grid{display:grid;gap:14px;margin-top:32px}
-.review-card{background:white;border-radius:20px;padding:22px;border:1.5px solid #DDE1DD;text-decoration:none;display:block;transition:transform .2s,box-shadow .2s;color:inherit}
-.review-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(20,36,58,.1)}
-.rv-stars{color:var(--coral);font-size:.85rem;margin-bottom:8px}
-.rv-text{font-size:.83rem;color:var(--mid);line-height:1.85;margin-bottom:12px;font-style:italic}
-.rv-footer{display:flex;align-items:center;justify-content:space-between}
-.rv-author{font-size:.75rem;font-weight:700;color:var(--brown)}
-.rv-link{font-size:.72rem;color:var(--coral);font-weight:700}
-
-/* ── CTA ── */
-.cta-section{background:linear-gradient(160deg,var(--brown),#0A1420);padding:80px 24px;text-align:center}
-.cta-inner{max-width:560px;margin:0 auto}
-.cta-tag{display:inline-block;background:rgba(255,255,255,.15);color:white;border-radius:50px;padding:5px 16px;font-size:.72rem;font-weight:700;margin-bottom:20px;border:1px solid rgba(255,255,255,.25)}
-.cta-title{font-family:'Noto Serif KR',serif;font-size:clamp(1.6rem,4vw,2.2rem);font-weight:900;color:white;margin-bottom:12px;line-height:1.3}
-.cta-title em{color:var(--blush);font-style:normal}
-.cta-sub{color:rgba(255,255,255,.7);font-size:.88rem;line-height:1.75;margin-bottom:36px}
-.cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-.btn-white{background:white;color:var(--brown);border:none;border-radius:50px;padding:15px 30px;font-size:.9rem;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block;font-family:'Noto Sans KR',sans-serif}
-.btn-ghost{background:transparent;color:white;border:1.5px solid rgba(255,255,255,.5);border-radius:50px;padding:14px 24px;font-size:.85rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block;font-family:'Noto Sans KR',sans-serif}
-
-/* ── FOOTER ── */
-footer{background:#0A121D;padding:36px 24px;text-align:center}
-footer .ft-logo{font-family:'Noto Serif KR',serif;font-size:1rem;font-weight:700;color:rgba(255,255,255,.6);margin-bottom:12px}
-footer .ft-links{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin-bottom:12px}
-footer .ft-links a{color:rgba(255,255,255,.5);text-decoration:none;font-size:.75rem}
-footer .ft-copy{font-size:.7rem;color:rgba(255,255,255,.3)}
-
-/* ── STICKY BANNER ── */
-.sticky-banner{position:fixed;bottom:0;left:0;right:0;z-index:850;background:var(--coral);color:white;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.sb-text{font-size:.8rem;line-height:1.4}
-.sb-text strong{display:block;font-size:.88rem}
-.sb-btn{background:white;color:var(--coral);border:none;border-radius:50px;padding:9px 20px;font-size:.78rem;font-weight:700;cursor:pointer;text-decoration:none;white-space:nowrap;font-family:'Noto Sans KR',sans-serif;flex-shrink:0}
-.sb-close{background:none;border:none;color:rgba(255,255,255,.7);font-size:1.2rem;cursor:pointer;flex-shrink:0;line-height:1}
-
-/* ── REVEAL 애니메이션 ── */
-.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
-.reveal.visible{opacity:1;transform:none}
-
-@media(max-width:600px){
-  .profile-inner{grid-template-columns:1fr}
-  .stats-grid{grid-template-columns:repeat(2,1fr)}
-  .side-nav{position:fixed;right:0;top:50%;transform:translateY(-50%)}
-  .side-btn{width:42px;padding:8px 4px;font-size:.5rem}
-  .side-btn .side-icon{font-size:1rem}
-  .side-btn:hover{width:42px;background:var(--coral);color:white}
-  .gallery-grid{grid-template-columns:1fr 1fr}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--t);min-height:100vh;padding-bottom:82px;font-size:14px}
+.screen{display:none}.screen.active{display:block}
+.hdr{background:radial-gradient(ellipse at 30% -20%,rgba(38,76,70,.28) 0%,rgba(14,26,44,0) 55%),radial-gradient(ellipse at 80% 120%,rgba(169,175,183,.14) 0%,rgba(14,26,44,0) 55%),linear-gradient(160deg,#0E1A2C 0%,var(--navy) 100%);color:#fff;padding:34px 24px 28px;text-align:left;position:relative;overflow:hidden}
+.hdr-brand{font-family:'Playfair Display',serif;font-style:italic;font-weight:700;font-size:13px;letter-spacing:.05em;color:var(--silver);margin-bottom:8px;position:relative;z-index:1}
+.hdr-badge{display:inline-block;background:rgba(38,76,70,.35);border:1px solid rgba(120,180,165,.45);color:#BFE3D8;font-size:10px;font-weight:700;letter-spacing:1.5px;padding:4px 13px;border-radius:20px;margin-bottom:12px;position:relative;z-index:1}
+.hdr h1{font-family:'Noto Serif KR',serif;font-size:25px;font-weight:900;line-height:1.35;position:relative;z-index:1}
+.hdr h1 em{color:var(--silver);font-style:normal}
+.hdr-sub{font-size:12.5px;color:rgba(255,255,255,.55);margin-top:8px;position:relative;z-index:1}
+.welcome-hero{
+  min-height:100vh;
+  min-height:100dvh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:40px 28px;position:relative;
+  background:var(--bg);
+  color:var(--t);
 }
+.welcome-mark{
+  font-family:'Playfair Display',serif;font-style:italic;font-weight:700;
+  font-size:14px;letter-spacing:.08em;color:var(--m);margin-bottom:28px;
+}
+.welcome-star{font-size:24px;color:var(--g);margin-bottom:24px;line-height:1}
+.welcome-hero h1{
+  font-family:'Noto Serif KR',serif;font-weight:900;font-size:22px;line-height:1.75;
+  max-width:320px;color:var(--t);
+}
+.welcome-hero h1 .accent{color:var(--g);}
+.welcome-hero h1 .brand{color:var(--navy);}
+.welcome-btn{
+  margin-top:36px;display:inline-block;background:var(--g);color:#fff;
+  font-size:15px;font-weight:700;padding:16px 44px;border-radius:100px;border:none;
+  cursor:pointer;box-shadow:0 10px 24px rgba(38,76,70,.35);
+  transition:background .15s ease;
+}
+.welcome-btn:hover{background:var(--gh)}
+.card{background:var(--w);border-radius:var(--r);padding:18px;margin:10px 14px 0;box-shadow:var(--sh)}
+.card-ttl{font-size:11px;font-weight:700;color:var(--g);letter-spacing:1px;text-transform:uppercase;margin-bottom:13px;position:relative;padding-left:12px}
+.card-ttl::before{content:'';position:absolute;left:0;top:2px;bottom:2px;width:3px;background:var(--g);border-radius:2px}
+input[type=text],input[type=password],input[type=date],textarea,select{
+  width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:10px 13px;
+  font-family:inherit;font-size:14px;color:var(--t);outline:none;transition:border .2s;background:var(--card)
+}
+input:focus,textarea:focus,select:focus{border-color:var(--g)}
+textarea{resize:vertical;min-height:70px;line-height:1.6}
+label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:5px}
+.field{margin-bottom:13px}.field:last-child{margin-bottom:0}
+.btn{width:100%;border:none;border-radius:var(--rs);padding:13px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .2s,background .2s;margin-top:10px}
+.btn:hover{opacity:.9}
+.btn-dark{background:linear-gradient(135deg,var(--navy),#2C4A6E);color:#fff}
+.btn-acc{background:var(--g);color:#fff}
+.btn-acc:hover{background:var(--gh);opacity:1}
+.btn-out{background:#fff;border:1.5px solid var(--bd);color:var(--m)}
+.btn-out:hover{border-color:var(--g);color:var(--g);opacity:1}
+.btn-row{display:flex;gap:8px;margin-top:11px}
+.btn-row .btn{margin-top:0;flex:1}
+.today-badge{display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-radius:30px;padding:11px 20px;font-size:14px;font-weight:900;margin-bottom:12px;flex-wrap:wrap}
+.status-chip{display:inline-block;font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:20px}
+.status-chip.wait{background:var(--wbg);color:var(--warn)}
+.status-chip.active{background:var(--gb);color:var(--g)}
+.status-chip.done{background:#EAF3F1;color:var(--g)}
+.mission-item{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid #F0EEE7}
+.mission-item:last-child{border-bottom:none}
+.m-chk{width:22px;height:22px;border-radius:6px;border:2px solid var(--bd);background:#fff;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;transition:all .15s;margin-top:1px}
+.m-chk.on{background:var(--g);border-color:var(--g)}
+.m-txt{flex:1;font-size:14px;line-height:1.5}
+.m-txt.cross{text-decoration:line-through;color:var(--m)}
+.wait-box{text-align:center;padding:40px 20px;color:var(--m)}
+.wait-box .em{font-size:40px;margin-bottom:14px}
+.wait-box h3{font-size:16px;font-weight:900;color:var(--t);margin-bottom:6px}
+.wait-box p{font-size:12.5px;line-height:1.8}
+.comment-label{background:var(--card);border-left:3px solid var(--g);border-radius:0 8px 8px 0;padding:9px 12px;font-size:12px;font-weight:700;color:var(--g);margin-bottom:8px}
+.day-pill-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px}
+.day-pill{font-size:11px;font-weight:700;padding:4px 11px;border-radius:20px;background:var(--card);color:var(--m)}
+.journal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(26px,1fr));gap:5px}
+.j-cell{aspect-ratio:1;min-width:26px;border-radius:6px;background:var(--card);border:1.5px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;color:var(--m);cursor:pointer;position:relative}
+.j-cell.done{background:var(--gb);border-color:var(--g);color:var(--g)}
+.j-cell.reviewed::after{content:'✓';position:absolute;top:-5px;right:-5px;width:14px;height:14px;border-radius:50%;background:var(--navy);color:#fff;font-size:8px;display:flex;align-items:center;justify-content:center;font-weight:900;border:1.5px solid var(--bg)}
+.j-cell.today{border-color:var(--navy);box-shadow:0 0 0 2px rgba(20,36,58,.15)}
+.j-cell.future{opacity:.3;cursor:default}
+.day-pill.done{background:var(--gb);color:var(--g)}
+.day-pill.cur{background:var(--navy);color:#fff}
+.todo-list{list-style:none;margin-bottom:10px}
+.todo-item{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid #F0EEE7}
+.todo-item:last-child{border-bottom:none}
+.todo-chk{width:20px;height:20px;border-radius:6px;border:2px solid var(--bd);background:#fff;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:12px;color:#fff}
+.todo-chk.on{background:var(--g);border-color:var(--g)}
+.todo-txt{flex:1;font-size:13px;line-height:1.4}
+.todo-txt.cross{text-decoration:line-through;color:var(--m)}
+.todo-del{background:none;border:none;color:#C9CDD2;font-size:17px;cursor:pointer;padding:0 3px;line-height:1}
+.todo-del:hover{color:var(--danger)}
+.add-row{display:flex;gap:8px}
+.add-row input{flex:1}
+.btn-add{background:var(--g);color:#fff;border:none;border-radius:var(--rs);padding:10px 14px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.btn-add:hover{background:var(--gh)}
+.filter-row{display:flex;gap:5px;flex-wrap:wrap}
+.filter-btn{border:1.5px solid var(--bd);background:#fff;border-radius:20px;padding:5px 12px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;color:var(--m);transition:all .2s;white-space:nowrap}
+.filter-btn.active{background:var(--g);border-color:var(--g);color:#fff}
+.tab-nav{position:fixed;left:0;right:0;bottom:0;z-index:500;display:flex;gap:0;background:#fff;border-top:1px solid var(--bd);box-shadow:0 -6px 20px rgba(20,36,58,.08);padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+.tab-btn{flex:1;border:none;border-radius:12px;padding:9px 4px 7px;font-family:inherit;font-size:10.5px;font-weight:700;cursor:pointer;background:transparent;color:var(--m);display:flex;flex-direction:column;align-items:center;gap:3px;white-space:nowrap;position:relative}
+.tb-badge{position:absolute;top:2px;right:calc(50% - 20px);background:var(--danger);color:#fff;font-size:9px;font-weight:900;min-width:15px;height:15px;border-radius:20px;display:flex;align-items:center;justify-content:center;padding:0 3px;line-height:1}
+.tab-btn .tb-ic{font-size:18px;line-height:1}
+.tab-btn.active{color:var(--g)}
+.tab-btn.active .tb-ic{transform:translateY(-1px)}
+.tab-content{display:none}.tab-content.active{display:block}
+.sch-card{background:var(--w);border-radius:4px 18px 18px 4px;padding:14px 16px 14px 20px;margin:8px 14px 0;box-shadow:var(--sh);position:relative;overflow:hidden}
+.sch-card::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:4px;height:60%;border-radius:4px;background:var(--g)}
+.sch-card .sch-tear{border:none;border-top:1.5px dashed var(--bd);margin:10px 0;height:0}
+.sch-type{display:inline-block;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;margin-bottom:8px}
+.sch-title{font-size:14px;font-weight:900;margin-bottom:5px}
+.sch-detail{font-size:12px;color:var(--m);line-height:1.8}
+.sch-actions{display:flex;gap:8px;margin-top:10px}
+.sch-edit{background:var(--card);border:none;border-radius:8px;padding:6px 12px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;color:var(--m)}
+.sch-del-btn{background:var(--dbg);border:none;border-radius:8px;padding:6px 12px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;color:var(--danger)}
+.share-btn{background:var(--kk);border:none;border-radius:8px;padding:7px 14px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;color:#3B1D1D;width:100%;margin-top:10px}
+.empty-state{text-align:center;padding:32px 20px;color:var(--m);font-size:13px;line-height:2}
+.loader{text-align:center;padding:30px;color:var(--m);font-size:13px}
+.notice-item{background:#fff;border-radius:var(--rs);padding:15px 16px;margin:8px 14px 0;box-shadow:var(--sh);cursor:pointer;position:relative;overflow:hidden}
+.notice-item::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(to bottom,var(--navy),var(--silver))}
+.notice-tag-chip{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--card);color:var(--navy)}
+.notice-item-date{font-size:10.5px;color:var(--m);margin-left:auto}
+.notice-item-title{font-size:14px;font-weight:900;color:var(--t);padding-left:10px}
+.notice-item-body{display:none;font-size:13px;color:var(--t);line-height:1.8;padding:10px 10px 0;border-top:1px solid var(--bd);margin-top:10px;white-space:pre-wrap;word-break:break-all}
+.notice-item.expanded .notice-item-body{display:block}
+.notice-item-top{display:flex;align-items:center;gap:6px;margin-bottom:7px;padding-left:10px}
+.edu-cal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 0}
+.edu-cal-title{font-size:17px;font-weight:900;color:var(--t)}
+.edu-cal-nav{display:flex;gap:6px}
+.edu-cal-nav button{background:var(--card);border:none;border-radius:8px;min-width:32px;height:32px;padding:0 10px;font-size:13px;cursor:pointer;color:var(--m);display:flex;align-items:center;justify-content:center;font-family:inherit;font-weight:700}
+.edu-cal-grid-wrap{padding:10px 14px 0}
+.edu-dow-row{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px}
+.edu-dow{text-align:center;font-size:10px;font-weight:700;color:var(--m);padding:4px 0}
+.edu-dow.sun{color:#C0574F}.edu-dow.sat{color:#3E5A8C}
+.edu-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;grid-auto-rows:62px}
+.edu-cell{height:62px;border-radius:7px;padding:4px 3px;border:1.5px solid var(--bd);background:var(--card);position:relative;overflow:hidden;box-sizing:border-box}
+.edu-cell.edu-other{opacity:.3}
+.edu-cell.edu-today{border-color:var(--g);box-shadow:0 0 0 2px rgba(38,76,70,.18)}
+.edu-cell .edu-dn{font-size:11px;font-weight:700;color:#B7BEC5;line-height:1;margin-bottom:2px}
+.edu-cell.edu-today .edu-dn{color:var(--g)}
+.edu-event{font-size:8px;font-weight:700;border-radius:3px;padding:1px 3px;margin-bottom:1px;line-height:1.3;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.ev-off{background:#FFCDD2;color:#C62828}
+.ev-zoom{background:#E1BEE7;color:#6A1B9A}
+.ev-feedback{background:#FFF9C4;color:#F57F17}
+.ev-holiday{background:#ECEFF1;color:#546E7A}
+.ev-etc{background:#DCE6E3;color:var(--g)}
+.center-row{text-align:center;padding:12px 14px 0}
+.logout-btn{background:none;border:1.5px solid var(--bd);color:var(--m);border-radius:8px;padding:6px 14px;font-family:inherit;font-size:11px;cursor:pointer}
+.footer{text-align:center;padding:24px 20px 10px;font-size:11px;color:var(--m);line-height:2.1}
+.footer strong{color:var(--g)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--navy);color:#fff;padding:11px 22px;border-radius:30px;font-size:13px;font-weight:700;transition:transform .3s cubic-bezier(.4,0,.2,1);z-index:9998;white-space:nowrap;max-width:90vw;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.admin-hdr{background:linear-gradient(135deg,var(--navy),#0E1A2C);color:#fff;padding:20px;margin:10px 14px 0;border-radius:var(--r);display:flex;justify-content:space-between;align-items:center}
+.admin-hdr h2{font-size:18px;font-weight:900}
+.admin-hdr p{font-size:12px;opacity:.65;margin-top:4px}
+.admin-refresh{background:rgba(255,255,255,.14);border:none;color:#fff;border-radius:8px;padding:7px 12px;font-family:inherit;font-size:12px;cursor:pointer}
+.admin-tab-nav{display:flex;gap:6px;padding:10px 14px 6px;position:sticky;top:0;background:var(--bg);z-index:50;overflow-x:auto}
+.admin-tab-btn{flex:1 1 0;min-width:0;border:none;border-radius:var(--rs);padding:9px 6px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;background:var(--card);color:var(--m);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.admin-tab-btn.active{background:var(--navy);color:#fff}
+.admin-tab-section{display:none}
+.admin-tab-section.active{display:block}
+.stu-card{background:var(--w);border-radius:var(--rs);padding:14px 16px;margin:8px 14px 0;box-shadow:var(--sh);cursor:pointer}
+.stu-detail{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--bd)}
+.stu-detail.open{display:block}
+.sc-av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:var(--card)}
+.sc-info{flex:1;min-width:0}
+.sc-name{font-size:15px;font-weight:900}
+.sc-detail{font-size:11px;color:var(--m);margin-top:2px}
+.sc-right{text-align:right;flex-shrink:0}
+.mq-card{background:#fff;border-radius:12px;padding:12px 14px;margin:8px 14px 0;border:1.5px solid var(--bd);border-left:3px solid var(--warn)}
+.sheet-handle{width:36px;height:4px;border-radius:4px;background:var(--bd);margin:0 auto 16px}
+.sheet-hdr{background:linear-gradient(135deg,var(--navy),#24405E);margin:-24px -20px 20px;padding:14px 20px 16px;display:flex;justify-content:space-between;align-items:center}
+.sheet-hdr .sheet-title{font-size:15px;font-weight:900;color:#fff}
+.sheet-hdr .sheet-close{background:rgba(255,255,255,.14);border:none;width:26px;height:26px;border-radius:50%;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mq-card.reviewed{border-left-color:var(--g)}
+.day-admin-form textarea{min-height:100px}
+.kakao-share{display:flex;align-items:center;justify-content:center;gap:6px;background:var(--kk);color:#3B1D1D;border-radius:var(--rs);padding:11px 8px;font-family:inherit;font-size:13px;font-weight:700;text-decoration:none;box-shadow:0 4px 12px rgba(254,229,0,.35)}
+.admin-app-hdr{background:#20242B;color:#fff;padding:20px 20px 18px;display:flex;align-items:center;gap:10px}
+.admin-app-hdr .aicon{width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.admin-app-hdr .atxt{font-size:15px;font-weight:900}
+.admin-app-hdr .asub{font-size:11px;color:rgba(255,255,255,.55);margin-top:2px}
 
-/* ── 9년의 이야기 ── */
-.story-section{background:white;padding:64px 24px}
-.story-inner{max-width:660px;margin:0 auto}
-.timeline{display:flex;flex-direction:column;gap:0;margin-top:32px;position:relative}
-.timeline::before{content:'';position:absolute;left:28px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--coral),var(--blush));opacity:.3}
-.tl-item{display:flex;gap:20px;align-items:flex-start;padding-bottom:32px;position:relative}
-.tl-item:last-child{padding-bottom:0}
-.tl-icon{width:56px;height:56px;border-radius:16px;background:var(--coral-soft);display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;position:relative;z-index:1;border:2px solid white;box-shadow:0 4px 16px rgba(38,76,70,.15)}
-.tl-content{}
-.tl-label{font-size:.68rem;font-weight:700;color:var(--coral);margin-bottom:4px;letter-spacing:.04em}
-.tl-title{font-family:'Noto Serif KR',serif;font-size:1rem;font-weight:700;color:var(--brown);margin-bottom:6px}
-.tl-desc{font-size:.8rem;color:var(--mid);line-height:1.8}
-.story-quote{background:linear-gradient(135deg,var(--brown),#0A1420);border-radius:20px;padding:28px;margin-top:32px;text-align:center}
-.story-quote p{font-family:'Noto Serif KR',serif;font-size:.9rem;color:white;line-height:2;margin-bottom:12px}
-.story-quote cite{font-size:.73rem;color:rgba(255,255,255,.6);font-style:normal}
-
-/* ── 9년의 현장 ── */
-.field-section{background:var(--cream);padding:64px 24px}
-.field-inner{max-width:660px;margin:0 auto}
-.field-grid{display:grid;gap:16px;margin-top:32px}
-.field-card{background:white;border-radius:20px;padding:24px;border:1.5px solid #DDE1DD;display:flex;gap:16px;align-items:flex-start;transition:transform .2s}
-.field-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(20,36,58,.08)}
-.field-icon{width:52px;height:52px;border-radius:16px;background:var(--coral-soft);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
-.field-content{}
-.field-title{font-size:.92rem;font-weight:700;color:var(--brown);margin-bottom:6px}
-.field-text{font-size:.8rem;color:var(--mid);line-height:1.8;font-style:italic;margin-bottom:8px}
-.field-author{font-size:.72rem;color:var(--light);font-weight:600}
-
-/* ── 현장 갤러리 ── */
-.gallery-section{background:var(--brown);padding:56px 24px}
-.gallery-inner{max-width:660px;margin:0 auto}
-.gallery-tag{display:inline-block;font-size:.68rem;font-weight:700;padding:4px 12px;border-radius:50px;background:rgba(255,255,255,.15);color:rgba(255,255,255,.9);margin-bottom:14px;letter-spacing:.04em}
-.gallery-title{font-family:'Noto Serif KR',serif;font-size:clamp(1.4rem,3.5vw,1.9rem);font-weight:900;color:white;margin-bottom:8px;letter-spacing:-.03em}
-.gallery-title em{color:var(--blush);font-style:normal}
-.gallery-sub{font-size:.8rem;color:rgba(255,255,255,.6);margin-bottom:28px}
-.gallery-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.gallery-item{position:relative;border-radius:16px;overflow:hidden;aspect-ratio:3/4;cursor:pointer}
-.gallery-item img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
-.gallery-item:hover img{transform:scale(1.05)}
-.gallery-item.wide{grid-column:span 2;aspect-ratio:16/9}
-.gallery-caption{position:absolute;bottom:0;left:0;right:0;padding:16px 14px 12px;background:linear-gradient(transparent,rgba(0,0,0,.7));color:white;font-size:.75rem;font-weight:700}
-.gallery-caption small{display:block;font-size:.65rem;opacity:.75;font-weight:400;margin-top:2px}
+/* 수강생 리포트 카드 */
+.rpt-hdr{background:radial-gradient(ellipse at 25% -10%,rgba(38,76,70,.35) 0%,rgba(14,26,44,0) 55%),linear-gradient(165deg,#0E1A2C 0%,var(--navy) 100%);color:#fff;border-radius:20px;padding:22px 20px 20px;margin-top:6px}
+.rpt-eyebrow{font-family:'Playfair Display',serif;font-style:italic;font-weight:700;font-size:11px;letter-spacing:.08em;color:#9FB4C8}
+.rpt-top{display:flex;align-items:center;gap:14px;margin-top:14px}
+.rpt-ring-wrap{position:relative;width:70px;height:70px;flex-shrink:0}
+.rpt-ring-wrap svg{transform:rotate(-90deg)}
+.rpt-ring-bg{fill:none;stroke:rgba(255,255,255,.14);stroke-width:6}
+.rpt-ring-fill{fill:none;stroke:#8FCBB6;stroke-width:6;stroke-linecap:round;stroke-dasharray:207.3;stroke-dashoffset:207.3;transition:stroke-dashoffset 1s cubic-bezier(.22,1,.36,1)}
+.rpt-ring-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif KR',serif;font-weight:900;font-size:15px}
+.rpt-name{font-family:'Noto Serif KR',serif;font-weight:900;font-size:19px}
+.rpt-sub{font-size:11.5px;color:rgba(255,255,255,.55);margin-top:4px}
+.rpt-badge{display:inline-block;background:rgba(38,76,70,.4);border:1px solid rgba(120,180,165,.4);color:#BFE3D8;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;margin-top:7px}
+.rpt-chip-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px}
+.rpt-chip{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:10px 6px;text-align:center}
+.rpt-chip .n{font-family:'Noto Serif KR',serif;font-weight:900;font-size:16px;color:#fff}
+.rpt-chip .l{font-size:9px;color:rgba(255,255,255,.55);margin-top:3px;font-weight:700}
+.rpt-tab-nav{display:flex;gap:6px;margin:14px 0}
+.rpt-tab-btn{flex:1;border:1.5px solid var(--bd);background:var(--w);border-radius:12px;padding:10px 6px;font-family:inherit;font-size:11.5px;font-weight:700;color:var(--m);cursor:pointer;transition:all .25s ease}
+.rpt-tab-btn.active{background:var(--navy);border-color:var(--navy);color:#fff}
+.rpt-panel{display:none}
+.rpt-panel.active{display:block;animation:panelFade .35s ease both}
+@keyframes panelFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.rpt-card{background:var(--w);border-radius:16px;padding:16px;box-shadow:var(--sh)}
+.rpt-card-ttl{font-size:10.5px;font-weight:700;color:var(--g);letter-spacing:.4px;text-transform:uppercase;margin-bottom:12px}
+.rpt-bar-bg{height:8px;background:var(--card);border-radius:8px;overflow:hidden}
+.rpt-bar-fill{height:100%;background:linear-gradient(90deg,var(--g),var(--gh));border-radius:8px;width:0;transition:width 1s cubic-bezier(.22,1,.36,1)}
+.rpt-bar-label{font-size:11px;color:var(--m);margin-top:7px;font-weight:700;text-align:right}
+.rpt-day-row{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid #F0EEE7;align-items:flex-start;font-size:12.5px}
+.rpt-day-row:last-child{border-bottom:none}
+.rpt-day-chk{width:20px;height:20px;border-radius:6px;background:var(--g);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:1px}
+.rpt-item-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F0EEE7}
+.rpt-item-row:last-child{border-bottom:none}
+.rpt-item-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;flex-shrink:0}
+.rpt-item-name{font-size:12.5px;font-weight:700;flex:1}
+.rpt-item-date{font-size:10.5px;color:var(--m);flex-shrink:0}
+.rpt-empty{text-align:center;padding:20px 0;color:var(--m);font-size:12px}
+@keyframes bannerSlideIn{0%{opacity:0;transform:translateY(-16px) scale(.95)}100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes badgePulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(255,255,255,.55)}50%{transform:scale(1.1);box-shadow:0 0 0 7px rgba(255,255,255,0)}}
+#mission-new-banner.anim-in,#mission-mode-card.anim-in{animation:bannerSlideIn .5s cubic-bezier(.34,1.56,.64,1) both}
+#mission-new-banner .new-chip{animation:badgePulse 1.7s ease-in-out infinite}
 </style>
 </head>
 <body>
 
-<!-- PROGRESS BANNER -->
-<div class="dday-bar" id="ddayBar">
-  <span class="dday-open" id="ddayText">🌸 SELLZ UP 1기 · 8월 3일 오픈 예정</span>
+<div class="hdr" id="app-hdr">
+  <div class="hdr-brand">SELLZ UP</div>
+  <div class="hdr-badge">✦ 성공메이트</div>
+  <h1>당신의 <em>성공</em>은<br>여기에서부터</h1>
+  <p class="hdr-sub">오늘의 내가, 내일의 나를 성공으로 이끕니다</p>
 </div>
 
-
-<!-- NAV -->
-<nav class="nav">
-  <a href="#" class="nav-logo">🌸 인플즈메리</a>
-  <a href="https://open.kakao.com/o/s7H2jojh" class="nav-cta" target="_blank">무료 상담 신청 →</a>
-</nav>
-
-<!-- 오른쪽 사이드 바로가기 -->
-<div class="side-nav">
-  <a href="https://binidayz-lang.github.io/newproject/" class="side-btn" target="_blank">
-    <span class="side-icon">🌸</span>
-    <span class="side-label">SELLZ<br>UP</span>
-  </a>
-  <a href="https://open.kakao.com/o/s7H2jojh" class="side-btn" target="_blank">
-    <span class="side-icon">💬</span>
-    <span class="side-label">카카오<br>상담</span>
-  </a>
-  <a href="https://blog.naver.com/jsh1318kb" class="side-btn" target="_blank">
-    <span class="side-icon">📝</span>
-    <span class="side-label">블로그</span>
-  </a>
-  <a href="https://www.instagram.com/inflz_marryz_class" class="side-btn" target="_blank">
-    <span class="side-icon">📸</span>
-    <span class="side-label">인스타</span>
-  </a>
+<div id="sc-welcome" class="screen">
+  <div class="welcome-hero">
+    <div class="welcome-mark">SELLZ UP</div>
+    <div class="welcome-star">✦</div>
+    <h1>안녕하세요.<br>여러분의 <span class="accent">성공메이트</span><br>인플즈메리만의 교육프로그램<br><span class="brand">"셀즈업"</span>입니다.</h1>
+    <button class="welcome-btn" onclick="show('sc-login')">들어가기 →</button>
+  </div>
 </div>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-inner">
-    <div class="hero-tag reveal">인플즈 대표강사 · 온라인 9년차</div>
-    <h1 class="hero-title reveal">누구 엄마가 아닌<br><em>메리 강사</em>로<br>불리는 삶</h1>
-    <p class="hero-sub reveal">
-      예비맘 시절 시작한 온라인 부업이<br>
-      <strong>연 1,000명+을 가르치는 강사</strong>의 삶이 됐습니다.<br>
-      당신도 본인의 이름으로 불릴 수 있어요.
-    </p>
-    <div class="hero-btns reveal">
-      <a href="https://open.kakao.com/o/s7H2jojh" class="btn-primary" target="_blank">💬 무료 상담받기</a>
-      <a href="#about" class="btn-outline">강사 소개 보기</a>
-    </div>
-    <div class="hero-stats reveal">
-      <div class="stat-item"><div class="stat-num">1,000+</div><div class="stat-label">오프라인 직접 대면</div></div>
-      <div class="stat-item"><div class="stat-num">3,000+</div><div class="stat-label">성공 후기</div></div>
-      <div class="stat-item"><div class="stat-num">9년</div><div class="stat-label">온라인 활동</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- ABOUT / PROFILE -->
-<section class="profile-section" id="about">
-  <div class="profile-inner">
-    <div class="profile-photo-wrap reveal">
-      <img src="images/photo1.jpeg" alt="인플즈메리 메리 강사" class="profile-photo">
-      <div class="profile-badge">인플즈 대표강사 · EDU-ON 센터 대표</div>
-    </div>
-    <div class="profile-text">
-      <div class="sec-tag reveal">About</div>
-      <h2 class="sec-title reveal">메리 강사를<br><em>소개합니다</em></h2>
-      <p class="profile-body reveal">
-        <em>예비맘 시절</em>, 아이를 위해 시작한 온라인 부업.<br>
-        블로그 체험단부터 도매 쇼핑몰, 구매대행까지 —<br>
-        <strong>안 해본 게 없을 정도로 부딪혀봤습니다.</strong><br><br>
-        그렇게 9년이 지난 지금, 저는 <em>'누구 엄마'</em>가 아닌<br>
-        <strong>'메리 강사'</strong>라는 이름으로 하루에 더 많이 불립니다.<br><br>
-        다들 본인의 이름을 잃지 않았으면 합니다.
-      </p>
-      <ul class="career-list reveal">
-        <li class="career-item">
-          <div class="career-content">
-            <div class="career-title">인플즈 대표강사</div>
-            <div class="career-sub">2022.09 ~ 현재 · 5년차</div>
-          </div>
-        </li>
-        <li class="career-item">
-          <div class="career-content">
-            <div class="career-title">EDU-ON 교육센터 대표</div>
-            <div class="career-sub">현재 운영 중</div>
-          </div>
-        </li>
-        <li class="career-item">
-          <div class="career-content">
-            <div class="career-title">블로그 · 인스타 브랜딩 강사</div>
-            <div class="career-sub">온라인 부업 플랫폼 4년</div>
-          </div>
-        </li>
-        <li class="career-item">
-          <div class="career-content">
-            <div class="career-title">도매 쇼핑몰 · 구매대행 · 블로그 체험단</div>
-            <div class="career-sub">다양한 온라인 사업 경험</div>
-          </div>
-        </li>
-      </ul>
-      <div class="quote-box reveal">
-        <p class="quote-text">"일단 한다. 주저하지 않고 해보고 부딪혀봐라.<br>해야 일어나는 일이지, 안 하면 아무 일도 안 일어난다."</p>
+<div id="sc-login" class="screen">
+  <div class="card" style="margin-top:20px">
+    <div class="card-ttl">🙋 반가워요!</div>
+    <div class="field">
+      <label>어떤 상황이신가요?</label>
+      <div style="display:flex;gap:8px">
+        <button type="button" class="filter-btn active" id="ut-new" onclick="chooseUserType('new')" style="flex:1;padding:10px">🌱 처음입니다!</button>
+        <button type="button" class="filter-btn" id="ut-existing" onclick="chooseUserType('existing')" style="flex:1;padding:10px">🔄 기존 수강중입니다!</button>
       </div>
     </div>
+    <div class="field"><label>이름</label><input type="text" id="l-name" placeholder="이름 입력 (예: 홍길동)" maxlength="10" onkeydown="if(event.key==='Enter')document.getElementById('l-pin').focus()"></div>
+    <div class="field"><label>나만의 숫자 4자리 비밀번호</label><input type="password" id="l-pin" placeholder="꼭 기억해두세요 😊" maxlength="4" inputmode="numeric" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn btn-dark" onclick="doLogin()">들어갈게요 →</button>
+    <p style="text-align:center;font-size:11px;color:var(--m);margin-top:12px;line-height:1.8">처음이시면 이름+비번 입력 후 바로 시작할 수 있어요 🌱<br>비번은 꼭 기억해두세요! 폰 바꿔도 그대로 이어져요</p>
   </div>
-</section>
-
-<!-- EDUCATION -->
-<section class="edu-section">
-  <div class="edu-inner">
-    <div class="sec-tag reveal">Education</div>
-    <h2 class="sec-title reveal">어떤 교육을 하나요?</h2>
-    <p class="reveal" style="font-size:.85rem;color:var(--mid);margin-bottom:4px">오프라인 · 줌 · SELLZ UP까지, 나에게 맞는 방식으로 시작하세요.</p>
-    <div class="edu-grid">
-      <div class="edu-card reveal">
-        <div class="edu-icon">🏢</div>
-        <div class="edu-content">
-          <div class="edu-title">오프라인 교육</div>
-          <div class="edu-desc">실제 교육센터에서 매주 진행되는 현장 강의. 1,000회 이상 진행된 검증된 교육으로 매달 정시 마감될 정도로 인기 있는 클래스입니다.</div>
-          <div class="edu-tags">
-            <span class="edu-tag">실제 교육센터 · 매주 진행</span>
-            <span class="edu-tag">1,000회 이상 · 정시 마감</span>
-          </div>
-        </div>
-      </div>
-      <div class="edu-card reveal">
-        <div class="edu-icon">💻</div>
-        <div class="edu-content">
-          <div class="edu-title">Zoom 교육</div>
-          <div class="edu-desc">매달 300명, 매주 다른 주제로 진행되는 온라인 강의. 최신 정보와 실전 노하우를 제공하며 오프라인에 오지 못하는 분들도 함께할 수 있습니다.</div>
-          <div class="edu-tags">
-            <span class="edu-tag">매달 300명</span>
-            <span class="edu-tag">매주 다른 주제</span>
-            <span class="edu-tag">온라인 실시간</span>
-          </div>
-        </div>
-      </div>
-      <div class="edu-card reveal">
-        <div class="edu-icon">🔥</div>
-        <div class="edu-content">
-          <div class="edu-title">"SELLZ UP" 교육프로그램</div>
-          <div class="edu-desc">기존 챌린지 교육을 바탕으로 재탄생한 교육방식으로, 구조화된 집중 프로그램입니다.</div>
-          <div class="edu-tags">
-            <span class="edu-tag hot">SELLZ UP 1기 · 8월 3일 오픈</span>
-            <a href="https://binidayz-lang.github.io/newproject/" class="edu-tag-link" target="_blank">SELLZ UP 바로가기 →</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- INFLZ 활동분야 -->
-<section class="inflz-section">
-  <div class="inflz-inner">
-    <div class="sec-tag reveal">인플즈 활동분야</div>
-    <h2 class="sec-title reveal">5가지 수익 활동으로<br><em>월 수익을 만드는 방법</em></h2>
-    <div class="inflz-grid">
-      <div class="inflz-card c1 reveal">
-        <div class="inflz-cat cat-a">남이 팔아주는 매출</div>
-        <div class="inflz-header">
-          <div class="inflz-num">01</div>
-          <div class="inflz-title">AI 자동화 공구중개</div>
-        </div>
-        <ul class="inflz-points">
-          <li>매일 30만원 이상의 셀러 데이터 기반 AI 추천으로</li>
-          <li>매일 새로운 셀러를 자동 연결</li>
-          <li>무제한 공구링크 생성 연결만 해주고 수수료로 정산 받는 구조</li>
-        </ul>
-        <span class="inflz-income">진행 시 즉시 100 – 300만원</span>
-      </div>
-      <div class="inflz-card c2 reveal">
-        <div class="inflz-cat cat-b">내가 파는 매출</div>
-        <div class="inflz-header">
-          <div class="inflz-num">02</div>
-          <div class="inflz-title">자동화 공구몰 운영</div>
-        </div>
-        <ul class="inflz-points">
-          <li>최신 공구템으로 구성된 공구몰 운영</li>
-          <li>CS · 배송 · 정산까지 다이렉트 처리</li>
-          <li>초보자도 공구몰 수익만으로 빠르게 성장 가능</li>
-        </ul>
-        <span class="inflz-income">3개월 내 월 200 – 300만원</span>
-      </div>
-      <div class="inflz-card c3 reveal">
-        <div class="inflz-cat cat-a">남이 팔아주는 매출</div>
-        <div class="inflz-header">
-          <div class="inflz-num">03</div>
-          <div class="inflz-title">공구몰 상품 입점 제안</div>
-        </div>
-        <ul class="inflz-points">
-          <li>5천 명이 이용하는 공구몰에 요즘 유행하는 공구상품을 입점 제안 · 회사 연결</li>
-          <li>직접 판매 없이 연결만으로 수익 발생</li>
-        </ul>
-        <span class="inflz-income">월 200 – 300만원</span>
-      </div>
-      <div class="inflz-card c4 reveal">
-        <div class="inflz-cat cat-c">고정수익 가능</div>
-        <div class="inflz-header">
-          <div class="inflz-num">04</div>
-          <div class="inflz-title">콘텐츠 미션</div>
-        </div>
-        <ul class="inflz-points">
-          <li>7초 짜리 짧은 영상으로 회사를 소개하는 미션</li>
-          <li>간단하게 만들어 올리면</li>
-          <li>고정 수익으로 적립</li>
-        </ul>
-        <span class="inflz-income">월 최대 30만원 이상</span>
-      </div>
-      <div class="inflz-card c5 reveal">
-        <div class="inflz-cat cat-d">창업 강사양성</div>
-        <div class="inflz-header">
-          <div class="inflz-num">05</div>
-          <div class="inflz-title">창업 강사 활동</div>
-        </div>
-        <ul class="inflz-points">
-          <li>위 모든 활동을 배우고 직접 교육하는 강사로 성장</li>
-          <li>1인 교육 수익 최대 300만원</li>
-          <li>실력 쌓일수록 수익 확대</li>
-        </ul>
-        <span class="inflz-income">월 1,000만원 이상 고수익 가능성</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<!-- 9년의 이야기 -->
-<section class="story-section">
-  <div class="story-inner">
-    <div class="sec-tag reveal">Story</div>
-    <h2 class="sec-title reveal">9년의 이야기</h2>
-    <div class="timeline">
-      <div class="tl-item reveal">
-        <div class="tl-icon">🤱</div>
-        <div class="tl-content">
-          <div class="tl-label">예비맘 시절</div>
-          <div class="tl-title">온라인이 뭔지도 몰랐던 때</div>
-          <div class="tl-desc">10년을 달려온 사회생활에서 갑자기 예비맘이 되어야 하는 현실, 막막했습니다. 온라인은 너무 어렵고 생소하게 느껴졌거든요.</div>
-        </div>
-      </div>
-      <div class="tl-item reveal">
-        <div class="tl-icon">🏠</div>
-        <div class="tl-content">
-          <div class="tl-label">3년차 전환점</div>
-          <div class="tl-title">28평 신축빌라, 첫 집 마련</div>
-          <div class="tl-desc">온라인 플랫폼 부업을 통해 첫 집을 마련했습니다. 집에서, 모든 걸 다 이뤄내면서 엄마로도, 주부강사로도 자리를 잡았습니다.</div>
-        </div>
-      </div>
-      <div class="tl-item reveal">
-        <div class="tl-icon">🏆</div>
-        <div class="tl-content">
-          <div class="tl-label">5년차 확장</div>
-          <div class="tl-title">인플즈 오픈멤버 대표강사 · 34평 신축아파트</div>
-          <div class="tl-desc">인플즈 창립 초기부터 함께하며 교육시스템을 구축했습니다. 34평 대단지 신축아파트, 남편에게 차 바꿔줄게 했던 약속도 지켰습니다.</div>
-        </div>
-      </div>
-      <div class="tl-item reveal">
-        <div class="tl-icon">🌟</div>
-        <div class="tl-content">
-          <div class="tl-label">9년차 · 지금</div>
-          <div class="tl-title">국내외 3,000여 명과 함께</div>
-          <div class="tl-desc">국내외 3,000여 명의 수강생과 함께하고 있습니다. 오프라인 교육 신청은 매달 정시 마감될 정도로 인기가 높습니다.</div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<!-- 9년의 현장 (moved to gallery) -->
-<section class="field-section">
-  <div class="field-inner">
-    <div class="sec-tag reveal">Real Stories</div>
-    <h2 class="sec-title reveal">9년의 현장<br><em>수강생들의 진짜 이야기</em></h2>
-    <p class="reveal" style="font-size:.83rem;color:var(--mid);margin-bottom:4px">교육을 넘어, 삶이 바뀐 이야기입니다.</p>
-    <div class="field-grid">
-      <div class="field-card reveal">
-        <div class="field-icon">🏠</div>
-        <div class="field-content">
-          <div class="field-title">집을 샀어요</div>
-          <div class="field-text">"처음엔 용돈벌이 할 생각이었어요. 그런데 1년 만에 생애 첫 집을 장만했습니다."</div>
-          <div class="field-author">30대 주부 수강생</div>
-        </div>
-      </div>
-      <div class="field-card reveal">
-        <div class="field-icon">💳</div>
-        <div class="field-content">
-          <div class="field-title">대출을 갚았어요</div>
-          <div class="field-text">"육아 중에 쌓인 카드빚을 챌린지 참여 6개월 만에 전부 청산했습니다."</div>
-          <div class="field-author">40대 육아맘 수강생</div>
-        </div>
-      </div>
-      <div class="field-card reveal">
-        <div class="field-icon">💼</div>
-        <div class="field-content">
-          <div class="field-title">자리를 잡았어요</div>
-          <div class="field-text">"재가입만 세 번 실패했는데 메리님이 방향을 잡아주셔서 매달 안정적인 수익 중."</div>
-          <div class="field-author">30대 직장맘 수강생</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<!-- 현장 갤러리 -->
-<section class="gallery-section">
-  <div class="gallery-inner">
-    <div class="gallery-tag reveal">9년의 현장</div>
-    <h2 class="gallery-title reveal">말이 아니라 <em>결과로 증명</em>했습니다</h2>
-    <p class="gallery-sub reveal">약속했던 것들을 하나씩 이뤄낸 실제 현장입니다.</p>
-    <div class="gallery-grid">
-      <div class="gallery-item reveal">
-        <img src="images/photo2.jpeg" alt="남편에게 벤츠 선물">
-        <div class="gallery-caption">5년차 약속을 지켰습니다<small>남편 차 선물 — 실제 현장</small></div>
-      </div>
-      <div class="gallery-item reveal">
-        <img src="images/photo3.jpeg" alt="수익 현장">
-        <div class="gallery-caption">천만원 이벤트<small>효도하는 딸이 됐습니다 🧧</small></div>
-      </div>
-      <div class="gallery-item reveal">
-        <img src="images/photo4.jpeg" alt="부동산 계약서">
-        <div class="gallery-caption">온라인 플랫폼 하나로<small>집을 마련했습니다 🏠</small></div>
-      </div>
-      <div class="gallery-item reveal">
-        <img src="images/photo5.jpeg" alt="신축 아파트">
-        <div class="gallery-caption">신도시 34평 신축아파트로<small>이사했습니다 ✨</small></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- STATS -->
-<section class="stats-section">
-  <div class="stats-inner">
-    <h2 class="stats-title">메리 강사가 <em>만들어온</em> 숫자들</h2>
-    <div class="stats-grid">
-      <div class="stat-card"><div class="stat-big count-num" data-target="1000" data-suffix="+">0+</div><div class="stat-small">오프라인<br>직접 대면</div></div>
-      <div class="stat-card"><div class="stat-big count-num" data-target="3000" data-suffix="+">0+</div><div class="stat-small">수강생<br>성공 후기</div></div>
-      <div class="stat-card"><div class="stat-big count-num" data-target="1000" data-suffix="+">0+</div><div class="stat-small">오프·줌 교육<br>누적 진행</div></div>
-      <div class="stat-card"><div class="stat-big count-num" data-target="9" data-suffix="년">0년</div><div class="stat-small">온라인<br>활동 경력</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- REVIEWS -->
-<section class="reviews-section">
-  <div class="reviews-inner">
-    <div class="sec-tag reveal">수강생 후기</div>
-    <h2 class="sec-title reveal">수강생들의 <em>진짜 후기</em></h2>
-    <p class="reveal" style="font-size:.83rem;color:var(--mid);margin-bottom:4px">티격태格 말고 직접 확인하세요. 블로그에 실제 후기가 있습니다.</p>
-    <div class="reviews-grid">
-      <a href="https://m.blog.naver.com/jsh1318kb/224260212837" class="review-card reveal" target="_blank">
-        <div class="rv-stars">★★★★★</div>
-        <div class="rv-text">"메리님 교육은 안 들으면 무조건 손해라는 생각이 들 정도로 매번 최고예요. 실무에서 바로 써먹을 수 있는 꿀팁들을 어찜 그렇게 쏙쏙 알려주시는지, 들을 때마다 감사하다는 생각밖에 안 들어요."</div>
-        <div class="rv-footer"><span class="rv-author">줌 교육 수강생</span><span class="rv-link">블로그에서 보기 →</span></div>
-      </a>
-      <a href="https://m.blog.naver.com/jsh1318kb/224253639741" class="review-card reveal" target="_blank">
-        <div class="rv-stars">★★★★★</div>
-        <div class="rv-text">"메리님과 교육 후에는 뭘 해야 할지 명확하게 길이 보여서 헤매는 일이 없어요. 매일 함께하며 응원해주시니 온라인 부업이지만 전혀 외롭지 않아요."</div>
-        <div class="rv-footer"><span class="rv-author">챌린지 수강생</span><span class="rv-link">블로그에서 보기 →</span></div>
-      </a>
-      <a href="https://m.blog.naver.com/jsh1318kb/223925049701" class="review-card reveal" target="_blank">
-        <div class="rv-stars">★★★★★</div>
-        <div class="rv-text">"내 생각에 갇혀 멈춰있는 나를 앞으로 나아갈 수 있게 해주거든요. 뭘 해야 하지? 하던 부분이 신기하게 해결돼요. 그래서 교육을 들어야 해요."</div>
-        <div class="rv-footer"><span class="rv-author">챌린지 수강생</span><span class="rv-link">블로그에서 보기 →</span></div>
-      </a>
-      <a href="https://m.blog.naver.com/jsh1318kb/224095638727" class="review-card reveal" target="_blank">
-        <div class="rv-stars">★★★★★</div>
-        <div class="rv-text">"잘하는 사람 옆에, 성공한 사람 옆에, 꾸준한 사람 옆에 있어야 나도 성장할 수 있다는 걸 느꼈어요. 왕복 세 시간도 올 만큼 값진 오프교육이었습니다."</div>
-        <div class="rv-footer"><span class="rv-author">오프라인 수강생</span><span class="rv-link">블로그에서 보기 →</span></div>
-      </a>
-      <a href="https://m.blog.naver.com/jsh1318kb/223935104765" class="review-card reveal" target="_blank">
-        <div class="rv-stars">★★★★★</div>
-        <div class="rv-text">"교육을 듣고 나면 더 의욕이 넘치고 열심히 해야겠다는 생각이 마구마구 들어요. 방법과 체계, 그리고 멘탈케어까지 해주시니 교육은 진짜 무조건 필참이에요!"</div>
-        <div class="rv-footer"><span class="rv-author">줌 교육 수강생</span><span class="rv-link">블로그에서 보기 →</span></div>
-      </a>
-    </div>
-  </div>
-</section>
-
-<!-- CTA -->
-<section class="cta-section">
-  <div class="cta-inner">
-    <div class="cta-tag">🌸 새로운 시즌, 새로운 이름</div>
-    <h2 class="cta-title">SELLZ UP <em>1기 오픈</em></h2>
-    <p class="cta-sub">인플즈메리와 함께한 9년의 노하우를 그대로 담아<br>새 이름 'SELLZ UP'으로 첫 시즌을 엽니다.<br>8월 3일, 가장 구조화된 커리큘럼으로 시작합니다.</p>
-    <div class="cta-btns">
-      <a href="https://open.kakao.com/o/s7H2jojh" class="btn-white" target="_blank">💬 무료 상담 신청하기</a>
-    </div>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer>
-  <div class="ft-logo">MARRYZ</div>
-  <div class="ft-links">
-    <a href="https://www.instagram.com/inflz_marryz_class" target="_blank">인스타그램</a>
-    <a href="https://blog.naver.com/jsh1318kb" target="_blank">네이버 블로그</a>
-    <a href="https://open.kakao.com/o/s7H2jojh" target="_blank">카카오톡 문의</a>
-  </div>
-  <div class="ft-copy">© 2026 인플즈메리 · EDU-ON</div>
-</footer>
-
-<!-- STICKY BOTTOM BANNER -->
-<div class="sticky-banner" id="stickyBanner">
-  <div class="sb-text">
-    <strong>🌸 SELLZ UP 1기</strong>
-    8월 3일 오픈, 지금 상담하세요
-  </div>
-  <a href="https://open.kakao.com/o/s7H2jojh" class="sb-btn" target="_blank">지금 신청 →</a>
-  <button class="sb-close" onclick="document.getElementById('stickyBanner').style.display='none'">×</button>
 </div>
+
+<!-- 셀즈업 이용안내 팝업 (처음 시작할 때만) -->
+<div class="modal-wrap" id="guide-modal" style="position:fixed;inset:0;background:rgba(20,36,58,.55);z-index:9995;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s">
+  <div style="background:#fff;border-radius:22px;width:100%;max-width:400px;overflow:hidden;box-shadow:0 20px 60px rgba(20,36,58,.25)" id="guide-modal-box">
+    <div style="background:linear-gradient(135deg,var(--navy),#24405E);padding:22px 22px 20px">
+      <div style="font-size:16px;font-weight:900;color:#fff">✦ 셀즈업 이용안내</div>
+    </div>
+    <div style="padding:22px;font-size:13px;line-height:1.9;color:var(--t)">
+      <p>이 프로그램의 저작권은 인플즈메리에게 있습니다. 유출·변형·공유 등 법적으로 문제가 되는 행위는 금지합니다.</p>
+      <p style="margin-top:12px">셀즈업 이용이 일주일 이상 없을 경우, 특별한 사유가 없는 한 이용은 종료됩니다. 개인 사정이 있다면 미리 말씀해주세요.</p>
+      <p style="margin-top:14px;font-weight:700;color:var(--g)">지금부터 집중하세요!<br>셀즈업은 여러분들의 성공메이트가 되어줄 겁니다.</p>
+    </div>
+    <div style="padding:0 22px 22px">
+      <button class="btn btn-acc" onclick="confirmGuideAndStart()">동의합니다. 시작할게요 →</button>
+    </div>
+  </div>
+</div>
+
+<div id="sc-main" class="screen">
+  <div class="tab-nav">
+    <button class="tab-btn active" data-tab="calendar" onclick="switchTab('calendar')"><span class="tb-ic">📅</span>오늘</button>
+    <button class="tab-btn" data-tab="gongu" onclick="switchTab('gongu')"><span class="tb-ic">🛒</span>공구<span class="tb-badge" id="badge-gongu" style="display:none">0</span></button>
+    <button class="tab-btn" data-tab="ipjum" onclick="switchTab('ipjum')"><span class="tb-ic">🏪</span>입점<span class="tb-badge" id="badge-ipjum" style="display:none">0</span></button>
+    <button class="tab-btn" data-tab="notice" onclick="switchTab('notice')"><span class="tb-ic">📢</span>공지<span class="tb-badge" id="badge-notice" style="display:none">0</span></button>
+    <button class="tab-btn" data-tab="edu" onclick="switchTab('edu')"><span class="tb-ic">📆</span>교육</button>
+  </div>
+
+  <!-- 캘린더 탭 (미션 모드 / 자유 모드) -->
+  <div class="tab-content active" id="tab-calendar">
+    <div class="card" id="today-edu-banner" style="display:none;background:var(--gb);border:1.5px solid var(--g)">
+      <div style="font-size:10.5px;font-weight:700;color:var(--g);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">📢 오늘의 교육일정</div>
+      <div id="today-edu-banner-items" style="font-size:13px;color:var(--t);line-height:1.8"></div>
+    </div>
+    <div class="card" id="mission-new-banner" style="display:none;background:linear-gradient(135deg,var(--g),var(--gh));color:#fff;cursor:pointer;text-align:center" onclick="confirmMissionSeen()">
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px">
+        <span class="new-chip" style="background:#fff;color:var(--g);font-size:9.5px;font-weight:900;padding:2px 8px;border-radius:20px">NEW</span>
+        <span style="font-size:11px;font-weight:700;color:rgba(255,255,255,.85)">미션 알림</span>
+      </div>
+      <div id="mission-new-banner-text" style="font-size:14.5px;font-weight:700;line-height:1.7;text-align:center"></div>
+      <div style="font-size:11px;color:rgba(255,255,255,.75);margin-top:8px;text-align:center">탭하면 확인 완료로 표시돼요 →</div>
+    </div>
+    <div class="card" id="note-banner" style="display:none;background:linear-gradient(135deg,var(--navy),#24405E);color:#fff">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="background:var(--g);color:#fff;font-size:9.5px;font-weight:900;padding:2px 8px;border-radius:20px">NEW</span>
+        <span style="font-size:11px;font-weight:700;color:rgba(255,255,255,.65)">메리의 한마디</span>
+      </div>
+      <div id="note-banner-text" style="font-size:13.5px;line-height:1.7"></div>
+    </div>
+    <div class="card" id="mission-mode-card" style="display:none">
+      <div class="today-badge">
+        <span id="m-emoji">🌱</span><span id="m-name">이름</span>님
+        <span style="opacity:.5;font-size:13px">|</span>
+        <span id="m-day">첫번째 미션</span>
+      </div>
+      <div id="mission-body"></div>
+    </div>
+
+    <div id="freeform-mode" style="display:none">
+      <div class="card">
+        <div class="today-badge">🏆 <span id="f-name">이름</span>님 <span style="opacity:.5;font-size:13px">|</span> 미션 30일 졸업</div>
+        <p style="font-size:12px;color:var(--m);text-align:center;line-height:1.7">이제부터는 자유롭게 오늘의 할 일과 결과를 남겨주세요</p>
+      </div>
+      <div class="card"><div class="card-ttl">📋 오늘의 투두리스트</div><ul class="todo-list" id="todo-list"></ul><div class="add-row"><input type="text" id="todo-inp" placeholder="할 일 입력 후 추가" maxlength="60" onkeydown="if(event.key==='Enter')addTodo()"><button class="btn-add" onclick="addTodo()">+ 추가</button></div></div>
+      <div class="card"><div class="card-ttl">✅ 오늘 해낸 결과</div><p style="font-size:11px;color:var(--m);margin-bottom:8px">수치, 건수, 구체적 성과를 적어보세요</p><textarea id="result-inp" placeholder="예) DM 제안 5명 / 메일 제안 3명..."></textarea><button class="btn btn-acc" onclick="saveResult()">결과 저장</button></div>
+      <div class="card">
+        <div class="card-ttl">📖 나의 기록</div>
+        <div id="journal-badge" style="margin-bottom:10px"></div>
+        <div class="journal-grid" id="journal-grid"></div>
+        <p style="font-size:11px;color:var(--m);margin-top:10px;line-height:1.7">100일을 채우면 다음 100일이 자동으로 이어져요 — 꾸준히 달려봐요 🌱</p>
+      </div>
+    </div>
+
+    <div class="modal-wrap" id="journal-modal" style="position:fixed;inset:0;background:rgba(20,36,58,.5);z-index:9990;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s" onclick="if(event.target===this)closeJournalModal()">
+      <div style="background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 40px;transform:translateY(100%);transition:transform .3s;max-height:80vh;overflow-y:auto" id="journal-modal-box">
+        <div class="sheet-handle"></div>
+        <div class="sheet-hdr"><span class="sheet-title" id="journal-modal-title">기록</span><button onclick="closeJournalModal()" class="sheet-close">×</button></div>
+        <div id="journal-modal-body"></div>
+      </div>
+    </div>
+
+    <div class="center-row"><button class="logout-btn" onclick="doLogout()">로그아웃</button></div>
+    <div class="footer"><strong>인플즈메리 교육생 전용 [ 셀즈업 ]</strong><br>궁금한 점은 미션 코멘트로 남겨주세요 💬</div>
+  </div>
+
+  <!-- 공구 탭 -->
+  <div class="tab-content" id="tab-gongu">
+    <div style="display:flex;gap:6px;padding:12px 14px 0">
+      <button class="filter-btn active" id="gsub-schedule" onclick="switchGonguSub('schedule')">🛒 공구일정</button>
+      <button class="filter-btn" id="gsub-issue" onclick="switchGonguSub('issue')">⚠️ 제품이슈</button>
+    </div>
+
+    <div id="gongu-sec-schedule">
+      <div style="display:flex;gap:8px;padding:12px 14px 0">
+        <a href="https://marryz.co.kr/29" target="_blank" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--navy);color:#fff;border-radius:var(--rs);padding:11px 8px;font-family:inherit;font-size:12.5px;font-weight:700;text-decoration:none;box-shadow:0 4px 12px rgba(20,36,58,.25)">⚡ 5분자동화</a>
+        <a href="https://marryz.co.kr/38" target="_blank" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--g);color:#fff;border-radius:var(--rs);padding:11px 8px;font-family:inherit;font-size:12.5px;font-weight:700;text-decoration:none;box-shadow:0 4px 12px rgba(38,76,70,.3)">📄 제안서(간편)</a>
+        <a href="https://marryz.co.kr/36" target="_blank" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--silver);color:var(--navy);border-radius:var(--rs);padding:11px 8px;font-family:inherit;font-size:12.5px;font-weight:700;text-decoration:none;box-shadow:0 4px 12px rgba(169,175,183,.4)">🃏 공구카드</a>
+      </div>
+      <div class="card" style="padding:14px 18px;margin-top:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <span style="font-size:13px;font-weight:700">🛒 공구일정</span>
+          <button class="btn-add" onclick="openGonguModal()">+ 추가</button>
+        </div>
+        <div class="filter-row" id="gongu-filter">
+          <button class="filter-btn active" onclick="filterGongu('all',this)">전체</button>
+          <button class="filter-btn" onclick="filterGongu('협찬',this)">협찬</button>
+          <button class="filter-btn" onclick="filterGongu('공구예정',this)">공구예정</button>
+          <button class="filter-btn" onclick="filterGongu('공구일정 확정',this)">확정</button>
+        </div>
+      </div>
+      <div id="gongu-list"></div>
+    </div>
+
+    <div id="gongu-sec-issue" style="display:none">
+      <div class="card" style="margin-top:10px">
+        <div class="card-ttl">✏️ 이슈 등록하기</div>
+        <p style="font-size:11px;color:var(--m);margin-bottom:12px">내가 입점하지 않은 상품이어도 알고 있는 이슈라면 등록해주세요!</p>
+        <div class="field"><label>브랜드명</label><input type="text" id="si-brand" placeholder="예) 코드니처" maxlength="30"></div>
+        <div class="field"><label>제품명 (선택)</label><input type="text" id="si-product" placeholder="예) 하수구세정서버" maxlength="50"></div>
+        <div class="field"><label>이슈 내용</label><textarea id="si-body" placeholder="예) 물량 수급중, 공구후 일괄발송 안내"></textarea></div>
+        <button class="btn btn-dark" onclick="submitStudentProductIssue()" style="background:linear-gradient(135deg,#8A3A2E,#B04D3C)">📤 이슈 등록</button>
+      </div>
+      <div style="padding:10px 14px 0;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:var(--m);font-weight:700">수강생 및 메리가 등록한 이슈예요</span>
+        <span id="issue-count" style="font-size:11px;color:var(--m)"></span>
+      </div>
+      <div id="issue-list" style="padding:8px 14px 0">
+        <div class="empty-state">⚠️<br>등록된 이슈가 없어요</div>
+      </div>
+      <div style="height:20px"></div>
+    </div>
+  </div>
+
+  <!-- 입점 탭 -->
+  <div class="tab-content" id="tab-ipjum">
+    <div style="display:flex;gap:6px;padding:12px 14px 0">
+      <button class="filter-btn active" id="isub-search" onclick="switchIpjumSub('search')">🔍 입점서치 메모</button>
+      <button class="filter-btn" id="isub-my" onclick="switchIpjumSub('my')">📋 내 입점관리</button>
+      <button class="filter-btn" id="isub-community" onclick="switchIpjumSub('community')">🤝 입점소통방</button>
+    </div>
+
+    <div id="ipjum-sec-search" style="display:block">
+      <div style="padding:12px 14px 0">
+        <a href="https://marryz.co.kr/39" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,var(--navy),#24405E);color:#fff;border-radius:var(--rs);padding:13px 16px;font-family:inherit;font-size:14px;font-weight:700;text-decoration:none;box-shadow:0 4px 14px rgba(20,36,58,.25)">✉️ 메일 생성기 <span style="font-size:11px;opacity:.75;font-weight:500">입점제안 메일 자동완성 →</span></a>
+      </div>
+      <div class="card" style="margin-top:10px">
+        <div class="card-ttl">✏️ 새 업체 메모하기</div>
+        <p style="font-size:11px;color:var(--m);margin-bottom:12px">서치하다 발견한 곳, 아직 연락 안 했어도 여기 적어두세요</p>
+        <div class="field">
+          <label>회사명</label>
+          <input type="text" id="sm-company" placeholder="예) 헬씨코" onblur="checkSearchMemoReject()">
+          <div id="sm-reject-alert" style="display:none;margin-top:8px;background:#FDF3F0;border:1.5px solid #F0C0C0;border-radius:10px;padding:10px 12px;font-size:12px;color:#a03030;line-height:1.6"></div>
+          <div id="sm-check-status" style="font-size:10.5px;color:var(--g);margin-top:4px"></div>
+        </div>
+        <div class="field"><label>홈페이지주소 (선택)</label><input type="text" id="sm-url" placeholder="예) https://company.com"></div>
+        <div class="field"><label>제안방법</label>
+          <select id="sm-method" onchange="toggleSmEmail()"><option value="메일">메일</option><option value="협찬게시판">협찬게시판</option></select>
+        </div>
+        <div class="field" id="sm-email-wrap"><label>메일주소</label><input type="text" id="sm-email" placeholder="예) md@company.com"></div>
+        <div class="field"><label>제품명 (선택)</label><input type="text" id="sm-product" placeholder="예) 이염방지 세탁볼"></div>
+        <div class="field"><label>메모 (선택)</label><input type="text" id="sm-note" placeholder="예) 3차 진행템, 리뷰 3천+"></div>
+        <button class="btn btn-dark" onclick="addSearchMemo()">📌 메모로 저장</button>
+      </div>
+      <div id="search-memo-list" style="margin-top:4px"></div>
+      <div id="search-memo-empty" class="empty-state">아직 메모한 업체가 없어요 🔍</div>
+      <div style="height:12px"></div>
+    </div>
+
+    <div id="ipjum-sec-my" style="display:none">
+      <div class="card" style="padding:14px 18px;margin-top:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <span style="font-size:13px;font-weight:700">🏪 입점 관리</span>
+          <button class="btn-add" onclick="openIpjumModal()">+ 추가</button>
+        </div>
+        <div class="filter-row" id="ipjum-filter">
+          <button class="filter-btn active" onclick="filterIpjum('all',this)">전체</button>
+          <button class="filter-btn" onclick="filterIpjum('입점제안완료',this)">제안완료</button>
+          <button class="filter-btn" onclick="filterIpjum('입점연락 옴',this)">연락옴</button>
+          <button class="filter-btn" onclick="filterIpjum('입점진행중',this)">진행중</button>
+          <button class="filter-btn" onclick="filterIpjum('신청완료',this)">신청완료</button>
+          <button class="filter-btn" onclick="filterIpjum('입점완료',this)">완료</button>
+          <button class="filter-btn" onclick="filterIpjum('거절',this)" style="background:var(--dbg);color:var(--danger);border-color:#F5C6CB">거절</button>
+          <button class="filter-btn" onclick="filterIpjum('__followup',this)" style="background:var(--wbg);color:var(--warn);border-color:#EAD9A8">⚠️ 팔로업</button>
+        </div>
+      </div>
+      <div id="ipjum-list"></div>
+    </div>
+
+    <div id="ipjum-sec-community" style="display:none">
+      <div style="padding:12px 14px 0">
+        <button class="btn btn-dark" onclick="openCommModal()" style="margin-top:0;background:linear-gradient(135deg,#8A3A2E,#B04D3C)">🔴 거절 업체 등록하기</button>
+      </div>
+      <div style="padding:10px 14px 0"><input type="text" id="comm-search" placeholder="🔍 업체명 또는 제품명 검색..." oninput="commSearchChanged()"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 14px 4px"><span id="comm-count" style="font-size:11px;color:var(--m);font-weight:700">불러오는 중...</span><span style="font-size:10px;color:var(--silver)">🔒 수강생 전용</span></div>
+      <div id="comm-list" style="padding:0 14px"></div>
+      <div id="comm-pagination" style="display:flex;justify-content:center;align-items:center;gap:6px;padding:10px 14px 4px"></div>
+    </div>
+  </div>
+
+  <!-- 모달: 입점소통방 거절 등록 -->
+  <div class="modal-wrap" id="comm-modal" style="position:fixed;inset:0;background:rgba(20,36,58,.5);z-index:9990;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s" onclick="if(event.target===this)closeCommModal()">
+    <div style="background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 40px;transform:translateY(100%);transition:transform .3s;max-height:90vh;overflow-y:auto" id="comm-modal-box">
+      <div class="sheet-handle"></div>
+      <div class="sheet-hdr"><span class="sheet-title">🔴 거절 업체 등록</span><button onclick="closeCommModal()" class="sheet-close">×</button></div>
+      <div id="comm-dup-warn" style="display:none;margin-bottom:12px;background:#FDF3F0;border:1.5px solid #F0C0C0;border-radius:10px;padding:10px 12px;font-size:12px;color:#a03030;line-height:1.6"></div>
+      <div class="field"><label>업체명 *</label><input type="text" id="c-company" placeholder="예) ○○화장품" maxlength="50" oninput="checkCommDup(this.value)"></div>
+      <div class="field"><label>제품명 / 카테고리 *</label><input type="text" id="c-product" placeholder="예) 선크림, 스킨케어" maxlength="50"></div>
+      <div class="field"><label>거절 이유 (선택)</label><textarea id="c-reason" placeholder="예) 자체공구만 진행&#10;담당자 연락두절"></textarea></div>
+      <button class="btn btn-dark" onclick="saveCommReject()">등록하기</button>
+    </div>
+  </div>
+
+  <!-- 공지 탭 -->
+  <div class="tab-content" id="tab-notice">
+    <div class="card" style="margin-top:8px;padding:14px 16px"><div style="font-size:13px;font-weight:900;margin-bottom:2px">📢 공지사항</div><div style="font-size:11px;color:var(--m)">셀즈업 성공메이트만의 공지예요</div></div>
+    <div id="notice-list"><div class="empty-state">불러오는 중...</div></div>
+  </div>
+
+  <!-- 교육일정 탭 -->
+  <div class="tab-content" id="tab-edu">
+    <div class="edu-cal-header"><div class="edu-cal-title" id="edu-month-label"></div><div class="edu-cal-nav"><button onclick="eduCalPrev()">‹</button><button onclick="eduCalToday()">오늘</button><button onclick="eduCalNext()">›</button></div></div>
+    <div class="edu-cal-grid-wrap"><div class="edu-dow-row"><div class="edu-dow sun">일</div><div class="edu-dow">월</div><div class="edu-dow">화</div><div class="edu-dow">수</div><div class="edu-dow">목</div><div class="edu-dow">금</div><div class="edu-dow sat">토</div></div><div class="edu-cal-grid" id="edu-cal-grid"></div></div>
+    <div style="height:20px"></div>
+  </div>
+</div>
+
+<!-- 관리자 로그인 -->
+<div id="sc-admin-login" class="screen">
+  <div class="admin-app-hdr"><div class="aicon">⚙️</div><div><div class="atxt">통합 관리자</div><div class="asub">셀즈업 + 기존 챌린지캘린더</div></div></div>
+  <div class="card" style="margin-top:20px">
+    <div class="card-ttl">🔒 관리자 로그인</div>
+    <div class="field"><label>관리자 비밀번호</label><input type="password" id="a-pw" placeholder="비밀번호 입력" onkeydown="if(event.key==='Enter')doAdminLogin()"></div>
+    <button class="btn btn-dark" onclick="doAdminLogin()">로그인</button>
+  </div>
+</div>
+
+<!-- 관리자 대시보드 -->
+<div id="sc-admin" class="screen">
+  <div class="admin-app-hdr"><div class="aicon">⚙️</div><div><div class="atxt">통합 관리자</div><div class="asub">셀즈업 + 기존 챌린지캘린더</div></div></div>
+  <div class="admin-tab-nav">
+    <button class="admin-tab-btn active" onclick="switchAdminTab('students')">👥 수강생</button>
+    <button class="admin-tab-btn" onclick="switchAdminTab('gongu')">🛒 공구현황</button>
+    <button class="admin-tab-btn" onclick="switchAdminTab('ipjumstat')">🏪 입점현황</button>
+    <button class="admin-tab-btn" onclick="switchAdminTab('notice')">📢 공지</button>
+    <button class="admin-tab-btn" onclick="switchAdminTab('edu')">📆 교육</button>
+    <button class="admin-tab-btn" onclick="switchAdminTab('issue')">⚠️ 이슈</button>
+  </div>
+
+  <!-- 수강생 탭 -->
+  <div class="admin-tab-section active" id="admin-sec-students">
+    <div class="admin-hdr"><div><h2>📊 수강생 현황</h2><p id="admin-summary">로딩 중...</p></div><button class="admin-refresh" onclick="loadAdmin()">🔄 새로고침</button></div>
+    <div id="admin-dashboard" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:10px 14px 0"></div>
+    <div style="display:flex;gap:6px;padding:10px 14px 0">
+      <button class="filter-btn active" id="pf-all" onclick="filterProgram('all',this)">전체</button>
+      <button class="filter-btn" id="pf-sellzup" onclick="filterProgram('sellzup',this)">✦ 셀즈업</button>
+      <button class="filter-btn" id="pf-challenge" onclick="filterProgram('challenge',this)">기존 챌린지</button>
+    </div>
+    <div id="admin-status-filters" style="display:flex;gap:6px;flex-wrap:wrap;padding:10px 14px 0"></div>
+    <div id="admin-list"><div class="loader">불러오는 중...</div></div>
+  </div>
+
+  <!-- 공지 탭 -->
+  <div class="admin-tab-section" id="admin-sec-notice">
+    <div class="admin-hdr"><div><h2>📢 공지 관리</h2><p>셀즈업과 기존 챌린지, 원하는 대상에 따로 또는 같이 보낼 수 있어요</p></div><button class="admin-refresh" onclick="loadAdminNotices()">🔄 새로고침</button></div>
+    <div class="card" style="margin-top:8px">
+      <div class="card-ttl">✏️ 새 공지 작성</div>
+      <div class="field"><label>공지 대상</label><select id="adm-target"><option value="sellzup">✦ 셀즈업 전용</option><option value="challenge">🌱 기존 챌린지 전용</option><option value="both">둘 다 보내기</option></select></div>
+      <div class="field"><label>제목</label><input type="text" id="adm-title" placeholder="공지 제목"></div>
+      <div class="field"><label>내용</label><textarea id="adm-body" placeholder="공지 내용을 자세히 적어주세요"></textarea></div>
+      <button class="btn btn-dark" onclick="adminSaveNotice()">📤 공지 등록</button>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;padding:14px 14px 0">등록된 공지</div>
+    <div id="admin-notice-list"><div class="empty-state">등록된 공지가 없습니다</div></div>
+  </div>
+
+  <!-- 교육일정 탭 -->
+  <div class="admin-tab-section" id="admin-sec-edu">
+    <div class="admin-hdr"><div><h2>📆 교육일정 관리</h2><p>기존 챌린지캘린더와 공유되는 일정이에요</p></div><button class="admin-refresh" onclick="loadAdminEdu()">🔄 새로고침</button></div>
+    <div class="card day-admin-form" style="margin-top:8px">
+      <div class="card-ttl">📆 일정 추가</div>
+      <div class="field"><label>날짜</label><input type="date" id="edu-date"></div>
+      <div class="field"><label>내용</label><input type="text" id="edu-title" placeholder="예) 오프교육 (11-13시)" maxlength="30"></div>
+      <div class="field"><label>유형</label><select id="edu-type"><option value="off">🌸 오프교육</option><option value="zoom">💜 줌스터디/줌교육</option><option value="feedback">💛 피드백만 진행</option><option value="holiday">🩶 휴일</option><option value="etc">🩵 기타</option></select></div>
+      <button class="btn btn-dark" onclick="adminSaveEdu()">📤 일정 등록</button>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;padding:14px 14px 0">등록된 교육일정</div>
+    <div id="admin-edu-list"><div class="empty-state">등록된 일정이 없습니다</div></div>
+  </div>
+
+  <!-- 이슈 탭 -->
+  <div class="admin-tab-section" id="admin-sec-issue">
+    <div class="admin-hdr"><div><h2>⚠️ 제품이슈 관리</h2><p>이슈 직접 등록 및 수강생 이슈 확인</p></div><button class="admin-refresh" onclick="loadAdminProductIssues()">🔄 새로고침</button></div>
+    <div class="card" style="margin-top:8px">
+      <div class="card-ttl">✏️ 이슈 직접 등록</div>
+      <div class="field"><label>브랜드명</label><input type="text" id="pi-brand" placeholder="예) 코드니처" maxlength="30"></div>
+      <div class="field"><label>제품명</label><input type="text" id="pi-product" placeholder="예) 하수구세정서버" maxlength="50"></div>
+      <div class="field"><label>이슈 내용</label><textarea id="pi-body" placeholder="예) 물량 수급중, 공구후 일괄발송 안내"></textarea></div>
+      <button class="btn btn-dark" onclick="adminSaveProductIssue()" style="background:linear-gradient(135deg,#8A3A2E,#B04D3C)">📤 이슈 등록</button>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;padding:14px 14px 4px">등록된 이슈 목록</div>
+    <div id="admin-issue-list" style="padding:0 14px 16px"><div class="empty-state">불러오는 중...</div></div>
+  </div>
+
+  <!-- 공구현황 탭 -->
+  <div class="admin-tab-section" id="admin-sec-gongu">
+    <div class="admin-hdr"><div><h2>🛒 공구 확정 현황</h2><p id="admin-gongu-summary">로딩 중...</p></div><button class="admin-refresh" onclick="loadAdminGongu()">🔄 새로고침</button></div>
+    <div id="admin-gongu-stats" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:0 14px 12px"></div>
+    <div style="padding:0 14px 12px"><input type="text" id="admin-gongu-search" placeholder="🔍 이름 또는 상품명 검색..." oninput="renderAdminGongu()"></div>
+    <div id="admin-gongu-list"><div class="loader">불러오는 중...</div></div>
+    <div style="height:16px"></div>
+  </div>
+
+  <!-- 입점현황 탭 -->
+  <div class="admin-tab-section" id="admin-sec-ipjumstat">
+    <div class="admin-hdr"><div><h2>🏪 입점 완료 현황</h2><p id="admin-ipjumstat-summary">로딩 중...</p></div><div style="display:flex;gap:6px"><button class="admin-refresh" onclick="loadAdminIpjumStat()">🔄 새로고침</button><button class="admin-refresh" onclick="downloadCommCSV()" style="background:rgba(255,255,255,.22)">⬇ 소통방 CSV</button></div></div>
+    <div id="admin-ipjumstat-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 14px 12px"></div>
+    <div style="padding:0 14px 12px"><input type="text" id="admin-ipjumstat-search" placeholder="🔍 이름 또는 제품명 검색..." oninput="renderAdminIpjumStat()"></div>
+    <div id="admin-ipjumstat-list"><div class="loader">불러오는 중...</div></div>
+    <div style="height:16px"></div>
+  </div>
+
+  <div class="center-row" style="padding-bottom:20px">
+    <button class="logout-btn" onclick="show('sc-admin-login')">로그아웃</button>
+  </div>
+</div>
+
+<!-- 모달: 공구 -->
+<div class="modal-wrap" id="gongu-modal" style="position:fixed;inset:0;background:rgba(20,36,58,.5);z-index:9990;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s" onclick="if(event.target===this)closeGonguModal()">
+  <div style="background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 40px;transform:translateY(100%);transition:transform .3s;max-height:90vh;overflow-y:auto" id="gongu-modal-box">
+    <div class="sheet-handle"></div>
+    <div class="sheet-hdr"><span class="sheet-title" id="gongu-modal-title">🛒 공구일정 추가</span><button onclick="closeGonguModal()" class="sheet-close">×</button></div>
+    <div class="field"><label>유형</label><select id="g-type"><option value="공구예정">🛒 공구예정</option><option value="협찬">🎁 협찬</option><option value="공구일정 확정">✅ 공구일정 확정</option></select></div>
+    <div class="field"><label>셀러 인스타 주소</label><input type="text" id="g-seller" placeholder="@인스타아이디" maxlength="50"></div>
+    <div class="field"><label>상품명</label><input type="text" id="g-product" placeholder="예) 유기농 그래놀라" maxlength="50"></div>
+    <div style="display:flex;gap:8px"><div class="field" style="flex:1"><label>시작일</label><input type="date" id="g-start"></div><div class="field" style="flex:1"><label>종료일</label><input type="date" id="g-end"></div></div>
+    <div class="field"><label>메모 (선택)</label><input type="text" id="g-memo" placeholder="추가 메모" maxlength="100"></div>
+    <button class="btn btn-dark" onclick="saveGongu()">저장하기</button>
+  </div>
+</div>
+
+<!-- 모달: 입점 -->
+<div class="modal-wrap" id="ipjum-modal" style="position:fixed;inset:0;background:rgba(20,36,58,.5);z-index:9990;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s" onclick="if(event.target===this)closeIpjumModal()">
+  <div style="background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 40px;transform:translateY(100%);transition:transform .3s;max-height:90vh;overflow-y:auto" id="ipjum-modal-box">
+    <div class="sheet-handle"></div>
+    <div class="sheet-hdr"><span class="sheet-title" id="ipjum-modal-title">🏪 입점 추가</span><button onclick="closeIpjumModal()" class="sheet-close">×</button></div>
+    <div class="field"><label>유형</label><select id="i-type" onchange="toggleCompletionDate()"><option value="입점제안완료">📤 입점제안완료</option><option value="입점연락 옴">📞 입점연락 옴</option><option value="입점진행중">⚙️ 입점진행중</option><option value="신청완료">✅ 신청완료</option><option value="입점완료">🎉 입점완료</option><option value="거절">🔴 거절</option></select></div>
+    <div class="field">
+      <label>회사명</label>
+      <input type="text" id="i-companyname" placeholder="예) 헬씨코" onblur="checkIpjumReject()">
+      <div id="i-reject-alert" style="display:none;margin-top:8px;background:#FDF3F0;border:1.5px solid #F0C0C0;border-radius:10px;padding:10px 12px;font-size:12px;color:#a03030;line-height:1.6"></div>
+    </div>
+    <div class="field"><label>제품명</label><input type="text" id="i-product" placeholder="제품명" maxlength="50"></div>
+    <div class="field"><label>해당 회사 주소 (URL, 선택)</label><input type="text" id="i-company" placeholder="https://company.com" maxlength="100"></div>
+    <div class="field"><label>제안방법</label><select id="i-method" onchange="toggleIEmail()"><option value="메일">메일</option><option value="협찬게시판">협찬게시판</option></select></div>
+    <div class="field" id="i-email-wrap"><label>대표메일</label><input type="text" id="i-email" placeholder="예) md@company.com" maxlength="100"></div>
+    <div class="field"><label>신청일</label><input type="date" id="i-apply"></div>
+    <div class="field"><label>제안발송일 (팔로업 자동계산용, 선택)</label><input type="date" id="i-sentdate"></div>
+    <div class="field" id="i-completion-wrap" style="display:none"><label>입점완료일</label><input type="date" id="i-completion"></div>
+    <div class="field">
+      <label>진행 체크리스트</label>
+      <div style="display:flex;gap:20px;padding:6px 0">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--t);font-weight:600;text-transform:none;letter-spacing:0;margin:0;cursor:pointer"><input type="checkbox" id="i-listchecked" style="width:auto;margin:0">입점사목록 체크</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--t);font-weight:600;text-transform:none;letter-spacing:0;margin:0;cursor:pointer"><input type="checkbox" id="i-roomlogged" style="width:auto;margin:0">입점소통방 기록</label>
+      </div>
+    </div>
+    <div class="field"><label>메모 (선택)</label><textarea id="i-memo" placeholder="수수료, 조건, 메모"></textarea></div>
+    <button class="btn btn-dark" onclick="saveIpjum()">저장하기</button>
+  </div>
+</div>
+
+<!-- 모달: 이슈 신고 -->
+<div class="modal-wrap" id="issue-report-modal" style="position:fixed;inset:0;background:rgba(20,36,58,.5);z-index:9990;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s" onclick="if(event.target===this)closeIssueModal()">
+  <div style="background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 40px;transform:translateY(100%);transition:transform .3s;max-height:90vh;overflow-y:auto" id="issue-report-modal-box">
+    <div class="sheet-handle"></div>
+    <div class="sheet-hdr"><span class="sheet-title">⚠ 이슈 신고</span><button onclick="closeIssueModal()" class="sheet-close">×</button></div>
+    <input type="hidden" id="issue-ipjum-id">
+    <div class="field"><label>어떤 이슈가 발생했나요?</label><textarea id="issue-report-text" style="min-height:100px" placeholder="이슈 내용을 자세히 적어주세요. (예: 입금 지연, 상품 불량, 연락 두절 등)"></textarea></div>
+    <button class="btn btn-dark" onclick="submitIssueReport()" style="background:var(--danger)">📤 전달하기</button>
+  </div>
+</div>
+
+<!-- 모달: 수강생 리포트 카드 -->
+<div class="modal-wrap" id="report-modal" style="position:fixed;inset:0;background:rgba(20,36,58,.55);z-index:9993;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s" onclick="if(event.target===this)closeStudentReport()">
+  <div style="background:var(--bg);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:16px 16px 32px;transform:translateY(100%);transition:transform .3s;max-height:92vh;overflow-y:auto" id="report-modal-box">
+    <div class="sheet-handle"></div>
+    <div style="display:flex;justify-content:flex-end;margin-bottom:-6px"><button onclick="closeStudentReport()" style="background:var(--card);border:none;width:28px;height:28px;border-radius:50%;color:var(--m);font-size:16px;cursor:pointer">×</button></div>
+
+    <div class="rpt-hdr">
+      <div class="rpt-eyebrow">SELLZ UP · 성공메이트</div>
+      <div class="rpt-top">
+        <div class="rpt-ring-wrap">
+          <svg width="74" height="74" viewBox="0 0 74 74"><circle class="rpt-ring-bg" cx="37" cy="37" r="33"></circle><circle class="rpt-ring-fill" id="rpt-ring" cx="37" cy="37" r="33"></circle></svg>
+          <div class="rpt-ring-pct" id="rpt-ring-pct">0%</div>
+        </div>
+        <div>
+          <div class="rpt-name" id="rpt-name">-</div>
+          <div class="rpt-sub" id="rpt-sub">-</div>
+          <a href="#" id="rpt-edit-link" onclick="event.preventDefault();toggleJoinedEdit()" style="display:inline-block;margin-top:3px;font-size:10.5px;color:#8FCBB6;text-decoration:underline">시작일 입력/수정</a>
+          <div id="rpt-edit-wrap" style="display:none;gap:6px;margin-top:6px">
+            <input type="date" id="rpt-edit-date" style="border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;border-radius:8px;padding:6px 8px;font-family:inherit;font-size:11.5px">
+            <button onclick="saveJoinedDate()" style="border:none;background:var(--g);color:#fff;border-radius:8px;padding:6px 12px;font-family:inherit;font-size:11.5px;font-weight:700;cursor:pointer;margin-top:4px">저장</button>
+          </div>
+          <div class="rpt-badge" id="rpt-badge">-</div>
+        </div>
+      </div>
+      <div class="rpt-chip-row">
+        <div class="rpt-chip"><div class="n" id="rpt-chip-mission">0%</div><div class="l">미션 진행률</div></div>
+        <div class="rpt-chip"><div class="n" id="rpt-chip-gongu">0</div><div class="l">확정 공구</div></div>
+        <div class="rpt-chip"><div class="n" id="rpt-chip-ipjum">0</div><div class="l">입점 완료</div></div>
+      </div>
+    </div>
+
+    <div class="rpt-tab-nav">
+      <button class="rpt-tab-btn active" data-rtab="mission" onclick="switchReportTab('mission')">🌱 미션수행</button>
+      <button class="rpt-tab-btn" data-rtab="gongu" onclick="switchReportTab('gongu')">🛒 확정공구일정</button>
+      <button class="rpt-tab-btn" data-rtab="ipjum" onclick="switchReportTab('ipjum')">🏪 입점완료</button>
+    </div>
+
+    <div class="rpt-panel active" id="rpt-panel-mission">
+      <div class="rpt-card">
+        <div class="rpt-card-ttl">🌱 미션 진행률</div>
+        <div class="rpt-bar-bg"><div class="rpt-bar-fill" id="rpt-mission-bar"></div></div>
+        <div class="rpt-bar-label" id="rpt-bar-label">0 / 30일차</div>
+        <div id="rpt-day-list"></div>
+      </div>
+    </div>
+    <div class="rpt-panel" id="rpt-panel-gongu">
+      <div class="rpt-card">
+        <div class="rpt-card-ttl">🛒 확정 공구 일정</div>
+        <div id="rpt-gongu-list"></div>
+      </div>
+    </div>
+    <div class="rpt-panel" id="rpt-panel-ipjum">
+      <div class="rpt-card">
+        <div class="rpt-card-ttl">🏪 입점 완료 현황</div>
+        <div id="rpt-ipjum-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyATt-hEuctEFZkHRD9TpxNOXdOq5FyLBb0",
+  authDomain: "marryz-challenge.firebaseapp.com",
+  databaseURL: "https://marryz-challenge-default-rtdb.firebaseio.com",
+  projectId: "marryz-challenge",
+  storageBucket: "marryz-challenge.firebasestorage.app",
+  messagingSenderId: "157658417157",
+  appId: "1:157658417157:web:80cf775131c2d817dcf46c"
+};
+const ADMIN_PW = "marryz2026";
+const PROGRAM = "sellzup";
+const LEVELS=['초급','중급','고급','심화','기존수강생'];
+const LV_EMOJI={초급:'🌱',중급:'🌿',고급:'🌳',심화:'🔥',기존수강생:'🔄'};
+const LV_CLR={초급:'#6DB6F0',중급:'#5BAD7F',고급:'#C8956C',심화:'#9B72CF',기존수강생:'#E07A5F'};
+const LV_BG={초급:'#EBF5FD',중급:'#EBF7F1',고급:'#FDF2EA',심화:'#F4EEF9',기존수강생:'#FFF0EC'};
 
-// SELLZ UP 오픈일 도달 여부에 따라 배너 문구 자동 전환
-(function() {
-  const openDate = new Date('2026-08-03T09:00:00+09:00');
-  const ddayEl = document.getElementById('ddayText');
-  if (ddayEl && new Date() >= openDate) {
-    ddayEl.textContent = '🌸 SELLZ UP 1기 · 8월 3일 오픈';
-  }
-})();
+let DB=null, SKEY=null, S={};
+try { firebase.initializeApp(FIREBASE_CONFIG); DB = firebase.database(); } catch(e){ console.warn(e); }
 
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.1 });
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+const today = () => { const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+const diffDays = (a,b) => Math.floor((new Date(b)-new Date(a))/86400000);
+const addDays  = (d,n) => { const dt=new Date(d); dt.setDate(dt.getDate()+n); return dt.toISOString().split('T')[0]; };
+const fmtDate  = d => { const dt=new Date(d); return `${dt.getMonth()+1}/${dt.getDate()}`; };
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+const ORDINAL_KR=['','첫','두','세','네','다섯','여섯','일곱','여덟','아홉','열','열한','열두','열세','열네','열다섯','열여섯','열일곱','열여덟','열아홉','스무','스물한','스물두','스물세','스물네','스물다섯','스물여섯','스물일곱','스물여덟','스물아홉','서른'];
+function ordinalKr(n){return (ORDINAL_KR[n]||n)+'번째';}
+let _tt=null;
+function showToast(msg,duration=3000){const el=document.getElementById('toast');if(!el)return;el.textContent=msg;el.classList.add('show');if(_tt)clearTimeout(_tt);_tt=setTimeout(()=>{el.classList.remove('show');_tt=null;},duration);}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');const hdr=document.getElementById('app-hdr');if(hdr)hdr.style.display=(id==='sc-admin-login'||id==='sc-admin')?'none':'block';}
+function mkKey(name,pin){return 'sz_'+(name+'_'+pin).replace(/[.#$[\]/]/g,'_');}
 
-// 숫자 카운트업 (수정)
-function countUp(el) {
-  const target = parseInt(el.dataset.target);
-  const suffix = el.dataset.suffix || '';
-  const duration = 2000;
-  const startTime = performance.now();
-  function update(now) {
-    const elapsed = now - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    const eased = 1 - Math.pow(1 - progress, 3);
-    const current = Math.floor(eased * target);
-    el.textContent = current.toLocaleString() + suffix;
-    if (progress < 1) requestAnimationFrame(update);
-    else el.textContent = target.toLocaleString() + suffix;
-  }
-  requestAnimationFrame(update);
+function blankState(name,pin){
+  return {
+    name, pin, program: PROGRAM,
+    missionDay: 1, missionStatus: 'awaiting_content', graduated:false,
+    missionContent: {}, missionLogs: {}, missionSeenDay: 0, joinedDate: today(),
+    todos:[], todosDate:'', result:'', resultDate:'', lastActive: today(), dailyLogs:{},
+    gonguSchedules:[], ipjumItems:[], searchMemos:[]
+  };
 }
-const countObserver = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (e.isIntersecting && !e.target.dataset.counted) {
-      e.target.dataset.counted = 'true';
-      countUp(e.target);
+
+/* ══════════ 로그인/등록 ══════════ */
+let _userType='new';
+function chooseUserType(type){
+  _userType=type;
+  document.getElementById('ut-new').classList.toggle('active',type==='new');
+  document.getElementById('ut-existing').classList.toggle('active',type==='existing');
+}
+
+let _pendingNew=null;
+async function doLogin(silent=false){
+  const name=document.getElementById('l-name').value.trim();
+  const pin=document.getElementById('l-pin').value.trim();
+  if(!name){showToast('이름을 입력해주세요!');return;}
+  if(!/^\d{4}$/.test(pin)){showToast('숫자 4자리를 입력해주세요!');return;}
+  if(!DB){showToast('연결 오류. 잠시 후 다시 시도해주세요.');return;}
+  const key=mkKey(name,pin);
+  try{
+    const snap=await DB.ref('students/'+key).once('value');
+    let data=snap.val();
+    if(!data){
+      if(silent){
+        try{localStorage.removeItem('sellzup_s');}catch(e){}
+        return;
+      }
+      _pendingNew={name,pin,key};
+      const w=document.getElementById('guide-modal');w.style.opacity=1;w.style.pointerEvents='all';
+      return;
     }
+    SKEY=key;
+    S=data;
+    if(S.program!==PROGRAM){
+      showToast('이 페이지는 셀즈업 전용이에요. 기존 챌린지캘린더로 접속해주세요.');
+      SKEY=null; S={};
+      return;
+    }
+    if(!S.gonguSchedules)S.gonguSchedules=[];
+    if(!S.ipjumItems)S.ipjumItems=[];
+    if(!S.searchMemos)S.searchMemos=[];
+    if(!S.missionContent)S.missionContent={};
+    if(!S.missionLogs)S.missionLogs={};
+    if(S.missionSeenDay===undefined)S.missionSeenDay=0;
+    if(!silent)showToast(`👋 ${name}님, 다시 오셨네요!`);
+    try{localStorage.setItem('sellzup_s',JSON.stringify({name,pin}));}catch(e){}
+    show('sc-main'); renderAll();
+  }catch(e){showToast('연결 오류가 발생했어요.');console.error(e);}
+}
+
+async function confirmGuideAndStart(){
+  if(!_pendingNew)return;
+  const {name,pin,key}=_pendingNew;
+  SKEY=key;
+  S=blankState(name,pin);
+  try{await DB.ref('students/'+SKEY).set(S);}catch(e){showToast('저장 오류');console.error(e);return;}
+  const w=document.getElementById('guide-modal');w.style.opacity=0;w.style.pointerEvents='none';
+  try{localStorage.setItem('sellzup_s',JSON.stringify({name,pin}));}catch(e){}
+  showToast(`🌱 ${name}님, 셀즈업 시작을 환영해요!`);
+  show('sc-main'); renderAll();
+  _pendingNew=null;
+}
+function doLogout(){try{localStorage.removeItem('sellzup_s');}catch(e){}SKEY=null;S={};document.getElementById('l-name').value='';document.getElementById('l-pin').value='';show('sc-welcome');}
+
+async function fbSave(){
+  S.lastActive=today();
+  const payload={
+    lastActive:S.lastActive,
+    todos:S.todos||[], todosDate:S.todosDate||'',
+    result:S.result||'', resultDate:S.resultDate||'',
+    gonguSchedules:S.gonguSchedules||[], ipjumItems:S.ipjumItems||[], searchMemos:S.searchMemos||[]
+  };
+  try{await DB.ref('students/'+SKEY).update(payload);}catch(e){showToast('저장 오류');console.error(e);}
+}
+
+async function saveDailyLogEntry(){
+  if(!S.graduated||!SKEY)return;
+  const d=today();
+  if(!S.dailyLogs)S.dailyLogs={};
+  const entry={todos:JSON.parse(JSON.stringify(S.todos||[])),result:S.result||''};
+  S.dailyLogs[d]={...(S.dailyLogs[d]||{}),...entry};
+  try{
+    await DB.ref('students/'+SKEY).update({
+      [`dailyLogs/${d}/todos`]:entry.todos,
+      [`dailyLogs/${d}/result`]:entry.result
+    });
+  }catch(e){console.error(e);}
+}
+
+function renderNoteBanner(){
+  const banner=document.getElementById('note-banner');
+  const textEl=document.getElementById('note-banner-text');
+  if(!banner||!textEl)return;
+  const note=(S.notes||{})[today()];
+  if(note){
+    banner.style.display='block';
+    textEl.textContent=note;
+  } else {
+    banner.style.display='none';
+  }
+}
+
+function renderMissionNewBanner(){
+  const banner=document.getElementById('mission-new-banner');
+  const textEl=document.getElementById('mission-new-banner-text');
+  if(!banner||!textEl)return;
+  if(S.graduated){banner.style.display='none';return;}
+  const day='day'+S.missionDay;
+  const content=S.missionContent[day];
+  const seen=S.missionSeenDay||0;
+  if(content && seen<S.missionDay){
+    textEl.innerHTML=`${ordinalKr(S.missionDay)} 메리강사가 보낸 미션이 있습니다!<br>확인해주세요!`;
+    banner.style.display='block';
+    banner.classList.remove('anim-in');
+    void banner.offsetWidth;
+    banner.classList.add('anim-in');
+  } else {
+    banner.style.display='none';
+  }
+}
+
+async function confirmMissionSeen(){
+  S.missionSeenDay=S.missionDay;
+  const banner=document.getElementById('mission-new-banner');
+  if(banner)banner.style.display='none';
+  try{await DB.ref('students/'+SKEY).update({missionSeenDay:S.missionSeenDay});}catch(e){console.error(e);}
+  document.getElementById('mission-mode-card')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function loadTodayEduBanner(){
+  if(!DB)return;
+  const banner=document.getElementById('today-edu-banner');
+  const itemsEl=document.getElementById('today-edu-banner-items');
+  if(!banner||!itemsEl)return;
+  const dateStr=today();
+  DB.ref('eduEvents').orderByChild('date').equalTo(dateStr).once('value',snap=>{
+    const data=snap.val()||{};
+    const allEvents=Object.values(data);
+    const holidays=allEvents.filter(e=>e.type==='holiday');
+    const events=allEvents.filter(e=>e.type!=='holiday');
+    if(!events.length&&!holidays.length){banner.style.display='none';return;}
+    if(!events.length&&holidays.length){
+      itemsEl.innerHTML='오늘은 교육 휴무예요 🩶';
+      banner.style.display='block';
+      return;
+    }
+    let html=events.map(e=>{const t=EDU_TYPE[e.type]||EDU_TYPE.etc;return`<div>· ${esc(e.title||t.label)}</div>`;}).join('');
+    if(holidays.length)html+='<div>· 긴급 피드백 외 교육 휴무</div>';
+    itemsEl.innerHTML=html;
+    banner.style.display='block';
   });
-}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-document.querySelectorAll('.count-num').forEach(el => countObserver.observe(el));
+}
+
+/* ══════════ 미션 모드 렌더 ══════════ */
+function renderAll(){
+  document.getElementById('m-name').textContent=S.name;
+  document.getElementById('f-name').textContent=S.name;
+  checkUnreadBadges();
+  loadTodayEduBanner();
+  document.getElementById('m-day').textContent=ordinalKr(S.missionDay)+' 미션';
+  renderNoteBanner();
+  renderMissionNewBanner();
+  const missionCard=document.getElementById('mission-mode-card');
+  const freeform=document.getElementById('freeform-mode');
+  if(S.graduated){
+    missionCard.style.display='none'; freeform.style.display='block';
+    syncTodos(); renderTodos(); renderJournal();
+    const ri=document.getElementById('result-inp'); if(ri)ri.value=(S.resultDate===today()?S.result:'')||'';
+  } else {
+    freeform.style.display='none';
+    renderMissionBody();
+    const bannerShowing=document.getElementById('mission-new-banner').style.display==='block';
+    if(bannerShowing){
+      missionCard.style.display='none';
+      setTimeout(()=>{
+        missionCard.style.display='block';
+        missionCard.classList.remove('anim-in');
+        void missionCard.offsetWidth;
+        missionCard.classList.add('anim-in');
+      },900);
+    } else {
+      missionCard.style.display='block';
+    }
+  }
+  renderGongu(); renderIpjum();
+}
+
+function renderMissionBody(){
+  const day='day'+S.missionDay;
+  const content=S.missionContent[day];
+  const log=S.missionLogs[day];
+  const body=document.getElementById('mission-body');
+  if(!content){
+    body.innerHTML=`<div class="wait-box"><div class="em">🕊️</div><h3>메리가 오늘의 미션을 준비 중이에요</h3><p>곧 ${ordinalKr(S.missionDay)} 미션이 올라올 거예요.<br>조금만 기다려주세요!</p></div>`;
+    return;
+  }
+  const items=content.items||[];
+  const submitted = log && log.status==='submitted';
+  const checked = (log&&log.checklist) ? log.checklist : items.map(()=>false);
+  let html = `<div class="day-pill-row"><span class="day-pill cur">${ordinalKr(S.missionDay)} 미션</span>${submitted?'<span class="status-chip wait">메리 확인 대기중</span>':'<span class="status-chip active">진행중</span>'}</div>`;
+  if(content.title) html += `<div style="font-size:14px;font-weight:900;margin:10px 0 4px">${esc(content.title)}</div>`;
+  html += `<div style="margin-top:8px">`;
+  items.forEach((it,i)=>{
+    const on=!!checked[i];
+    html += `<div class="mission-item"><div class="m-chk ${on?'on':''}" onclick="toggleMissionItem(${i})">${on?'✓':''}</div><span class="m-txt ${on?'cross':''}">${esc(it)}</span></div>`;
+  });
+  html += `</div>`;
+  html += `<div style="margin-top:16px"><div class="comment-label">💬 메리에게 남길 말</div><textarea id="mission-comment" placeholder="오늘 수행하면서 느낀 점, 궁금한 점을 자유롭게 적어주세요">${esc((log&&log.comment)||'')}</textarea></div>`;
+  if(log&&log.adminReply){
+    html += `<div style="margin-top:12px;background:var(--gb);border-left:3px solid var(--g);border-radius:0 8px 8px 0;padding:10px 12px"><div style="font-size:11px;font-weight:700;color:var(--g);margin-bottom:4px">💌 메리의 답장</div><div style="font-size:13px;line-height:1.7">${esc(log.adminReply)}</div></div>`;
+  }
+  html += `<button class="btn btn-acc" onclick="submitMission()">${submitted?'다시 제출하기':'제출하기'}</button>`;
+  if(submitted) html += `<p style="text-align:center;font-size:11.5px;color:var(--m);margin-top:10px;line-height:1.7">메리가 확인하면 다음 미션이 열려요 🌱</p>`;
+  html += `<div style="margin-top:14px;background:var(--card);border-left:3px solid var(--warn);border-radius:0 8px 8px 0;padding:10px 12px;font-size:12px;color:var(--t);line-height:1.7">⏰ 매일 <b>밤 12시 전까지</b> 미션이 완료되어야 다음 미션이 열려요</div>`;
+  body.innerHTML=html;
+}
+
+function toggleMissionItem(i){
+  const day='day'+S.missionDay;
+  if(!S.missionLogs[day])S.missionLogs[day]={checklist:[],comment:'',status:'active'};
+  const content=S.missionContent[day];
+  const len=(content.items||[]).length;
+  if(!S.missionLogs[day].checklist||S.missionLogs[day].checklist.length!==len){
+    S.missionLogs[day].checklist=new Array(len).fill(false);
+  }
+  S.missionLogs[day].checklist[i]=!S.missionLogs[day].checklist[i];
+  renderMissionBody();
+}
+
+async function submitMission(){
+  const day='day'+S.missionDay;
+  const comment=document.getElementById('mission-comment').value;
+  if(!S.missionLogs[day])S.missionLogs[day]={checklist:[],comment:'',status:'active'};
+  S.missionLogs[day].comment=comment;
+  S.missionLogs[day].status='submitted';
+  S.missionLogs[day].submittedAt=Date.now();
+  try{
+    await DB.ref('students/'+SKEY).update({
+      [`missionLogs/${day}/checklist`]:S.missionLogs[day].checklist||[],
+      [`missionLogs/${day}/comment`]:comment,
+      [`missionLogs/${day}/status`]:'submitted',
+      [`missionLogs/${day}/submittedAt`]:S.missionLogs[day].submittedAt,
+      lastActive:today()
+    });
+  }catch(e){showToast('저장 오류');console.error(e);return;}
+  renderMissionBody();
+  showToast('📤 제출했어요! 메리 확인을 기다려주세요');
+}
+
+/* ══════════ 자유모드 (졸업 후) ══════════ */
+function syncTodos(){if(S.todosDate!==today()){S.todos=(S.todos||[]).filter(t=>!t.done);S.todosDate=today();}}
+function renderTodos(){const list=document.getElementById('todo-list');if(!list)return;list.innerHTML='';(S.todos||[]).forEach((t,i)=>{const li=document.createElement('li');li.className='todo-item';li.innerHTML=`<div class="todo-chk ${t.done?'on':''}" onclick="toggleTodo(${i})">${t.done?'✓':''}</div><span class="todo-txt ${t.done?'cross':''}">${esc(t.text)}</span><button class="todo-del" onclick="delTodo(${i})">×</button>`;list.appendChild(li);});}
+async function addTodo(){const inp=document.getElementById('todo-inp');const t=inp.value.trim();if(!t)return;if(!S.todos)S.todos=[];S.todos.push({id:Date.now(),text:t,done:false});inp.value='';renderTodos();await fbSave();await saveDailyLogEntry();if(S.graduated)renderJournal();}
+async function toggleTodo(i){S.todos[i].done=!S.todos[i].done;renderTodos();await fbSave();await saveDailyLogEntry();if(S.graduated)renderJournal();}
+async function delTodo(i){S.todos.splice(i,1);renderTodos();await fbSave();await saveDailyLogEntry();if(S.graduated)renderJournal();}
+async function saveResult(){S.result=document.getElementById('result-inp').value;S.resultDate=today();await fbSave();await saveDailyLogEntry();renderJournal();showToast('✅ 결과 저장 완료!');}
+
+/* ══════════ 100일 단위 기록장 (졸업 후) ══════════ */
+function renderJournal(){
+  const badge=document.getElementById('journal-badge');
+  const grid=document.getElementById('journal-grid');
+  if(!badge||!grid)return;
+  const gDate=S.graduatedDate||today();
+  const elapsed=diffDays(gDate,today())+1;
+  const blockNum=Math.max(1,Math.ceil(elapsed/100));
+  const dayInBlock=elapsed-(blockNum-1)*100;
+  const blockStart=addDays(gDate,(blockNum-1)*100);
+  const rangeLo=(blockNum-1)*100+1, rangeHi=blockNum*100;
+  badge.innerHTML=`<span class="day-pill cur">${elapsed}일차</span> <span class="day-pill">${rangeLo}~${rangeHi}일 구간 (${blockNum===1?'1':blockNum}번째 100일)</span>`;
+  let html='';
+  for(let d=1; d<=100; d++){
+    const cellDate=addDays(blockStart,d-1);
+    const isFuture=d>dayInBlock;
+    const isToday=cellDate===today();
+    const log=(S.dailyLogs||{})[cellDate];
+    const hasLog=log&&((log.todos&&log.todos.length>0)||log.result);
+    let cls='j-cell';
+    if(isFuture)cls+=' future'; else if(hasLog)cls+=' done';
+    if(isToday)cls+=' today';
+    if(log&&log.reviewed)cls+=' reviewed';
+    const onclick=isFuture?'':`onclick="showJournalDay('${cellDate}',${rangeLo+d-1})"`;
+    html+=`<div class="${cls}" ${onclick}>${rangeLo+d-1}</div>`;
+  }
+  grid.innerHTML=html;
+}
+function showJournalDay(dateStr,dayNum){
+  const log=(S.dailyLogs||{})[dateStr]||{todos:[],result:''};
+  const dt=new Date(dateStr);
+  document.getElementById('journal-modal-title').textContent=`${dayNum}일차 · ${dt.getMonth()+1}월 ${dt.getDate()}일`;
+  const todos=log.todos||[];
+  let html='';
+  if(todos.length){
+    html+=`<div style="font-size:11px;font-weight:700;color:var(--m);margin-bottom:8px">📋 그날의 할 일</div>`;
+    todos.forEach(t=>{html+=`<div style="display:flex;gap:8px;padding:6px 0;font-size:13px"><span>${t.done?'✅':'⬜'}</span><span style="${t.done?'text-decoration:line-through;color:var(--m)':''}">${esc(t.text)}</span></div>`;});
+  }
+  if(log.result){
+    html+=`<div style="font-size:11px;font-weight:700;color:var(--m);margin:14px 0 6px">✨ 그날 해낸 것</div><div style="background:var(--card);border-radius:10px;padding:12px;font-size:13px;line-height:1.7;white-space:pre-wrap">${esc(log.result)}</div>`;
+  }
+  if(!todos.length&&!log.result){
+    html='<div style="text-align:center;padding:24px 0;color:var(--m);font-size:13px">이날은 기록이 없어요</div>';
+  }
+  if(log.reviewed){
+    html+=`<div style="margin-top:14px;text-align:center;font-size:11.5px;color:var(--g);font-weight:700">✓ 메리가 확인했어요</div>`;
+  }
+  document.getElementById('journal-modal-body').innerHTML=html;
+  const w=document.getElementById('journal-modal');w.style.opacity=1;w.style.pointerEvents='all';document.getElementById('journal-modal-box').style.transform='translateY(0)';
+}
+function closeJournalModal(){const w=document.getElementById('journal-modal');w.style.opacity=0;w.style.pointerEvents='none';document.getElementById('journal-modal-box').style.transform='translateY(100%)';}
+
+/* ══════════ 하단 탭 안읽음 배지 ══════════ */
+function getNoticeReadIds(){try{return JSON.parse(localStorage.getItem('sz_notice_read')||'[]');}catch(e){return[];}}
+function saveNoticeReadIds(ids){try{localStorage.setItem('sz_notice_read',JSON.stringify(ids));}catch(e){}}
+function markAllNoticesRead(ids){const cur=getNoticeReadIds();saveNoticeReadIds([...new Set([...cur,...ids])]);}
+function markIssuesSeen(){try{localStorage.setItem('sz_issue_seen',String(Date.now()));}catch(e){}const b=document.getElementById('badge-gongu');if(b)b.style.display='none';}
+function markCommSeen(){try{localStorage.setItem('sz_comm_seen',String(Date.now()));}catch(e){}const b=document.getElementById('badge-ipjum');if(b)b.style.display='none';}
+function setBadge(id,count){const el=document.getElementById(id);if(!el)return;if(count>0){el.textContent=count>99?'99+':count;el.style.display='flex';}else{el.style.display='none';}}
+async function checkUnreadBadges(){
+  if(!DB)return;
+  try{
+    const noticeSnap=await DB.ref('sellzupNotices').once('value');
+    const noticeData=noticeSnap.val()||{};
+    const readIds=getNoticeReadIds();
+    const unreadNotices=Object.keys(noticeData).filter(id=>!readIds.includes(id));
+    setBadge('badge-notice',unreadNotices.length);
+  }catch(e){}
+  try{
+    const issueSnap=await DB.ref('shared/productIssues').once('value');
+    const issueData=issueSnap.val()||{};
+    const issueSeen=Number(localStorage.getItem('sz_issue_seen')||0);
+    const unreadIssues=Object.values(issueData).filter(v=>(v.ts||0)>issueSeen);
+    setBadge('badge-gongu',unreadIssues.length);
+  }catch(e){}
+  try{
+    const commSnap=await DB.ref('shared/rejectList').once('value');
+    const commData=commSnap.val()||{};
+    const commSeen=Number(localStorage.getItem('sz_comm_seen')||0);
+    const unreadComm=Object.values(commData).filter(v=>(v.ts||0)>commSeen);
+    setBadge('badge-ipjum',unreadComm.length);
+  }catch(e){}
+}
+
+/* ══════════ 탭 전환 ══════════ */
+function switchTab(tab){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.querySelector(`.tab-btn[data-tab="${tab}"]`).classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+  if(tab==='notice')renderNotices();
+  if(tab==='edu')renderEduCal();
+  if(tab==='ipjum')switchIpjumSub('search');
+  if(tab==='gongu')switchGonguSub('schedule');
+}
+
+function switchGonguSub(sub){
+  document.getElementById('gongu-sec-schedule').style.display=sub==='schedule'?'block':'none';
+  document.getElementById('gongu-sec-issue').style.display=sub==='issue'?'block':'none';
+  document.getElementById('gsub-schedule').classList.toggle('active',sub==='schedule');
+  document.getElementById('gsub-issue').classList.toggle('active',sub==='issue');
+  if(sub==='schedule')renderGongu();
+  if(sub==='issue'){loadProductIssues();markIssuesSeen();}
+}
+
+function switchIpjumSub(sub){
+  document.getElementById('ipjum-sec-search').style.display=sub==='search'?'block':'none';
+  document.getElementById('ipjum-sec-my').style.display=sub==='my'?'block':'none';
+  document.getElementById('ipjum-sec-community').style.display=sub==='community'?'block':'none';
+  document.getElementById('isub-search').classList.toggle('active',sub==='search');
+  document.getElementById('isub-my').classList.toggle('active',sub==='my');
+  document.getElementById('isub-community').classList.toggle('active',sub==='community');
+  if(sub==='search')ensureRejectCache(()=>renderSearchMemos());
+  if(sub==='my')renderIpjum();
+  if(sub==='community'){loadComm();markCommSeen();}
+}
+
+/* ══════════ 공구 ══════════ */
+const TYPE_CLR={'협찬':{bg:'#FDF0EC',c:'#B25A3E'},'공구예정':{bg:'#E9EEF5',c:'#3E5A8C'},'공구일정 확정':{bg:'#E7EEEC',c:'#264C46'},'입점제안완료':{bg:'#E9EEF5',c:'#3E5A8C'},'입점연락 옴':{bg:'#FFF3E0',c:'#9A7A2A'},'입점진행중':{bg:'#FDF0EC',c:'#B25A3E'},'신청완료':{bg:'#E7EEEC',c:'#264C46'},'입점완료':{bg:'#E7EEEC',c:'#264C46'},'거절':{bg:'#FDE8E8',c:'#C0392B'}};
+function typeBadge(t){const c=TYPE_CLR[t]||{bg:'#F0EEE7',c:'#5B6874'};return`<span class="sch-type" style="background:${c.bg};color:${c.c}">${t}</span>`;}
+let _gonguId=null,_gonguFilter='all';
+function openGonguModal(id=null){_gonguId=id;document.getElementById('gongu-modal-title').textContent=id?'🛒 공구일정 수정':'🛒 공구일정 추가';if(id){const g=(S.gonguSchedules||[]).find(x=>x.id===id);if(g){document.getElementById('g-type').value=g.type;document.getElementById('g-seller').value=g.seller||'';document.getElementById('g-product').value=g.product||'';document.getElementById('g-start').value=g.startDate||'';document.getElementById('g-end').value=g.endDate||'';document.getElementById('g-memo').value=g.memo||'';}}else{document.getElementById('g-type').value='공구예정';['g-seller','g-product','g-memo'].forEach(i=>document.getElementById(i).value='');document.getElementById('g-start').value=today();document.getElementById('g-end').value='';}const w=document.getElementById('gongu-modal');w.style.opacity=1;w.style.pointerEvents='all';document.getElementById('gongu-modal-box').style.transform='translateY(0)';}
+function closeGonguModal(){const w=document.getElementById('gongu-modal');w.style.opacity=0;w.style.pointerEvents='none';document.getElementById('gongu-modal-box').style.transform='translateY(100%)';_gonguId=null;}
+async function saveGongu(){const type=document.getElementById('g-type').value;const seller=document.getElementById('g-seller').value.trim();const product=document.getElementById('g-product').value.trim();const startDate=document.getElementById('g-start').value;const endDate=document.getElementById('g-end').value;const memo=document.getElementById('g-memo').value.trim();if(!product){showToast('상품명을 입력해주세요!');return;}if(!S.gonguSchedules)S.gonguSchedules=[];if(_gonguId){const idx=S.gonguSchedules.findIndex(g=>g.id===_gonguId);if(idx>=0)S.gonguSchedules[idx]={...S.gonguSchedules[idx],type,seller,product,startDate,endDate,memo};}else{S.gonguSchedules.unshift({id:Date.now(),type,seller,product,startDate,endDate,memo});}await fbSave();closeGonguModal();renderGongu();showToast(_gonguId?'✅ 수정됐어요!':'🛒 추가됐어요!');}
+async function delGongu(id){if(!confirm('삭제할까요?'))return;S.gonguSchedules=(S.gonguSchedules||[]).filter(g=>g.id!==id);await fbSave();renderGongu();showToast('삭제됐어요');}
+function filterGongu(f,btn){_gonguFilter=f;document.querySelectorAll('#gongu-filter .filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderGongu();}
+function shareGongu(id){const g=(S.gonguSchedules||[]).find(x=>x.id===id);if(!g)return;const dateStr=g.startDate&&g.endDate?`${g.startDate} ~ ${g.endDate}`:g.startDate||'-';const msg=`🛒 [${g.type}] 공유드려요!\n\n셀러: ${g.seller||'-'}\n상품: ${g.product}\n일정: ${dateStr}${g.memo?'\n메모: '+g.memo:''}`;navigator.clipboard.writeText(msg).then(()=>showToast('📋 복사됐어요! 메리님께 전달해주세요')).catch(()=>{});}
+function renderGongu(){const list=document.getElementById('gongu-list');if(!list)return;let items=(S.gonguSchedules||[]);if(_gonguFilter!=='all')items=items.filter(g=>g.type===_gonguFilter);if(items.length===0){list.innerHTML=`<div class="empty-state">아직 공구일정이 없어요 🛒<br>+ 추가 버튼으로 등록해보세요!</div>`;return;}list.innerHTML=items.map(g=>`<div class="sch-card">${typeBadge(g.type)}<div class="sch-title">${esc(g.product)}</div><div class="sch-detail">${g.seller?`📱 ${esc(g.seller)}<br>`:''}${g.startDate?`📅 ${g.startDate}${g.endDate?' ~ '+g.endDate:''}<br>`:''}${g.memo?`📝 ${esc(g.memo)}`:''}</div><div class="sch-actions"><button class="sch-edit" onclick="openGonguModal(${g.id})">✏️ 수정</button><button class="sch-del-btn" onclick="delGongu(${g.id})">🗑 삭제</button></div>${(g.type==='공구일정 확정'||g.type==='협찬')?`<button class="share-btn" onclick="shareGongu(${g.id})">📋 공유 문구 복사</button>`:''}</div>`).join('');}
+
+/* ══════════ 제품이슈 (전체 공유) ══════════ */
+function loadProductIssues(){
+  if(!DB)return;
+  const listEl=document.getElementById('issue-list');
+  const countEl=document.getElementById('issue-count');
+  if(listEl)listEl.innerHTML='<div style="text-align:center;padding:24px;color:var(--m);font-size:13px">불러오는 중...</div>';
+  DB.ref('shared/productIssues').once('value',snap=>{
+    const data=snap.val()||{};
+    const items=Object.entries(data).map(([id,v])=>({id,...v})).sort((a,b)=>(b.ts||0)-(a.ts||0));
+    if(countEl)countEl.textContent=`총 ${items.length}건`;
+    if(!listEl)return;
+    if(!items.length){listEl.innerHTML='<div class="empty-state">⚠️<br>등록된 이슈가 없어요</div>';return;}
+    listEl.innerHTML=items.map(item=>`
+      <div class="sch-card" style="border-left:3px solid var(--warn)">
+        <div style="font-size:11px;color:var(--m);margin-bottom:5px">📅 ${item.dateStr||''}${item.who?' · '+esc(item.who)+' 님 제보':(item.from==='admin'?' · 메리':'')}</div>
+        <div class="sch-title">${esc(item.brand||'')}${item.product?' - '+esc(item.product):''}</div>
+        <div style="font-size:13px;color:var(--warn);background:var(--wbg);border-radius:8px;padding:8px 10px;line-height:1.6">${esc(item.body||'')}</div>
+      </div>`).join('');
+  },err=>{
+    if(listEl)listEl.innerHTML='<div class="empty-state">⚠️<br>불러오기 실패. 새로고침해주세요.</div>';
+  });
+}
+function submitStudentProductIssue(){
+  if(!DB){showToast('연결 오류');return;}
+  const brand=document.getElementById('si-brand').value.trim();
+  const product=document.getElementById('si-product').value.trim();
+  const body=document.getElementById('si-body').value.trim();
+  if(!brand){showToast('브랜드명을 입력해주세요');return;}
+  if(!body){showToast('이슈 내용을 입력해주세요');return;}
+  const now=new Date(); const dateStr=(now.getMonth()+1)+'/'+now.getDate();
+  const maskedName=S.name.length>=2?S.name[0]+'○'.repeat(S.name.length-1):S.name;
+  DB.ref('shared/productIssues').push({brand,product,body,dateStr,from:'student',who:maskedName,whoReal:S.name,ts:Date.now()}).then(()=>{
+    showToast('✅ 이슈가 등록됐어요! 전체 수강생에게 공개됩니다.');
+    markIssuesSeen();
+    document.getElementById('si-brand').value=''; document.getElementById('si-product').value=''; document.getElementById('si-body').value='';
+    loadProductIssues();
+  }).catch(()=>showToast('오류가 발생했어요'));
+}
+
+/* ══════════ 입점 (입점소통방 공유) ══════════ */
+let _commCache=[],_commCacheLoaded=false,_commPage=0;
+const COMM_PER_PAGE=20;
+function ensureRejectCache(cb){if(!DB)return;if(_commCacheLoaded){if(cb)cb();return;}DB.ref('shared/rejectList').once('value').then(snap=>{const items=[];snap.forEach(c=>{const v=c.val();items.push({id:c.key,company:v.company||'',product:v.product||'',reason:v.reason||'',who:v.who||'',dateStr:v.dateStr||''});});_commCache=items;_commCacheLoaded=true;if(cb)cb();});}
+function findRejectMatches(company){const q=(company||'').trim();if(!q||q.length<2)return[];return _commCache.filter(r=>r.company&&(r.company.includes(q)||q.includes(r.company)));}
+
+/* ══════════ 입점소통방 (전체 공유 거절 이력) ══════════ */
+function loadComm(){
+  if(!DB){renderComm();return;}
+  const el=document.getElementById('comm-list');
+  if(el)el.innerHTML='<div style="text-align:center;padding:24px;color:var(--m);font-size:13px">불러오는 중...</div>';
+  DB.ref('shared/rejectList').once('value',snap=>{
+    const items=[];snap.forEach(c=>{const v=c.val();items.push({id:c.key,company:v.company||'',product:v.product||'',reason:v.reason||'',who:v.who||'',dateStr:v.dateStr||'',ts:v.ts||0});});
+    items.reverse();_commCache=items;_commCacheLoaded=true;_commPage=0;renderComm();
+  });
+}
+function commSearchChanged(){_commPage=0;renderComm();}
+function goCommPage(page){_commPage=page;renderComm();document.getElementById('ipjum-sec-community')?.scrollIntoView({behavior:'smooth',block:'start'});}
+function renderComm(){
+  const q=(document.getElementById('comm-search')?.value||'').trim().toLowerCase();
+  let data=q?_commCache.filter(d=>(d.company||'').toLowerCase().includes(q)||(d.product||'').toLowerCase().includes(q)):_commCache;
+  const countEl=document.getElementById('comm-count');
+  if(countEl)countEl.textContent=`총 ${data.length}건 등록됨`;
+  const el=document.getElementById('comm-list');
+  const pgEl=document.getElementById('comm-pagination');
+  if(!el)return;
+  if(!data.length){
+    el.innerHTML=`<div style="text-align:center;padding:36px 0;color:var(--m)"><div style="font-size:36px;margin-bottom:10px">${q?'🔍':'🎉'}</div><div style="font-size:13px;line-height:1.6">${q?`"${q}" 검색 결과가 없어요`:'아직 등록된 거절 업체가 없어요<br>첫 번째로 등록해보세요!'}</div></div>`;
+    if(pgEl)pgEl.innerHTML='';
+    return;
+  }
+  const totalPages=Math.ceil(data.length/COMM_PER_PAGE);
+  if(_commPage>=totalPages)_commPage=totalPages-1;
+  if(_commPage<0)_commPage=0;
+  const pageData=data.slice(_commPage*COMM_PER_PAGE,(_commPage+1)*COMM_PER_PAGE);
+  el.innerHTML=pageData.map(d=>`<div class="sch-card" style="border-left:3px solid var(--danger)"><div style="display:flex;align-items:center;margin-bottom:6px;gap:6px"><span class="sch-type" style="background:var(--dbg);color:var(--danger)">🔴 거절</span><span style="font-size:14px;font-weight:900">${esc(d.company)}</span></div><div class="sch-detail">📦 ${esc(d.product)}</div>${d.reason?`<div style="font-size:12px;color:var(--danger);background:var(--dbg);border-radius:8px;padding:8px 10px;margin-top:6px;line-height:1.6">💬 ${esc(d.reason)}</div>`:''}<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--m);margin-top:8px"><span>👤 ${esc(d.who)}</span><span>${d.dateStr}</span></div></div>`).join('');
+  if(pgEl){
+    if(totalPages<=1){pgEl.innerHTML='';}
+    else{
+      let pgHtml='';
+      pgHtml+=`<button onclick="goCommPage(${_commPage-1})" ${_commPage===0?'disabled':''} style="border:1.5px solid var(--bd);background:#fff;border-radius:8px;padding:7px 12px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;color:var(--m);opacity:${_commPage===0?'.35':'1'}">‹</button>`;
+      const start=Math.max(0,Math.min(_commPage-2,totalPages-5));
+      const end=Math.min(totalPages,start+5);
+      for(let i=start;i<end;i++){
+        const isActive=i===_commPage;
+        pgHtml+=`<button onclick="goCommPage(${i})" style="border:1.5px solid ${isActive?'var(--g)':'var(--bd)'};background:${isActive?'var(--g)':'#fff'};border-radius:8px;padding:7px 11px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;color:${isActive?'#fff':'var(--m)'}">${i+1}</button>`;
+      }
+      pgHtml+=`<button onclick="goCommPage(${_commPage+1})" ${_commPage===totalPages-1?'disabled':''} style="border:1.5px solid var(--bd);background:#fff;border-radius:8px;padding:7px 12px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;color:var(--m);opacity:${_commPage===totalPages-1?'.35':'1'}">›</button>`;
+      pgEl.innerHTML=pgHtml;
+    }
+  }
+}
+function checkCommDup(v){
+  const q=v.trim().toLowerCase();const warn=document.getElementById('comm-dup-warn');
+  if(!q||!_commCache.length){warn.style.display='none';return;}
+  const found=_commCache.find(d=>(d.company||'').toLowerCase().includes(q));
+  if(found){warn.innerHTML=`⚠️ 이미 등록된 업체예요!<br><strong>${esc(found.company)}</strong> — ${esc(found.who)} 등록 · ${found.dateStr}`;warn.style.display='block';}
+  else{warn.style.display='none';}
+}
+function openCommModal(){
+  document.getElementById('c-company').value='';document.getElementById('c-product').value='';document.getElementById('c-reason').value='';document.getElementById('comm-dup-warn').style.display='none';
+  ensureRejectCache();
+  const w=document.getElementById('comm-modal');w.style.opacity=1;w.style.pointerEvents='all';document.getElementById('comm-modal-box').style.transform='translateY(0)';
+}
+function closeCommModal(){const w=document.getElementById('comm-modal');w.style.opacity=0;w.style.pointerEvents='none';document.getElementById('comm-modal-box').style.transform='translateY(100%)';}
+async function saveCommReject(){
+  const company=document.getElementById('c-company').value.trim();
+  const product=document.getElementById('c-product').value.trim();
+  const reason=document.getElementById('c-reason').value.trim();
+  if(!company||!product){showToast('업체명과 제품명을 입력해주세요!');return;}
+  if(!DB){showToast('연결 오류');return;}
+  const d=new Date();const dateStr=`${d.getMonth()+1}/${d.getDate()}`;
+  const maskedName=S.name.length>=2?S.name[0]+'○'.repeat(S.name.length-1):S.name;
+  const entry={company,product,reason,who:maskedName,whoReal:S.name,dateStr,ts:Date.now()};
+  try{
+    await DB.ref('shared/rejectList').push(entry);
+    _commCache.unshift({id:'temp_'+Date.now(),...entry});
+    closeCommModal();renderComm();
+    showToast('✅ 등록됐어요! 수강생 모두에게 공유됩니다 🙌');
+    markCommSeen();
+  }catch(e){showToast('저장 오류');}
+}
+
+function checkIpjumReject(){const val=document.getElementById('i-companyname').value;const alertEl=document.getElementById('i-reject-alert');if(!val.trim()){alertEl.style.display='none';return;}ensureRejectCache(()=>{const matches=findRejectMatches(val);if(matches.length){alertEl.style.display='block';alertEl.innerHTML=`🚫 <b>입점소통방에 이력 있음</b> (${matches.length}건)<br>`+matches.slice(0,2).map(m=>`· ${esc(m.product||'')} — ${esc(m.reason||'')}`).join('<br>');}else{alertEl.style.display='none';}});}
+
+/* ══════════ 입점서치 메모 ══════════ */
+function checkSearchMemoReject(){
+  const val=document.getElementById('sm-company').value;
+  const alertEl=document.getElementById('sm-reject-alert');
+  const statusEl=document.getElementById('sm-check-status');
+  if(!val.trim()){alertEl.style.display='none';statusEl.textContent='';return;}
+  ensureRejectCache(()=>{
+    const matches=findRejectMatches(val);
+    if(matches.length){alertEl.style.display='block';alertEl.innerHTML=`🚫 <b>입점소통방에 이력 있음</b> (${matches.length}건)<br>`+matches.slice(0,2).map(m=>`· ${esc(m.product||'')} — ${esc(m.reason||'')}`).join('<br>');statusEl.textContent='';}
+    else{alertEl.style.display='none';statusEl.textContent='✓ 입점소통방에 이력 없음';}
+  });
+}
+function toggleSmEmail(){
+  const method=document.getElementById('sm-method').value;
+  const wrap=document.getElementById('sm-email-wrap');
+  if(wrap)wrap.style.display=method==='메일'?'block':'none';
+}
+async function addSearchMemo(){
+  const company=document.getElementById('sm-company').value.trim();
+  const url=document.getElementById('sm-url').value.trim();
+  const method=document.getElementById('sm-method').value;
+  const email=method==='메일'?document.getElementById('sm-email').value.trim():'';
+  const product=document.getElementById('sm-product').value.trim();
+  const note=document.getElementById('sm-note').value.trim();
+  if(!company){showToast('회사명을 입력해주세요!');return;}
+  if(!S.searchMemos)S.searchMemos=[];
+  S.searchMemos.unshift({id:Date.now(),company,url,method,email,product,note});
+  await fbSave();
+  document.getElementById('sm-company').value='';document.getElementById('sm-url').value='';document.getElementById('sm-product').value='';document.getElementById('sm-note').value='';document.getElementById('sm-email').value='';document.getElementById('sm-method').value='메일';toggleSmEmail();
+  document.getElementById('sm-reject-alert').style.display='none';document.getElementById('sm-check-status').textContent='';
+  renderSearchMemos();
+  showToast('📌 메모로 저장됐어요!');
+}
+async function deleteSearchMemo(id){
+  if(!confirm('이 메모를 삭제할까요?'))return;
+  S.searchMemos=(S.searchMemos||[]).filter(m=>m.id!==id);
+  await fbSave(); renderSearchMemos(); showToast('삭제됐어요');
+}
+async function moveSearchMemoToIpjum(id){
+  const memo=(S.searchMemos||[]).find(m=>m.id===id);
+  if(!memo)return;
+  S.searchMemos=(S.searchMemos||[]).filter(m=>m.id!==id);
+  if(!S.ipjumItems)S.ipjumItems=[];
+  S.ipjumItems.unshift({
+    id:Date.now(), type:'입점제안완료', product:memo.product||'', companyName:memo.company||'',
+    memo:memo.note||'', applyDate:today()
+  });
+  await fbSave(); renderSearchMemos(); renderIpjum();
+  showToast('🏪 입점관리로 옮겼어요! "입점제안완료" 상태로 등록됐어요');
+}
+function renderSearchMemos(){
+  const list=document.getElementById('search-memo-list'); const empty=document.getElementById('search-memo-empty');
+  if(!list||!empty)return;
+  const memos=S.searchMemos||[];
+  if(memos.length===0){list.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  list.innerHTML=memos.map(m=>{
+    const matches=findRejectMatches(m.company);
+    return `<div class="sch-card" style="border-left:3px solid var(--navy)">
+      <span class="sch-type" style="background:var(--card);color:var(--navy)">📌 서치</span>
+      <div class="sch-title">${esc(m.company)}</div>
+      <div class="sch-detail">${m.url?`🔗 ${esc(m.url)}<br>`:''}${m.method?`📧 제안방법: ${esc(m.method)}${m.method==='메일'&&m.email?' — '+esc(m.email):''}`:''}</div>
+      ${m.product?`<div class="sch-detail">📦 ${esc(m.product)}</div>`:''}
+      ${m.note?`<div style="font-size:12px;color:var(--t);background:var(--card);border-radius:8px;padding:8px 10px;margin-top:6px;line-height:1.6">${esc(m.note)}</div>`:''}
+      ${matches.length?`<div style="margin-top:8px;background:#FDF3F0;border:1.5px solid #F0C0C0;border-radius:10px;padding:10px 12px;font-size:12px;color:#a03030;line-height:1.6">🚫 <b>입점소통방에 이력 있음</b> (${matches.length}건)<br>`+matches.slice(0,2).map(mm=>`· ${esc(mm.product||'')} — ${esc(mm.reason||'')}`).join('<br>')+`</div>`:''}
+      <div class="sch-actions">
+        <button class="sch-edit" onclick="moveSearchMemoToIpjum(${m.id})">🏪 입점관리로 옮기기</button>
+        <button class="sch-del-btn" onclick="deleteSearchMemo(${m.id})">🗑 삭제</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+let _ipjumId=null,_ipjumFilter='all';
+function toggleCompletionDate(){const t=document.getElementById('i-type').value;const wrap=document.getElementById('i-completion-wrap');if(wrap)wrap.style.display=t==='입점완료'?'block':'none';}
+function toggleIEmail(){const m=document.getElementById('i-method').value;const wrap=document.getElementById('i-email-wrap');if(wrap)wrap.style.display=m==='메일'?'block':'none';}
+function openIpjumModal(id=null){
+  _ipjumId=id;document.getElementById('ipjum-modal-title').textContent=id?'🏪 입점 수정':'🏪 입점 추가';
+  document.getElementById('i-reject-alert').style.display='none'; ensureRejectCache();
+  if(id){
+    const i=(S.ipjumItems||[]).find(x=>x.id===id);
+    if(i){
+      document.getElementById('i-type').value=i.type||'입점제안완료';
+      document.getElementById('i-companyname').value=i.companyName||'';
+      document.getElementById('i-product').value=i.product||'';
+      document.getElementById('i-company').value=i.company||'';
+      document.getElementById('i-method').value=i.method||'메일';
+      document.getElementById('i-email').value=i.email||'';
+      document.getElementById('i-apply').value=i.applyDate||'';
+      document.getElementById('i-sentdate').value=i.sentDate||'';
+      document.getElementById('i-completion').value=i.completionDate||'';
+      document.getElementById('i-listchecked').checked=!!i.listChecked;
+      document.getElementById('i-roomlogged').checked=!!i.roomLogged;
+      document.getElementById('i-memo').value=i.memo||'';
+    }
+  }else{
+    document.getElementById('i-type').value='입점제안완료';
+    ['i-companyname','i-product','i-company','i-memo','i-email'].forEach(x=>document.getElementById(x).value='');
+    document.getElementById('i-method').value='메일';
+    document.getElementById('i-apply').value=today();
+    document.getElementById('i-sentdate').value='';
+    document.getElementById('i-completion').value='';
+    document.getElementById('i-listchecked').checked=false;
+    document.getElementById('i-roomlogged').checked=false;
+  }
+  toggleCompletionDate(); toggleIEmail();
+  const w=document.getElementById('ipjum-modal');w.style.opacity=1;w.style.pointerEvents='all';document.getElementById('ipjum-modal-box').style.transform='translateY(0)';
+}
+function closeIpjumModal(){const w=document.getElementById('ipjum-modal');w.style.opacity=0;w.style.pointerEvents='none';document.getElementById('ipjum-modal-box').style.transform='translateY(100%)';_ipjumId=null;}
+async function saveIpjum(){
+  const type=document.getElementById('i-type').value;
+  const companyName=document.getElementById('i-companyname').value.trim();
+  const product=document.getElementById('i-product').value.trim();
+  const company=document.getElementById('i-company').value.trim();
+  const method=document.getElementById('i-method').value;
+  const email=method==='메일'?document.getElementById('i-email').value.trim():'';
+  const applyDate=document.getElementById('i-apply').value;
+  const sentDate=document.getElementById('i-sentdate').value;
+  const completionDate=type==='입점완료'?document.getElementById('i-completion').value:'';
+  const listChecked=document.getElementById('i-listchecked').checked;
+  const roomLogged=document.getElementById('i-roomlogged').checked;
+  const memo=document.getElementById('i-memo').value.trim();
+  if(!product){showToast('제품명을 입력해주세요!');return;}
+  if(!S.ipjumItems)S.ipjumItems=[];
+  if(_ipjumId){
+    const idx=S.ipjumItems.findIndex(i=>i.id===_ipjumId);
+    if(idx>=0)S.ipjumItems[idx]={...S.ipjumItems[idx],type,companyName,product,company,method,email,applyDate,sentDate,completionDate,listChecked,roomLogged,memo};
+  }else{
+    S.ipjumItems.unshift({id:Date.now(),type,companyName,product,company,method,email,applyDate,sentDate,completionDate,listChecked,roomLogged,memo});
+  }
+  if(type==='거절'&&companyName&&DB){
+    const d=new Date();const dateStr=`${d.getMonth()+1}/${d.getDate()}`;
+    const maskedName=S.name.length>=2?S.name[0]+'○'.repeat(S.name.length-1):S.name;
+    try{await DB.ref('shared/rejectList').push({company:companyName,product,reason:memo,who:maskedName,whoReal:S.name,dateStr,ts:Date.now()});}catch(e){}
+  }
+  await fbSave();closeIpjumModal();renderIpjum();showToast(_ipjumId?'✅ 수정됐어요!':'🏪 추가됐어요!');
+}
+async function delIpjum(id){if(!confirm('삭제할까요?'))return;S.ipjumItems=(S.ipjumItems||[]).filter(i=>i.id!==id);await fbSave();renderIpjum();showToast('삭제됐어요');}
+
+function daysBetween(dateStr){const then=new Date(dateStr);const now=new Date();return Math.floor((now-then)/86400000);}
+function followupStatusIpjum(item){
+  if(!item.sentDate||item.type==='거절'||item.type==='입점완료')return null;
+  const days=daysBetween(item.sentDate);
+  if(days>=7)return {text:`⚠️ ${days}일 경과 — 팔로업 필요`,cls:'due'};
+  return {text:`대기 (${days}일)`,cls:'wait'};
+}
+function toggleRejectInlineForm(id){
+  const form=document.getElementById('ipjum-reject-form-'+id);
+  if(form)form.style.display=form.style.display==='none'?'block':'none';
+}
+async function registerIpjumReject(id){
+  const reasonEl=document.getElementById('ipjum-reject-reason-'+id);
+  const reason=reasonEl?reasonEl.value.trim():'';
+  if(!reason){showToast('거절 사유를 입력해주세요!');return;}
+  const idx=(S.ipjumItems||[]).findIndex(i=>i.id===id);
+  if(idx<0)return;
+  const item=S.ipjumItems[idx];
+  if(!DB){showToast('연결 오류');return;}
+  const d=new Date(); const dateStr=`${d.getMonth()+1}/${d.getDate()}`;
+  const maskedName=S.name.length>=2?S.name[0]+'○'.repeat(S.name.length-1):S.name;
+  const entry={company:item.companyName||'',product:item.product||'',reason,who:maskedName,whoReal:S.name,dateStr,ts:Date.now()};
+  try{
+    await DB.ref('shared/rejectList').push(entry);
+    _commCache.unshift({id:'temp_'+Date.now(),...entry});
+    markCommSeen();
+    item.type='거절'; item.rejectReason=reason;
+    await fbSave();
+    renderIpjum();
+    showToast('✅ 거절 등록 + 입점소통방에 자동 공유됐어요!');
+  }catch(e){showToast('저장 오류');}
+}
+
+function openIssueModal(id){
+  document.getElementById('issue-ipjum-id').value=id;
+  const item=(S.ipjumItems||[]).find(i=>i.id===id);
+  document.getElementById('issue-report-text').value=item?.issueReport?.text||'';
+  const w=document.getElementById('issue-report-modal');w.style.opacity=1;w.style.pointerEvents='all';document.getElementById('issue-report-modal-box').style.transform='translateY(0)';
+}
+function closeIssueModal(){const w=document.getElementById('issue-report-modal');w.style.opacity=0;w.style.pointerEvents='none';document.getElementById('issue-report-modal-box').style.transform='translateY(100%)';}
+async function submitIssueReport(){
+  const id=parseInt(document.getElementById('issue-ipjum-id').value);
+  const text=document.getElementById('issue-report-text').value.trim();
+  if(!text){showToast('이슈 내용을 입력해주세요!');return;}
+  const idx=(S.ipjumItems||[]).findIndex(i=>i.id===id);
+  if(idx<0)return;
+  S.ipjumItems[idx].issueReport={text,date:today()};
+  await fbSave();
+  if(DB){
+    const item=S.ipjumItems[idx];
+    const now=new Date(); const dateStr=(now.getMonth()+1)+'/'+now.getDate();
+    await DB.ref('shared/productIssues').push({brand:item.product||'',product:'',body:text,dateStr,from:'student',ts:Date.now()});
+  }
+  closeIssueModal();
+  renderIpjum();
+  showToast('⚠ 이슈가 등록됐어요! 전체 수강생에게 공개됩니다.');
+}
+
+function filterIpjum(f,btn){_ipjumFilter=f;document.querySelectorAll('#ipjum-filter .filter-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');renderIpjum();}
+function renderIpjum(){
+  const list=document.getElementById('ipjum-list');if(!list)return;
+  let items=(S.ipjumItems||[]);
+  if(_ipjumFilter==='__followup') items=items.filter(i=>{const fu=followupStatusIpjum(i);return fu&&fu.cls==='due';});
+  else if(_ipjumFilter!=='all') items=items.filter(i=>i.type===_ipjumFilter);
+  if(items.length===0){list.innerHTML=`<div class="empty-state">아직 입점 항목이 없어요 🏪<br>+ 추가 버튼으로 등록해보세요!</div>`;return;}
+  list.innerHTML=items.map(i=>{
+    const fu=followupStatusIpjum(i);
+    const matches=i.companyName?findRejectMatches(i.companyName):[];
+    const isRejected=i.type==='거절';
+    return `<div class="sch-card">${typeBadge(i.type)}<div class="sch-title">${esc(i.product)}</div>
+    ${i.companyName?`<div style="font-size:12.5px;color:var(--m);font-weight:700;margin-bottom:4px">🏢 ${esc(i.companyName)}</div>`:''}
+    <div class="sch-detail">${i.method?`📧 제안방법: ${esc(i.method)}${i.method==='메일'&&i.email?' — '+esc(i.email):''}<br>`:''}${i.company?`🔗 ${esc(i.company)}<br>`:''}${i.applyDate?`📅 신청일: ${i.applyDate}<br>`:''}${i.sentDate?`📤 제안발송일: ${i.sentDate}<br>`:''}${i.completionDate?`✅ 완료일: ${i.completionDate}<br>`:''}${i.memo?`📝 ${esc(i.memo)}`:''}</div>
+    <div style="display:flex;gap:14px;margin:8px 0;font-size:11.5px;color:var(--m);font-weight:700">
+      <span>${i.listChecked?'☑':'☐'} 입점사목록</span>
+      <span>${i.roomLogged?'☑':'☐'} 소통방 기록</span>
+    </div>
+    ${fu?`<span class="sch-type" style="background:${fu.cls==='due'?'var(--dbg)':'var(--wbg)'};color:${fu.cls==='due'?'var(--danger)':'var(--warn)'}">${fu.text}</span>`:''}
+    ${matches.length&&!isRejected?`<div style="margin-top:8px;background:#FDF3F0;border:1.5px solid #F0C0C0;border-radius:10px;padding:10px 12px;font-size:12px;color:#a03030;line-height:1.6">🚫 <b>입점소통방에 이력 있음</b> (${matches.length}건)<br>`+matches.slice(0,2).map(m=>`· ${esc(m.product||'')} — ${esc(m.reason||'')}`).join('<br>')+`</div>`:''}
+    ${isRejected?`<div style="font-size:11.5px;color:#a03030;background:#FDF3F0;border-radius:8px;padding:8px 10px;margin-top:8px;line-height:1.6">🔴 <b>거절 등록됨</b> — 입점소통방에도 공유됐어요${i.rejectReason?'<br>사유: '+esc(i.rejectReason):''}</div>`:''}
+    <div class="sch-actions"><button class="sch-edit" onclick="openIpjumModal(${i.id})">✏️ 수정</button><button class="sch-del-btn" onclick="delIpjum(${i.id})">🗑 삭제</button></div>
+    ${!isRejected?`
+      <div id="ipjum-reject-form-${i.id}" style="display:none;margin-top:10px;background:#FFF8F8;border:1.5px solid #F5C6CB;border-radius:10px;padding:10px">
+        <label style="font-size:11px;color:#a03030;font-weight:700;margin-bottom:5px;display:block">거절 사유</label>
+        <input type="text" id="ipjum-reject-reason-${i.id}" placeholder="예) 자체공구만 진행" style="margin-bottom:8px">
+        <button class="btn" style="background:var(--danger);color:#fff;margin-top:0" onclick="registerIpjumReject(${i.id})">🔴 거절 등록 + 소통방 자동 공유</button>
+      </div>
+      <button class="sch-del-btn" style="width:100%;margin-top:8px" onclick="toggleRejectInlineForm(${i.id})">🔴 이 업체 거절 처리하기</button>
+    `:''}
+    ${i.type==='입점완료'?`<div style="margin-top:6px">${i.issueReport?`<div style="background:var(--dbg);border:1px solid #F5C6CB;border-radius:8px;padding:7px 10px;font-size:11px;color:var(--danger);margin-bottom:5px"><span style="font-size:10px;font-weight:700;display:block;margin-bottom:2px">⚠ 내가 신고한 이슈</span>${esc(i.issueReport.text)}</div><button class="share-btn" style="background:var(--dbg);color:var(--danger)" onclick="openIssueModal(${i.id})">✏ 이슈 수정</button>`:`<button class="share-btn" style="background:var(--dbg);color:var(--danger)" onclick="openIssueModal(${i.id})">⚠ 이슈 발생 신고</button>`}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+/* ══════════ 공지 (기존 챌린지캘린더와 완전 공유) ══════════ */
+function getTagStyle(){return'background:var(--card);color:var(--navy)';}
+function renderNotices(){const wrap=document.getElementById('notice-list');if(!wrap||!DB)return;DB.ref('sellzupNotices').orderByChild('createdAt').once('value',snap=>{const data=snap.val()||{};const notices=Object.entries(data).map(([id,n])=>({id,...n})).sort((a,b)=>{if(a.pinned&&!b.pinned)return -1;if(!a.pinned&&b.pinned)return 1;return(b.createdAt||0)-(a.createdAt||0);});if(!notices.length){wrap.innerHTML='<div class="empty-state">📢<br>등록된 공지가 없습니다</div>';setBadge('badge-notice',0);return;}wrap.innerHTML=notices.map(n=>`<div class="notice-item" onclick="this.classList.toggle('expanded')"><div class="notice-item-top">${n.pinned?'<span class="notice-tag-chip">📌 고정</span>':''}<span class="notice-tag-chip">${n.tag||'📢 공지'}</span><span class="notice-item-date">${n.dateStr||''}</span></div><div class="notice-item-title">${esc(n.title)}</div><div class="notice-item-body">${esc(n.body||'').replace(/\n/g,'<br>')}</div></div>`).join('');markAllNoticesRead(notices.map(n=>n.id));setBadge('badge-notice',0);});}
+
+/* ══════════ 교육일정 (기존 챌린지캘린더와 완전 공유) ══════════ */
+let _eduCalDate=new Date();
+const EDU_TYPE={off:{label:'오프교육',cls:'ev-off'},zoom:{label:'줌스터디/줌교육',cls:'ev-zoom'},feedback:{label:'피드백만 진행',cls:'ev-feedback'},holiday:{label:'휴일',cls:'ev-holiday'},etc:{label:'기타',cls:'ev-etc'}};
+function eduCalPrev(){_eduCalDate=new Date(_eduCalDate.getFullYear(),_eduCalDate.getMonth()-1,1);renderEduCal();}
+function eduCalNext(){_eduCalDate=new Date(_eduCalDate.getFullYear(),_eduCalDate.getMonth()+1,1);renderEduCal();}
+function eduCalToday(){_eduCalDate=new Date();renderEduCal();}
+function renderEduCal(){const year=_eduCalDate.getFullYear();const month=_eduCalDate.getMonth();document.getElementById('edu-month-label').textContent=year+'년 '+(month+1)+'월';const firstDow=new Date(year,month,1).getDay();const lastDate=new Date(year,month+1,0).getDate();const _td=new Date();const todayStr=_td.getFullYear()+'-'+String(_td.getMonth()+1).padStart(2,'0')+'-'+String(_td.getDate()).padStart(2,'0');const monthKey=year+'-'+String(month+1).padStart(2,'0');if(!DB){renderEduGrid(firstDow,lastDate,todayStr,year,month,[]);return;}DB.ref('eduEvents').orderByChild('date').startAt(monthKey+'-01').endAt(monthKey+'-31').once('value',snap=>{const data=snap.val()||{};const events=Object.values(data);renderEduGrid(firstDow,lastDate,todayStr,year,month,events);});}
+function renderEduGrid(firstDow,lastDate,todayStr,year,month,events){const grid=document.getElementById('edu-cal-grid');if(!grid)return;let html='';for(let i=0;i<firstDow;i++)html+=`<div class="edu-cell edu-other"></div>`;for(let d=1;d<=lastDate;d++){const dateStr=year+'-'+String(month+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');const isToday=dateStr===todayStr;const dayEvts=events.filter(e=>e.date===dateStr);let evHtml=dayEvts.map(e=>{const t=EDU_TYPE[e.type]||EDU_TYPE.etc;return`<span class="edu-event ${t.cls}">${e.title||t.label}</span>`;}).join('');html+=`<div class="edu-cell${isToday?' edu-today':''}"><div class="edu-dn">${d}</div>${evHtml}</div>`;}grid.innerHTML=html;}
+
+/* ══════════ 관리자 ══════════ */
+function doAdminLogin(){const pw=document.getElementById('a-pw').value;if(pw!==ADMIN_PW){showToast('비밀번호가 틀렸습니다');return;}show('sc-admin');switchAdminTab('students');}
+function switchAdminTab(tab){document.querySelectorAll('.admin-tab-btn').forEach((b,i)=>b.classList.toggle('active',['students','gongu','ipjumstat','notice','edu','issue'][i]===tab));document.querySelectorAll('.admin-tab-section').forEach(s=>s.classList.remove('active'));document.getElementById('admin-sec-'+tab).classList.add('active');if(tab==='students')loadAdmin();if(tab==='notice')loadAdminNotices();if(tab==='edu')loadAdminEdu();if(tab==='issue')loadAdminProductIssues();if(tab==='gongu')loadAdminGongu();if(tab==='ipjumstat')loadAdminIpjumStat();}
+
+let _adminAllList=[],_adminFilter='all',_programFilter='all';
+function filterProgram(p,btn){_programFilter=p;_adminFilter='all';document.querySelectorAll('#admin-sec-students .filter-btn').forEach(b=>{if(b.id&&b.id.startsWith('pf-'))b.classList.remove('active');});btn.classList.add('active');renderAdminDashboard();renderStatusFilters();renderAdminList();}
+function filterAdmin(f,btn){_adminFilter=f;document.querySelectorAll('#admin-status-filters .filter-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');renderAdminList();}
+
+function renderAdminDashboard(){
+  const dash=document.getElementById('admin-dashboard');
+  if(!dash)return;
+  const list=_adminAllList;
+  const td=today();
+  if(_programFilter==='challenge'){
+    const cList=list.filter(s=>s.program!=='sellzup');
+    const threeDaysAgo=addDays(td,-3);
+    const subCnt=cList.filter(s=>s.resultDate===td).length;
+    const nosubCnt=cList.filter(s=>s.resultDate!==td).length;
+    const stopCnt=cList.filter(s=>!s.lastActive||s.lastActive<threeDaysAgo).length;
+    const todoCnt=cList.filter(s=>s.resultDate===td&&(s.todos||[]).some(t=>!t.done)).length;
+    const inactCnt=cList.filter(s=>!s.lastActive||s.lastActive<threeDaysAgo).length;
+    const cards=[
+      ['✅ 오늘 제출',subCnt,'var(--gb)','var(--g)','submit'],
+      ['⬜ 미제출',nosubCnt,'var(--dbg)','var(--danger)','nosub'],
+      ['🔴 3일이상 멈춤',stopCnt,'var(--dbg)','var(--danger)','stop'],
+      ['⚠️ 투두 미완료',todoCnt,'var(--wbg)','var(--warn)','todo'],
+      ['😴 활동 없음',inactCnt,'var(--card)','var(--m)','inactive'],
+      ['👥 전체',cList.length,'var(--card)','var(--navy)','all'],
+    ];
+    dash.innerHTML=cards.map(([label,cnt,bg,color,f])=>`
+      <div onclick="filterAdmin('${f}',document.getElementById('af-${f}'))" style="background:${bg};border-radius:12px;padding:12px;text-align:center;cursor:pointer">
+        <div style="font-size:22px;font-weight:900;color:${color};line-height:1">${cnt}</div>
+        <div style="font-size:10px;color:${color};margin-top:4px;font-weight:700;opacity:.9">${label}</div>
+      </div>`).join('');
+  } else {
+    const queueCnt=list.filter(s=>queueStatus(s)==='queue').length;
+    const freeReviewCnt=list.filter(s=>queueStatus(s)==='freeReview').length;
+    const noContentCnt=list.filter(s=>queueStatus(s)==='noContent').length;
+    const graduatedCnt=list.filter(s=>s.program==='sellzup'&&s.graduated).length;
+    const cards=[
+      ['⚠️ 미션 확인 대기',queueCnt,'var(--wbg)','var(--warn)','queue'],
+      ['✅ 자유모드 확인 대기',freeReviewCnt,'var(--wbg)','var(--warn)','freeReview'],
+      ['📝 미션 등록 필요',noContentCnt,'var(--card)','var(--m)','noContent'],
+      ['🏆 졸업생',graduatedCnt,'var(--gb)','var(--g)','graduated'],
+    ];
+    dash.innerHTML=cards.map(([label,cnt,bg,color,f])=>`
+      <div onclick="filterAdmin('${f}',document.getElementById('af-${f}'))" style="background:${bg};border-radius:12px;padding:12px;text-align:center;cursor:pointer">
+        <div style="font-size:22px;font-weight:900;color:${color};line-height:1">${cnt}</div>
+        <div style="font-size:10px;color:${color};margin-top:4px;font-weight:700;opacity:.9">${label}</div>
+      </div>`).join('');
+  }
+}
+
+function renderStatusFilters(){
+  const el=document.getElementById('admin-status-filters');
+  if(!el)return;
+  if(_programFilter==='challenge'){
+    el.innerHTML=`
+      <button class="filter-btn active" id="af-all" onclick="filterAdmin('all',this)">전체</button>
+      <button class="filter-btn" id="af-submit" onclick="filterAdmin('submit',this)">✅ 오늘 제출</button>
+      <button class="filter-btn" id="af-nosub" onclick="filterAdmin('nosub',this)">⬜ 미제출</button>
+      <button class="filter-btn" id="af-stop" onclick="filterAdmin('stop',this)" style="background:var(--dbg);color:var(--danger);border-color:#F5C6CB">🔴 3일이상 멈춤</button>
+      <button class="filter-btn" id="af-todo" onclick="filterAdmin('todo',this)">⚠️ 투두미완료</button>
+      <button class="filter-btn" id="af-inactive" onclick="filterAdmin('inactive',this)">😴 활동없음</button>`;
+  } else {
+    el.innerHTML=`
+      <button class="filter-btn active" id="af-all" onclick="filterAdmin('all',this)">전체</button>
+      <button class="filter-btn" id="af-queue" onclick="filterAdmin('queue',this)" style="background:var(--wbg);color:var(--warn);border-color:#EAD9A8">⚠️ 미션 확인 대기</button>
+      <button class="filter-btn" id="af-freeReview" onclick="filterAdmin('freeReview',this)" style="background:var(--wbg);color:var(--warn);border-color:#EAD9A8">✅ 자유모드 확인 대기</button>
+      <button class="filter-btn" id="af-noContent" onclick="filterAdmin('noContent',this)">📝 미션 등록 필요</button>`;
+  }
+}
+
+async function loadAdmin(){
+  document.getElementById('admin-summary').textContent='로딩 중...';
+  document.getElementById('admin-list').innerHTML='<div class="loader">불러오는 중...</div>';
+  try{
+    const snap=await DB.ref('students').once('value');const data=snap.val();
+    if(!data){document.getElementById('admin-summary').textContent='등록된 수강생이 없습니다';document.getElementById('admin-list').innerHTML='';document.getElementById('admin-dashboard').innerHTML='';return;}
+    const list=Object.entries(data).map(([key,s])=>({...s,_key:key}));
+    const sellzupCnt=list.filter(s=>s.program==='sellzup').length;
+    const challengeCnt=list.filter(s=>s.program!=='sellzup').length;
+    document.getElementById('admin-summary').textContent=`총 ${list.length}명 · 셀즈업 ${sellzupCnt}명 · 기존 챌린지 ${challengeCnt}명`;
+    _adminAllList=list;
+    renderAdminDashboard();
+    renderStatusFilters();
+    renderAdminList();
+  }catch(e){document.getElementById('admin-summary').textContent='오류 발생';console.error(e);}
+}
+
+function queueStatus(s){
+  if(s.program!=='sellzup')return null;
+  if(s.graduated){
+    const logs=s.dailyLogs||{};
+    const dates=Object.keys(logs).sort((a,b)=>b.localeCompare(a));
+    if(dates.length && !logs[dates[0]].reviewed) return 'freeReview';
+    return null;
+  }
+  const day='day'+(s.missionDay||1);
+  const content=(s.missionContent||{})[day];
+  const log=(s.missionLogs||{})[day];
+  if(!content)return 'noContent';
+  if(log&&log.status==='submitted')return 'queue';
+  return null;
+}
+
+function renderAdminList(){
+  let list=[..._adminAllList];
+  if(_programFilter==='sellzup')list=list.filter(s=>s.program==='sellzup');
+  if(_programFilter==='challenge')list=list.filter(s=>s.program!=='sellzup');
+  const td=today(); const threeDaysAgo=addDays(td,-3);
+  if(_adminFilter==='queue')list=list.filter(s=>queueStatus(s)==='queue');
+  if(_adminFilter==='freeReview')list=list.filter(s=>queueStatus(s)==='freeReview');
+  if(_adminFilter==='noContent')list=list.filter(s=>queueStatus(s)==='noContent');
+  if(_adminFilter==='graduated')list=list.filter(s=>s.program==='sellzup'&&s.graduated);
+  if(_adminFilter==='submit')list=list.filter(s=>s.resultDate===td);
+  if(_adminFilter==='nosub')list=list.filter(s=>s.resultDate!==td);
+  if(_adminFilter==='stop')list=list.filter(s=>!s.lastActive||s.lastActive<threeDaysAgo);
+  if(_adminFilter==='todo')list=list.filter(s=>s.resultDate===td&&(s.todos||[]).some(t=>!t.done));
+  if(_adminFilter==='inactive')list=list.filter(s=>!s.lastActive||s.lastActive<threeDaysAgo);
+
+  const container=document.getElementById('admin-list');
+  if(!list.length){container.innerHTML=`<div style="padding:32px;text-align:center;color:var(--m);font-size:13px">해당하는 수강생이 없어요 😊</div>`;return;}
+  container.innerHTML='';
+  list.sort((a,b)=>(b.lastActive||'').localeCompare(a.lastActive||''));
+  list.forEach(s=>{
+    const isSellzup=s.program==='sellzup';
+    const card=document.createElement('div');card.className='stu-card';
+    let rightHtml='';
+    if(isSellzup){
+      rightHtml = s.graduated
+        ? `<div class="sc-right"><span class="status-chip done">🏆 졸업</span></div>`
+        : `<div class="sc-right"><div class="sc-day" style="font-size:20px;font-weight:900;color:var(--navy)">${s.missionDay||1}</div><div class="sc-day-lbl" style="font-size:10px;color:var(--m)">번째 미션</div></div>`;
+    } else {
+      const lv=s.currentLevel||'초급'; const sd=s.levels?.[lv]?.startDate||''; const dayNum=sd?Math.min(Math.max(diffDays(sd,td)+1,1),30):0;
+      rightHtml = `<div class="sc-right"><div class="sc-day" style="font-size:20px;font-weight:900;color:var(--navy)">${dayNum}</div><div class="sc-day-lbl" style="font-size:10px;color:var(--m)">${lv} · 일차</div></div>`;
+    }
+    card.innerHTML = `<div style="display:flex;align-items:center;gap:12px">
+      <div class="sc-av">${isSellzup?'✦':(LV_EMOJI[s.currentLevel]||'🌱')}</div>
+      <div class="sc-info"><div class="sc-name">${esc(s.name)}${isSellzup?' <span style=\"font-size:10px;color:var(--g);font-weight:700\">SELLZ UP</span>':''}</div><div class="sc-detail">마지막 접속: ${s.lastActive||'-'}</div></div>
+      ${rightHtml}
+    </div>
+    <div class="stu-detail" id="detail-${s._key}">
+      <button onclick="event.stopPropagation();openStudentReport('${s._key}')" style="width:100%;border:none;background:linear-gradient(135deg,var(--navy),#24405E);color:#fff;border-radius:10px;padding:10px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:10px">📊 이 수강생 리포트 카드 보기</button>
+      ${isSellzup?renderSellzupDetail(s):renderChallengeDetail(s)}
+      ${isSellzup?renderQuickNoteBox(s):''}
+      <div style="padding-top:10px;margin-top:10px;border-top:1px solid var(--bd)">
+        <button onclick="event.stopPropagation();deleteStudent('${s._key}','${esc(s.name)}')" style="width:100%;border:none;background:var(--dbg);color:var(--danger);border-radius:8px;padding:8px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer">🗑 이 수강생 완전히 삭제</button>
+      </div>
+    </div>`;
+    card.addEventListener('click',(e)=>{if(e.target.closest('button')||e.target.closest('textarea')||e.target.closest('input'))return;const d=document.getElementById(`detail-${s._key}`);if(d)d.classList.toggle('open');});
+    container.appendChild(card);
+  });
+}
+
+function renderChallengeDetail(s){
+  const td=today();
+  const lv=s.currentLevel||'초급'; const sd=s.levels?.[lv]?.startDate||'';
+  const isResult=s.resultDate===td;
+  const hasTodoLeft=(s.todos||[]).some(t=>!t.done);
+  const isStopped=!s.lastActive||s.lastActive<addDays(td,-3);
+  const isActive=s.lastActive===td;
+  const doneLvs=LEVELS.filter(l=>s.levels?.[l]?.done).map(l=>LV_EMOJI[l]).join('');
+  let statusTag='';
+  if(isStopped) statusTag=`<span class="status-chip" style="background:var(--dbg);color:var(--danger)">🔴 3일이상멈춤</span>`;
+  else if(isResult && hasTodoLeft) statusTag=`<span class="status-chip wait">⚠️ 투두미완료</span>`;
+  else if(isResult) statusTag=`<span class="status-chip done">✅ 결과제출</span>`;
+  else if(isActive) statusTag=`<span class="status-chip wait">🕐 접속만</span>`;
+  else statusTag=`<span class="status-chip" style="background:var(--card);color:var(--m)">⬜ 미제출</span>`;
+
+  const logs=s.dailyLogs||{}; const logDates=Object.keys(logs).sort((a,b)=>b.localeCompare(a)).slice(0,5);
+  const gonguList=(s.gonguSchedules||[]).slice(0,3); const ipjumList=(s.ipjumItems||[]).slice(0,3);
+
+  let html=`<div style="font-size:12.5px;color:var(--m);margin-bottom:8px">${lv} · ${sd?fmtDate(sd)+' 시작':'-'} ${doneLvs} ${statusTag}</div>`;
+  if(logDates.length){
+    html+=`<div style="font-size:11px;font-weight:700;color:var(--m);letter-spacing:.5px;text-transform:uppercase;margin:10px 0 6px">📅 최근 기록</div>`;
+    logDates.forEach(date=>{
+      const log=logs[date];
+      const doneTodos=(log.todos||[]).filter(t=>t.done).map(t=>t.text).join(', ');
+      const result=log.result||'';
+      html+=`<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--bd);font-size:12px"><div style="color:var(--m);flex-shrink:0;min-width:44px">${fmtDate(date)}</div><div style="flex:1">${doneTodos?`✅ ${esc(doneTodos)}<br>`:''}${result?`✨ ${esc(result)}`:(!doneTodos?'<span style="color:var(--m)">기록 없음</span>':'')}</div></div>`;
+    });
+  } else {
+    html+=`<div style="font-size:12px;color:var(--m);padding:8px 0">아직 기록이 없어요</div>`;
+  }
+  if(gonguList.length){
+    html+=`<div style="font-size:11px;font-weight:700;color:var(--m);letter-spacing:.5px;text-transform:uppercase;margin:10px 0 6px">🛒 공구일정 (최근 ${gonguList.length}건)</div>`;
+    gonguList.forEach(g=>{html+=`<div style="display:flex;gap:8px;padding:5px 0;font-size:12px">${typeBadge(g.type)}<span>${esc(g.product)} ${g.startDate?'· '+g.startDate:''}</span></div>`;});
+  }
+  if(ipjumList.length){
+    html+=`<div style="font-size:11px;font-weight:700;color:var(--m);letter-spacing:.5px;text-transform:uppercase;margin:10px 0 6px">🏪 입점 (최근 ${ipjumList.length}건)</div>`;
+    ipjumList.forEach(i=>{html+=`<div style="display:flex;gap:8px;padding:5px 0;font-size:12px">${typeBadge(i.type)}<span>${esc(i.product)} ${i.companyName?'· '+esc(i.companyName):''}</span></div>`;});
+  }
+  return html;
+}
+
+function renderSellzupDetail(s){
+  if(s.graduated){
+    return renderFreeformAdminDetail(s);
+  }
+  const day='day'+(s.missionDay||1);
+  const content=(s.missionContent||{})[day];
+  const log=(s.missionLogs||{})[day];
+  let html='';
+  if(log&&log.status==='submitted'){
+    const items=(content&&content.items)||[];
+    const checked=log.checklist||[];
+    html += `<div class="mq-card" style="margin:0 0 10px;border-left-color:var(--warn)">
+      <div style="font-size:11px;font-weight:700;color:var(--warn);margin-bottom:6px">⚠️ ${ordinalKr(s.missionDay)} 미션 제출 · 확인 대기중</div>
+      ${items.map((it,i)=>`<div style="font-size:12.5px;padding:3px 0">${checked[i]?'✅':'⬜'} ${esc(it)}</div>`).join('')}
+      ${log.comment?`<div style="margin-top:8px;background:var(--card);border-radius:8px;padding:8px 10px;font-size:12px;line-height:1.6">💬 ${esc(log.comment)}</div>`:'<div style="margin-top:8px;font-size:11px;color:var(--m)">코멘트 없음</div>'}
+      ${log.adminReply?`<div style="margin-top:6px;background:var(--gb);border-radius:8px;padding:8px 10px;font-size:12px;line-height:1.6;color:var(--g)">💌 내 답장: ${esc(log.adminReply)}</div>`:''}
+      <div class="field" style="margin-top:8px"><label>답장 남기기 (선택)</label><textarea id="reply-${s._key}" placeholder="이 사람에게 남길 답장" style="min-height:52px">${esc(log.adminReply||'')}</textarea></div>
+      <button onclick="event.stopPropagation();saveMissionReply('${s._key}')" style="width:100%;border:none;background:var(--card);color:var(--g);border:1.5px solid var(--g);border-radius:8px;padding:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:8px">💌 답장만 저장 (다음 미션은 아직 안 열림)</button>
+      <button onclick="event.stopPropagation();approveMission('${s._key}')" style="margin-top:0;width:100%;border:none;background:var(--g);color:#fff;border-radius:8px;padding:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">✅ 확인 완료 + 다음 미션 열기</button>
+    </div>`;
+  } else if(!content){
+    html += `<div style="font-size:12px;color:var(--warn);font-weight:700;margin-bottom:8px">📝 ${ordinalKr(s.missionDay)} 미션을 아직 등록하지 않았어요</div>`;
+  } else {
+    html += `<div style="font-size:12px;color:var(--m);margin-bottom:8px">${ordinalKr(s.missionDay)} 미션 진행중 (아직 미제출)</div>`;
+  }
+  html += `<div class="day-admin-form" style="background:var(--card);border-radius:10px;padding:12px;margin-top:6px" onclick="event.stopPropagation()">
+    <div style="font-size:11px;font-weight:700;color:var(--m);margin-bottom:8px">✏️ ${ordinalKr(s.missionDay)} 미션 ${content?'수정':'등록'}</div>
+    <div class="field"><label>제목 (선택)</label><input type="text" id="mc-title-${s._key}" value="${esc((content&&content.title)||'')}" placeholder="예) 기초 다지기"></div>
+    <div class="field"><label>할 일 목록 (한 줄에 하나씩)</label><textarea id="mc-items-${s._key}" placeholder="교육사이트 공부하기&#10;인플즈 공지사항 확인하기">${esc(((content&&content.items)||[]).join('\n'))}</textarea></div>
+    <button onclick="event.stopPropagation();saveMissionContent('${s._key}')" style="width:100%;border:none;background:var(--navy);color:#fff;border-radius:8px;padding:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;margin-top:4px">📤 ${ordinalKr(s.missionDay)} 미션 올리기</button>
+    ${content?`<button onclick="event.stopPropagation();deleteMissionContent('${s._key}')" style="width:100%;border:1.5px solid #F5C6CB;background:var(--dbg);color:var(--danger);border-radius:8px;padding:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;margin-top:8px">🗑 이 미션 삭제</button>`:''}
+  </div>`;
+  return html;
+}
+
+function renderFreeformAdminDetail(s){
+  const logs=s.dailyLogs||{};
+  const dates=Object.keys(logs).sort((a,b)=>b.localeCompare(a));
+  if(!dates.length){
+    return `<div style="font-size:12.5px;color:var(--m);line-height:1.8">아직 자유모드 기록이 없어요.</div>`;
+  }
+  const latestDate=dates[0];
+  const log=logs[latestDate];
+  const reviewed=!!log.reviewed;
+  const todos=log.todos||[];
+  const unreviewedCount=dates.filter(d=>!logs[d].reviewed).length;
+  let html=`<div class="mq-card ${reviewed?'reviewed':''}" style="margin:0 0 10px;border-left-color:${reviewed?'var(--g)':'var(--warn)'}">
+    <div style="font-size:11px;font-weight:700;color:${reviewed?'var(--g)':'var(--warn)'};margin-bottom:6px">${reviewed?'✅':'⚠️'} ${latestDate} 기록 ${reviewed?'· 확인 완료':'· 확인 대기중'}</div>
+    ${todos.length?todos.map(t=>`<div style="font-size:12.5px;padding:3px 0">${t.done?'✅':'⬜'} ${esc(t.text)}</div>`).join(''):'<div style="font-size:12px;color:var(--m)">등록된 할 일 없음</div>'}
+    ${log.result?`<div style="margin-top:8px;background:var(--card);border-radius:8px;padding:8px 10px;font-size:12px;line-height:1.6">✨ ${esc(log.result)}</div>`:''}
+    <button onclick="event.stopPropagation();toggleReviewLog('${s._key}','${latestDate}',${!reviewed})" style="margin-top:10px;width:100%;border:${reviewed?'1.5px solid var(--bd)':'none'};background:${reviewed?'#fff':'var(--g)'};color:${reviewed?'var(--m)':'#fff'};border-radius:8px;padding:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">${reviewed?'확인완료 취소':'✅ 확인 완료로 체크'}</button>
+  </div>
+  ${unreviewedCount>1?`<div style="font-size:11px;color:var(--warn);margin-bottom:6px">그 외 확인 대기 중인 날 ${unreviewedCount-1}건</div>`:''}`;
+  return html;
+}
+
+async function toggleReviewLog(key,date,val){
+  try{
+    await DB.ref('students/'+key).update({[`dailyLogs/${date}/reviewed`]:val});
+  }catch(e){showToast('저장 오류');return;}
+  showToast(val?'✅ 확인 완료로 체크했어요':'확인 표시를 취소했어요');
+  loadAdmin();
+}
+
+/* ══════════ 수강생 리포트 카드 ══════════ */
+let _reportKey=null;
+function openStudentReport(key){
+  _reportKey=key;
+  const s=_adminAllList.find(x=>x._key===key);
+  if(!s){showToast('수강생 정보를 찾을 수 없어요');return;}
+  const isSellzup=s.program==='sellzup';
+  const td=today();
+
+  let pct, badgeText, barLabel, firstTabLabel, firstTabTtl, joined, daysActive;
+  if(isSellzup){
+    const missionDay=s.missionDay||1;
+    pct=s.graduated?100:Math.min(100,Math.round((missionDay/30)*100));
+    badgeText=s.graduated?'🏆 30일 미션 졸업':`🔥 ${ordinalKr(missionDay)} 미션 진행중`;
+    barLabel=s.graduated?'30 / 30일차 · 졸업':`${missionDay} / 30일차`;
+    firstTabLabel='🌱 미션수행'; firstTabTtl='🌱 미션 진행률';
+    joined=s.joinedDate||null;
+    daysActive=joined?diffDays(joined,td)+1:null;
+    document.getElementById('rpt-day-list').innerHTML=renderReportDayList(s,missionDay);
+  } else {
+    const lv=s.currentLevel||'초급';
+    const sd=s.levels?.[lv]?.startDate||'';
+    const dayNum=sd?Math.min(Math.max(diffDays(sd,td)+1,1),30):0;
+    pct=Math.round((dayNum/30)*100);
+    badgeText=`${LV_EMOJI[lv]||'🌱'} ${lv} 진행중 (${dayNum}일차)`;
+    barLabel=`${dayNum} / 30일차 · ${lv}`;
+    firstTabLabel='📈 진행 기록'; firstTabTtl='📈 최근 진행 기록';
+    joined=s.joinedDate||sd||null;
+    daysActive=joined?diffDays(joined,td)+1:null;
+    document.getElementById('rpt-day-list').innerHTML=renderReportDayListChallenge(s);
+  }
+  document.querySelector('.rpt-tab-btn[data-rtab="mission"]').textContent=firstTabLabel;
+  document.querySelector('#rpt-panel-mission .rpt-card-ttl').textContent=firstTabTtl;
+
+  document.getElementById('rpt-name').textContent=s.name+'님';
+  document.getElementById('rpt-sub').textContent=joined?`${joined.replace(/-/g,'.')} 시작 · 오늘로 ${daysActive}일째`:'시작일 정보 없음';
+  document.getElementById('rpt-edit-link').textContent=joined?'시작일 수정':'시작일 입력하기';
+  document.getElementById('rpt-edit-wrap').style.display='none';
+  document.getElementById('rpt-edit-date').value=joined||'';
+  document.getElementById('rpt-badge').textContent=badgeText;
+  document.getElementById('rpt-chip-mission').textContent=pct+'%';
+
+  const gonguConfirmed=(s.gonguSchedules||[]).filter(g=>g.type==='공구일정 확정');
+  const ipjumDone=(s.ipjumItems||[]).filter(i=>i.type==='입점완료');
+  document.getElementById('rpt-chip-gongu').textContent=gonguConfirmed.length;
+  document.getElementById('rpt-chip-ipjum').textContent=ipjumDone.length;
+
+  document.getElementById('rpt-bar-label').textContent=barLabel;
+
+  document.getElementById('rpt-gongu-list').innerHTML=gonguConfirmed.length
+    ? gonguConfirmed.slice(0,15).map(g=>`<div class="rpt-item-row"><span class="rpt-item-badge" style="background:var(--gb);color:var(--g)">확정</span><span class="rpt-item-name">${esc(g.product)}</span><span class="rpt-item-date">${g.startDate||''}${g.endDate?'~'+g.endDate:''}</span></div>`).join('')
+    : `<div class="rpt-empty">아직 확정된 공구가 없어요</div>`;
+
+  document.getElementById('rpt-ipjum-list').innerHTML=ipjumDone.length
+    ? ipjumDone.slice(0,15).map(i=>`<div class="rpt-item-row"><span class="rpt-item-badge" style="background:var(--gb);color:var(--g)">완료</span><span class="rpt-item-name">${esc(i.companyName||i.product)}</span><span class="rpt-item-date">${i.completionDate||i.applyDate||''}</span></div>`).join('')
+    : `<div class="rpt-empty">아직 입점 완료 항목이 없어요</div>`;
+
+  switchReportTab('mission');
+  const w=document.getElementById('report-modal');w.style.opacity=1;w.style.pointerEvents='all';document.getElementById('report-modal-box').style.transform='translateY(0)';
+
+  const ring=document.getElementById('rpt-ring');
+  const pctEl=document.getElementById('rpt-ring-pct');
+  const circumference=2*Math.PI*33;
+  ring.style.strokeDasharray=circumference;
+  ring.style.strokeDashoffset=circumference;
+  requestAnimationFrame(()=>{
+    ring.style.strokeDashoffset=circumference-(circumference*pct/100);
+    let s2=null;
+    function step(ts){ if(!s2)s2=ts; const p=Math.min((ts-s2)/900,1); pctEl.textContent=Math.round(pct*(1-Math.pow(1-p,3)))+'%'; if(p<1)requestAnimationFrame(step); }
+    requestAnimationFrame(step);
+  });
+  setTimeout(()=>{document.getElementById('rpt-mission-bar').style.width=pct+'%';},50);
+}
+function renderReportDayListChallenge(s){
+  const logs=s.dailyLogs||{};
+  const dates=Object.keys(logs).sort((a,b)=>b.localeCompare(a)).slice(0,5);
+  if(!dates.length)return `<div class="rpt-empty">아직 기록이 없어요</div>`;
+  return dates.map(date=>{
+    const log=logs[date];
+    const doneTodos=(log.todos||[]).filter(t=>t.done).map(t=>t.text).join(', ');
+    const txt=doneTodos||log.result||'기록 없음';
+    return `<div class="rpt-day-row"><div class="rpt-day-chk">${doneTodos||log.result?'✓':''}</div><div style="min-width:52px;font-size:10.5px;font-weight:700;color:var(--m)">${fmtDate(date)}</div><div style="flex:1">${esc(txt)}</div></div>`;
+  }).join('');
+}
+function renderReportDayList(s,missionDay){
+  const rows=[];
+  for(let d=missionDay-1;d>=Math.max(1,missionDay-4);d--){
+    const content=(s.missionContent||{})['day'+d];
+    const log=(s.missionLogs||{})['day'+d];
+    if(!content)continue;
+    const txt=content.title||(content.items||[]).slice(0,2).join(', ')||'미션';
+    const done=log&&(log.status==='approved'||log.status==='submitted');
+    rows.push(`<div class="rpt-day-row"><div class="rpt-day-chk" style="${done?'':'background:#fff;border:2px solid var(--bd)'}">${done?'✓':''}</div><div style="min-width:44px;font-size:10.5px;font-weight:700;color:var(--m)">${d}일차</div><div style="flex:1">${esc(txt)}</div></div>`);
+  }
+  return rows.length?rows.join(''):`<div class="rpt-empty">아직 진행한 미션 기록이 없어요</div>`;
+}
+function toggleJoinedEdit(){
+  const w=document.getElementById('rpt-edit-wrap');
+  w.style.display=(w.style.display==='none')?'flex':'none';
+}
+async function saveJoinedDate(){
+  const val=document.getElementById('rpt-edit-date').value;
+  if(!val){showToast('날짜를 선택해주세요!');return;}
+  if(!_reportKey)return;
+  try{
+    await DB.ref('students/'+_reportKey).update({joinedDate:val});
+  }catch(e){showToast('저장 오류');return;}
+  const s=_adminAllList.find(x=>x._key===_reportKey);
+  if(s)s.joinedDate=val;
+  showToast('✅ 시작일을 저장했어요!');
+  openStudentReport(_reportKey);
+}
+function switchReportTab(tab){
+  document.querySelectorAll('.rpt-tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.rtab===tab));
+  document.querySelectorAll('.rpt-panel').forEach(p=>p.classList.toggle('active',p.id==='rpt-panel-'+tab));
+}
+function closeStudentReport(){
+  const w=document.getElementById('report-modal');w.style.opacity=0;w.style.pointerEvents='none';document.getElementById('report-modal-box').style.transform='translateY(100%)';
+}
+
+function renderQuickNoteBox(s){
+  const notes=s.notes||{};
+  const todayNote=notes[today()]||'';
+  return `<div class="day-admin-form" style="background:var(--card);border-radius:10px;padding:12px;margin-top:10px" onclick="event.stopPropagation()">
+    <div style="font-size:11px;font-weight:700;color:var(--m);margin-bottom:8px">💬 오늘의 한마디 (미션과 무관, 하루만 NEW로 표시돼요)</div>
+    <textarea id="qnote-${s._key}" placeholder="예) 오늘 진행상황 잘 보고 있어요! 화이팅이에요" style="min-height:52px">${esc(todayNote)}</textarea>
+    <button onclick="event.stopPropagation();saveQuickNote('${s._key}')" style="width:100%;border:none;background:var(--navy);color:#fff;border-radius:8px;padding:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;margin-top:6px">💬 한마디 남기기</button>
+  </div>`;
+}
+async function saveQuickNote(key){
+  const el=document.getElementById('qnote-'+key);
+  const text=el.value.trim();
+  if(!text){showToast('내용을 입력해주세요!');return;}
+  try{
+    await DB.ref('students/'+key).update({[`notes/${today()}`]:text});
+  }catch(e){showToast('저장 오류');return;}
+  showToast('💬 한마디를 남겼어요!');
+  loadAdmin();
+}
+
+async function saveMissionContent(key){
+  const titleEl=document.getElementById('mc-title-'+key);
+  const itemsEl=document.getElementById('mc-items-'+key);
+  const title=titleEl.value.trim();
+  const items=itemsEl.value.split('\n').map(x=>x.trim()).filter(Boolean);
+  if(!items.length){showToast('할 일을 한 줄 이상 입력해주세요!');return;}
+  // missionDay와 missionSeenDay는 자주 안 바뀌는 값이라 최신값 확인 차 한 번만 읽음
+  const snap=await DB.ref('students/'+key).once('value');
+  const stu=snap.val()||{};
+  const missionDay=stu.missionDay||1;
+  const day='day'+missionDay;
+  const patch={[`missionContent/${day}`]:{title,items}};
+  // 새 미션이 올라왔으니 학생 화면에 다시 NEW 알림이 뜨도록 확인여부를 리셋
+  if((stu.missionSeenDay||0)>=missionDay) patch.missionSeenDay=missionDay-1;
+  try{
+    await DB.ref('students/'+key).update(patch);
+  }catch(e){showToast('저장 오류');return;}
+  showToast('📤 미션이 올라갔어요! 학생 화면에 알림이 떠요');
+  loadAdmin();
+}
+
+async function deleteMissionContent(key){
+  if(!confirm('이 미션을 삭제할까요?\n학생이 이미 체크/제출한 내용도 함께 사라지고, "미션 준비 중" 대기 화면으로 돌아가요.'))return;
+  const snap=await DB.ref('students/'+key).once('value');
+  const stu=snap.val()||{};
+  const missionDay=stu.missionDay||1;
+  const day='day'+missionDay;
+  try{
+    await DB.ref('students/'+key).update({
+      [`missionContent/${day}`]:null,
+      [`missionLogs/${day}`]:null
+    });
+  }catch(e){showToast('삭제 오류');return;}
+  showToast('🗑 미션이 삭제됐어요. 다시 올리면 새 알림으로 떠요');
+  loadAdmin();
+}
+
+async function saveMissionReply(key){
+  const replyEl=document.getElementById('reply-'+key);
+  const reply=replyEl.value.trim();
+  const snap=await DB.ref('students/'+key+'/missionDay').once('value');
+  const missionDay=snap.val()||1;
+  const day='day'+missionDay;
+  try{
+    await DB.ref('students/'+key).update({[`missionLogs/${day}/adminReply`]:reply});
+  }catch(e){showToast('저장 오류');return;}
+  showToast('💌 답장을 남겼어요!');
+  loadAdmin();
+}
+
+async function approveMission(key){
+  if(!confirm('이 미션을 확인 완료하고 다음 미션을 열까요?'))return;
+  const snap=await DB.ref('students/'+key+'/missionDay').once('value');
+  const missionDay=snap.val()||1;
+  const day='day'+missionDay;
+  const graduating=missionDay>=30;
+  const patch={[`missionLogs/${day}/status`]:'approved'};
+  if(graduating){
+    patch.graduated=true;
+    patch.graduatedDate=today();
+    patch.todos=[]; patch.todosDate=''; patch.result=''; patch.resultDate='';
+  } else {
+    patch.missionDay=missionDay+1;
+  }
+  try{
+    await DB.ref('students/'+key).update(patch);
+  }catch(e){showToast('저장 오류');return;}
+  showToast(graduating?'🏆 30일 미션 졸업! 자유모드로 전환됐어요':'✅ 다음 미션 오픈 준비됐어요');
+  loadAdmin();
+}
+
+async function deleteStudent(key,name){
+  if(!confirm(`정말 "${name}" 수강생을 삭제할까요?\n모든 데이터가 영구적으로 사라져요.`))return;
+  if(!confirm(`한 번 더 확인할게요. 되돌릴 수 없어요.`))return;
+  try{await DB.ref('students/'+key).remove();showToast(`🗑 "${name}" 수강생이 삭제됐어요`);loadAdmin();}catch(e){showToast('삭제 오류');}
+}
+
+/* ══════════ 관리자: 공지 ══════════ */
+function adminSaveNotice(){
+  if(!DB){showToast('연결 오류');return;}
+  const title=document.getElementById('adm-title').value.trim();
+  const body=document.getElementById('adm-body').value.trim();
+  const target=document.getElementById('adm-target').value;
+  if(!title){showToast('제목을 입력해주세요');return;}
+  const now=new Date();const dateStr=`${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')}`;
+  const payload={title,body,tag:'📢 공지',pinned:false,isNew:true,dateStr,createdAt:Date.now()};
+  const tasks=[];
+  if(target==='sellzup'||target==='both') tasks.push(DB.ref('sellzupNotices').push(payload));
+  if(target==='challenge'||target==='both') tasks.push(DB.ref('notices').push(payload));
+  Promise.all(tasks).then(()=>{
+    showToast('✅ 공지가 등록됐어요!');document.getElementById('adm-title').value='';document.getElementById('adm-body').value='';loadAdminNotices();
+  }).catch(()=>showToast('저장 오류'));
+}
+async function loadAdminNotices(){
+  if(!DB)return;
+  const el=document.getElementById('admin-notice-list');
+  el.innerHTML='<div class="empty-state">불러오는 중...</div>';
+  try{
+    const [sellzupSnap,challengeSnap]=await Promise.all([
+      DB.ref('sellzupNotices').orderByChild('createdAt').once('value'),
+      DB.ref('notices').orderByChild('createdAt').once('value')
+    ]);
+    const sellzupList=Object.entries(sellzupSnap.val()||{}).map(([id,n])=>({id,...n,_src:'sellzup'}));
+    const challengeList=Object.entries(challengeSnap.val()||{}).map(([id,n])=>({id,...n,_src:'challenge'}));
+    const list=[...sellzupList,...challengeList].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+    if(!list.length){el.innerHTML='<div class="empty-state">등록된 공지가 없습니다</div>';return;}
+    el.innerHTML=list.map(n=>`<div class="sch-card"><span class="sch-type" style="background:${n._src==='sellzup'?'var(--gb)':'var(--card)'};color:${n._src==='sellzup'?'var(--g)':'var(--m)'}">${n._src==='sellzup'?'✦ 셀즈업':'🌱 기존 챌린지'}</span><div style="font-weight:700;font-size:13.5px">${esc(n.title)}</div><div style="font-size:11px;color:var(--m);margin-top:3px">${n.dateStr||''}</div><button class="sch-del-btn" style="margin-top:8px" onclick="adminDelNotice('${n._src}','${n.id}')">삭제</button></div>`).join('');
+  }catch(e){el.innerHTML='<div class="empty-state">불러오기 실패</div>';}
+}
+function adminDelNotice(src,id){if(!confirm('삭제할까요?'))return;const node=src==='sellzup'?'sellzupNotices':'notices';DB.ref(node+'/'+id).remove().then(()=>{showToast('삭제됐어요');loadAdminNotices();});}
+
+/* ══════════ 관리자: 교육일정 ══════════ */
+function adminSaveEdu(){
+  if(!DB){showToast('연결 오류');return;}
+  const date=document.getElementById('edu-date').value;
+  const title=document.getElementById('edu-title').value.trim();
+  const type=document.getElementById('edu-type').value;
+  if(!date){showToast('날짜를 선택해주세요');return;}
+  if(!title){showToast('내용을 입력해주세요');return;}
+  DB.ref('eduEvents').push({date,title,type,createdAt:Date.now()}).then(()=>{
+    showToast('✅ 일정이 등록됐어요!');document.getElementById('edu-date').value='';document.getElementById('edu-title').value='';loadAdminEdu();
+  });
+}
+function loadAdminEdu(){
+  if(!DB)return;
+  DB.ref('eduEvents').orderByChild('date').once('value',snap=>{
+    const data=snap.val()||{};
+    const list=Object.entries(data).map(([id,e])=>({id,...e})).sort((a,b)=>a.date>b.date?-1:1);
+    const el=document.getElementById('admin-edu-list');
+    if(!list.length){el.innerHTML='<div class="empty-state">등록된 일정이 없습니다</div>';return;}
+    el.innerHTML=list.map(e=>{const t=EDU_TYPE[e.type]||EDU_TYPE.etc;return`<div class="sch-card"><span class="edu-event ${t.cls}" style="display:inline-block;margin-bottom:5px">${t.label}</span><div style="font-weight:700;font-size:13.5px">${esc(e.title)}</div><div style="font-size:11px;color:var(--m);margin-top:3px">${e.date}</div><button class="sch-del-btn" style="margin-top:8px" onclick="adminDelEdu('${e.id}')">삭제</button></div>`;}).join('');
+  });
+}
+function adminDelEdu(id){if(!confirm('삭제할까요?'))return;DB.ref('eduEvents/'+id).remove().then(()=>{showToast('삭제됐어요');loadAdminEdu();});}
+
+/* ══════════ 관리자: 제품이슈 ══════════ */
+function adminSaveProductIssue(){
+  if(!DB){showToast('연결 오류');return;}
+  const brand=document.getElementById('pi-brand').value.trim();
+  const product=document.getElementById('pi-product').value.trim();
+  const body=document.getElementById('pi-body').value.trim();
+  if(!brand){showToast('브랜드명을 입력해주세요');return;}
+  if(!body){showToast('이슈 내용을 입력해주세요');return;}
+  const now=new Date(); const dateStr=(now.getMonth()+1)+'/'+now.getDate();
+  DB.ref('shared/productIssues').push({brand,product,body,dateStr,from:'admin',ts:Date.now()}).then(()=>{
+    showToast('✅ 이슈가 등록됐어요!');
+    document.getElementById('pi-brand').value=''; document.getElementById('pi-product').value=''; document.getElementById('pi-body').value='';
+    loadAdminProductIssues();
+  });
+}
+function loadAdminProductIssues(){
+  if(!DB)return;
+  const listEl=document.getElementById('admin-issue-list');
+  if(listEl)listEl.innerHTML='<div class="empty-state">불러오는 중...</div>';
+  DB.ref('shared/productIssues').once('value',snap=>{
+    const data=snap.val()||{};
+    const items=Object.entries(data).map(([id,v])=>({id,...v})).sort((a,b)=>(b.ts||0)-(a.ts||0));
+    if(!listEl)return;
+    if(!items.length){listEl.innerHTML='<div class="empty-state">등록된 이슈가 없어요</div>';return;}
+    listEl.innerHTML=items.map(item=>`
+      <div class="sch-card" style="border-left:3px solid var(--warn)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+          <span style="font-size:11px;color:var(--m)">📅 ${item.dateStr||''}</span>
+          <span style="font-size:10px;background:${item.from==='admin'?'var(--card)':'var(--wbg)'};color:${item.from==='admin'?'var(--navy)':'var(--warn)'};border-radius:20px;padding:2px 8px;font-weight:700">${item.from==='admin'?'메리 등록':('수강생 신고'+(item.whoReal?' · '+esc(item.whoReal):''))}</span>
+        </div>
+        <div class="sch-title">${esc(item.brand||'')}${item.product?' - '+esc(item.product):''}</div>
+        <div style="font-size:12px;color:var(--warn);background:var(--wbg);border-radius:8px;padding:8px 10px;line-height:1.6">${esc(item.body||'')}</div>
+        <button class="sch-del-btn" style="margin-top:8px;width:100%" onclick="adminDelProductIssue('${item.id}')">🗑 삭제</button>
+      </div>`).join('');
+  });
+}
+function adminDelProductIssue(id){
+  if(!confirm('이 이슈를 삭제할까요?'))return;
+  DB.ref('shared/productIssues/'+id).remove().then(()=>{
+    showToast('🗑 삭제됐어요');
+    loadAdminProductIssues();
+    if(document.getElementById('gongu-sec-issue')?.style.display!=='none')loadProductIssues();
+  });
+}
+
+/* ══════════ 관리자: 공구 확정 현황 ══════════ */
+let _adminGonguData=[];
+async function loadAdminGongu(){
+  const listEl=document.getElementById('admin-gongu-list');
+  const summEl=document.getElementById('admin-gongu-summary');
+  if(!listEl)return;
+  listEl.innerHTML='<div class="loader">불러오는 중...</div>';
+  try{
+    const snap=await DB.ref('students').once('value');
+    const all=snap.val()||{};
+    _adminGonguData=[];
+    Object.values(all).forEach(stu=>{
+      const items=stu.gonguSchedules||[];
+      items.filter(g=>g.type==='공구일정 확정').forEach(g=>{
+        _adminGonguData.push({...g,stuName:stu.name||'알수없음',program:stu.program==='sellzup'?'SELLZ UP':'기존 챌린지'});
+      });
+    });
+    _adminGonguData.sort((a,b)=>(a.startDate||'').localeCompare(b.startDate||''));
+    const total=_adminGonguData.length;
+    if(summEl)summEl.textContent=`확정된 공구 총 ${total}건`;
+    const statsEl=document.getElementById('admin-gongu-stats');
+    if(statsEl){
+      const now=new Date();
+      const thisMonth=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+      const thisMonthCount=_adminGonguData.filter(g=>(g.startDate||'').startsWith(thisMonth)).length;
+      statsEl.innerHTML=[['전체 확정',total,'var(--m)','var(--card)'],['이번 달',thisMonthCount,'var(--navy)','#E9EEF5']].map(([l,n,c,bg])=>`<div style="background:${bg};border-radius:10px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:900;color:${c}">${n}</div><div style="font-size:10px;color:${c};margin-top:2px;opacity:.85">${l}</div></div>`).join('');
+    }
+    renderAdminGongu();
+  }catch(e){listEl.innerHTML='<div style="padding:16px;color:var(--m);font-size:13px">불러오기 실패. 새로고침 해주세요.</div>';}
+}
+let _adminGonguExpandedMonths={};
+function toggleAdminGonguMonth(key){_adminGonguExpandedMonths[key]=!_adminGonguExpandedMonths[key];renderAdminGongu();}
+function renderAdminGongu(){
+  const listEl=document.getElementById('admin-gongu-list');
+  if(!listEl)return;
+  const q=(document.getElementById('admin-gongu-search')?.value||'').toLowerCase();
+  let items=[..._adminGonguData];
+  if(q)items=items.filter(i=>(i.stuName||'').toLowerCase().includes(q)||(i.product||'').toLowerCase().includes(q)||(i.seller||'').toLowerCase().includes(q));
+  if(items.length===0){listEl.innerHTML=`<div style="padding:2.5rem;text-align:center;color:var(--m);font-size:13px"><div style="font-size:28px;margin-bottom:8px">🛒</div>${q?'검색 결과가 없어요':'확정된 공구 일정이 없어요'}</div>`;return;}
+
+  const curMonth=today().slice(0,7);
+  const groups={};
+  items.forEach(g=>{
+    const mk=g.startDate?g.startDate.slice(0,7):'날짜 미정';
+    if(!groups[mk])groups[mk]=[];
+    groups[mk].push(g);
+  });
+  const monthKeys=Object.keys(groups).sort((a,b)=>{
+    if(a==='날짜 미정')return 1; if(b==='날짜 미정')return -1;
+    return a.localeCompare(b);
+  });
+
+  function renderCard(g){
+    let dateLabel='';if(g.startDate&&g.endDate&&g.startDate!==g.endDate){dateLabel=`${g.startDate} ~ ${g.endDate}`;}else if(g.startDate){dateLabel=g.startDate;}
+    return `<div class="sch-card" style="border-left:3px solid var(--navy)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><span style="font-size:14px;font-weight:700;color:var(--m)">${esc(g.stuName)}</span><span style="background:var(--gb);color:var(--g);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700">${g.program}</span></div><div class="sch-title">${esc(g.product||'-')}</div><div class="sch-detail">${g.seller?`🏢 ${esc(g.seller)}<br>`:''}${dateLabel?`📅 <strong style="color:var(--t)">${dateLabel}</strong>`:''}${g.memo?`<br>📝 ${esc(g.memo)}`:''}</div></div>`;
+  }
+
+  listEl.innerHTML=monthKeys.map(mk=>{
+    const list=groups[mk];
+    const isPast = mk!=='날짜 미정' && mk<curMonth;
+    const label = mk==='날짜 미정' ? '날짜 미정' : `${mk.split('-')[0]}년 ${parseInt(mk.split('-')[1])}월`;
+    const expanded = q ? true : (!isPast || !!_adminGonguExpandedMonths[mk]);
+    if(!isPast || q){
+      return `<div style="padding:10px 14px 4px;font-size:11px;font-weight:700;color:var(--m);letter-spacing:.3px">${label} (${list.length}건)</div>${list.map(renderCard).join('')}`;
+    }
+    return `<div onclick="toggleAdminGonguMonth('${mk}')" style="display:flex;justify-content:space-between;align-items:center;margin:8px 14px 6px;padding:10px 14px;background:var(--card);border-radius:10px;cursor:pointer">
+      <span style="font-size:12px;font-weight:700;color:var(--m)">📁 ${label} (${list.length}건)</span>
+      <span style="font-size:11px;color:var(--g);font-weight:700">${expanded?'접기 ▲':'펼치기 ▼'}</span>
+    </div>${expanded?list.map(renderCard).join(''):''}`;
+  }).join('');
+}
+
+/* ══════════ 관리자: 입점 완료 현황 ══════════ */
+let _adminIpjumStatData=[];
+async function loadAdminIpjumStat(){
+  const listEl=document.getElementById('admin-ipjumstat-list');
+  const summEl=document.getElementById('admin-ipjumstat-summary');
+  if(!listEl)return;
+  listEl.innerHTML='<div class="loader">불러오는 중...</div>';
+  try{
+    const snap=await DB.ref('students').once('value');
+    const all=snap.val()||{};
+    _adminIpjumStatData=[];
+    Object.entries(all).forEach(([key,stu])=>{
+      const items=stu.ipjumItems||[];
+      items.filter(i=>i.type==='입점완료').forEach(item=>{
+        _adminIpjumStatData.push({...item,stuKey:key,stuName:stu.name||'알수없음',program:stu.program==='sellzup'?'SELLZ UP':'기존 챌린지'});
+      });
+    });
+    const total=_adminIpjumStatData.length;
+    _adminIpjumStatData.sort((a,b)=>(b.completionDate||b.applyDate||'').localeCompare(a.completionDate||a.applyDate||''));
+    if(summEl)summEl.textContent=`전체 입점완료 ${total}건`;
+    const statsEl=document.getElementById('admin-ipjumstat-stats');
+    if(statsEl){
+      const sellzupCnt=_adminIpjumStatData.filter(i=>i.program==='SELLZ UP').length;
+      const issueCnt=_adminIpjumStatData.filter(i=>i.issueReport).length;
+      statsEl.innerHTML=[['전체 완료',total,'var(--m)','var(--card)'],['⚠ 이슈',issueCnt,'var(--danger)','var(--dbg)'],['셀즈업',sellzupCnt,'var(--g)','var(--gb)']].map(([l,n,c,bg])=>`<div style="background:${bg};border-radius:10px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:900;color:${c}">${n}</div><div style="font-size:10px;color:${c};margin-top:2px;opacity:.85">${l}</div></div>`).join('');
+    }
+    renderAdminIpjumStat();
+  }catch(e){listEl.innerHTML='<div style="padding:16px;color:var(--m);font-size:13px">불러오기 실패. 새로고침 해주세요.</div>';}
+}
+function renderAdminIpjumStat(){
+  const listEl=document.getElementById('admin-ipjumstat-list');
+  if(!listEl)return;
+  const q=(document.getElementById('admin-ipjumstat-search')?.value||'').toLowerCase();
+  let items=[..._adminIpjumStatData];
+  if(q)items=items.filter(i=>(i.stuName||'').toLowerCase().includes(q)||(i.product||'').toLowerCase().includes(q)||(i.companyName||'').toLowerCase().includes(q));
+  if(items.length===0){listEl.innerHTML=`<div style="padding:2.5rem;text-align:center;color:var(--m);font-size:13px"><div style="font-size:28px;margin-bottom:8px">🏪</div>${q?'검색 결과가 없어요':'입점완료 항목이 없어요'}</div>`;return;}
+  listEl.innerHTML=items.map(item=>`<div class="sch-card" style="border-left:3px solid ${item.issueReport?'var(--danger)':'var(--g)'}"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><span style="font-size:14px;font-weight:700;color:var(--m)">${esc(item.stuName)}</span><span style="background:var(--gb);color:var(--g);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700">${item.program}</span></div><div class="sch-title">${esc(item.product||'')}</div><div class="sch-detail">${item.companyName?`🏢 ${esc(item.companyName)}<br>`:''}${item.applyDate?`📅 신청일: ${item.applyDate}`:''}</div>
+  ${item.issueReport?`<div style="background:var(--dbg);border:1px solid #F5C6CB;border-radius:10px;padding:10px 12px;margin-top:10px"><div style="font-size:10px;font-weight:700;color:var(--danger);margin-bottom:4px">⚠ 수강생 이슈 신고 · ${item.issueReport.date||''}</div><div style="font-size:12px;color:var(--t);line-height:1.6">${esc(item.issueReport.text)}</div><button onclick="resolveAdminIssue('${item.stuKey}',${item.id})" style="margin-top:8px;width:100%;border:none;background:var(--gb);color:var(--g);border-radius:8px;padding:7px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer">✅ 해결 완료로 표시</button></div>`:''}
+  <div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--bd)"><div style="font-size:10px;font-weight:700;color:var(--m);margin-bottom:5px">📝 관리자 메모</div><textarea id="adm-memo-${item.stuKey}-${item.id}" style="min-height:48px;font-size:12px" placeholder="처리 현황 메모...">${esc(item.adminMemo||'')}</textarea><button onclick="saveAdminIpjumMemo('${item.stuKey}',${item.id})" style="margin-top:6px;width:100%;border:none;background:var(--navy);color:#fff;border-radius:8px;padding:7px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">💾 메모 저장</button></div>
+  </div>`).join('');
+}
+
+async function resolveAdminIssue(stuKey,itemId){
+  if(!confirm('이 이슈를 해결 완료로 표시할까요?\n신고 내용이 사라지고 정상으로 바뀌어요.'))return;
+  const snap=await DB.ref('students/'+stuKey+'/ipjumItems').once('value');
+  const items=snap.val()||[];
+  const idx=items.findIndex(i=>i.id===itemId);
+  if(idx<0){showToast('항목을 찾을 수 없어요');return;}
+  delete items[idx].issueReport;
+  await DB.ref('students/'+stuKey+'/ipjumItems').set(items);
+  showToast('✅ 해결 완료로 표시했어요!');
+  loadAdminIpjumStat();
+}
+async function saveAdminIpjumMemo(stuKey,itemId){
+  const el=document.getElementById(`adm-memo-${stuKey}-${itemId}`);
+  const text=el?el.value:'';
+  const snap=await DB.ref('students/'+stuKey+'/ipjumItems').once('value');
+  const items=snap.val()||[];
+  const idx=items.findIndex(i=>i.id===itemId);
+  if(idx<0){showToast('항목을 찾을 수 없어요');return;}
+  items[idx].adminMemo=text;
+  await DB.ref('students/'+stuKey+'/ipjumItems').set(items);
+  showToast('✅ 메모 저장됐어요!');
+}
+
+async function downloadCommCSV(){
+  if(!DB){showToast('연결 오류');return;}
+  showToast('CSV 준비 중...');
+  try{
+    const snap=await DB.ref('shared/rejectList').once('value');
+    const data=snap.val()||{};
+    const items=Object.values(data);
+    if(!items.length){showToast('다운로드할 데이터가 없어요');return;}
+    const header=['업체명','제품명/카테고리','거절이유','등록자','실제등록자','날짜'];
+    const rows=items.map(d=>[d.company||'',d.product||'',(d.reason||'').split('\n').join(' '),d.who||'',d.whoReal||'',d.dateStr||'']);
+    const lines=[header].concat(rows).map(row=>row.map(cell=>'"'+String(cell).split('"').join('""')+'"').join(','));
+    const csvContent='\uFEFF'+lines.join('\r\n');
+    const blob=new Blob([csvContent],{type:'text/csv;charset=utf-8;'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;
+    const d=new Date();a.download='입점소통방_'+d.getFullYear()+'_'+(d.getMonth()+1)+'_'+d.getDate()+'.csv';
+    a.click();URL.revokeObjectURL(url);
+    showToast('✅ CSV 다운로드 완료!');
+  }catch(e){showToast('다운로드 실패');}
+}
+
+/* ══════════ 초기화 ══════════ */
+window.addEventListener('load',()=>{
+  show('sc-welcome');
+  const isAdmin=location.search.includes('admin')||location.hash.includes('admin');
+  if(isAdmin){show('sc-admin-login');return;}
+  if(!DB)return;
+  try{const sess=localStorage.getItem('sellzup_s');if(sess){const {name,pin}=JSON.parse(sess);document.getElementById('l-name').value=name;document.getElementById('l-pin').value=pin;doLogin(true);}}catch(e){}
+});
+
+/* ══════════ iframe 자동 높이 조절 (아임웹 등 외부 삽입용) ══════════ */
+(function(){
+  if(window.self===window.top)return; // iframe 안이 아니면 실행 안 함
+  let lastH=0;
+  function reportHeight(){
+    const h=document.body.scrollHeight;
+    if(Math.abs(h-lastH)>4){
+      lastH=h;
+      parent.postMessage({sellzupHeight:h},'*');
+    }
+  }
+  new ResizeObserver(reportHeight).observe(document.body);
+  new MutationObserver(reportHeight).observe(document.body,{childList:true,subtree:true,attributes:true});
+  window.addEventListener('load',reportHeight);
+  setInterval(reportHeight,600);
+})();
 </script>
 </body>
 </html>
