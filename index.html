@@ -1617,6 +1617,46 @@ function queueStatus(s){
   return null;
 }
 
+function renderPinBox(s){
+  const curPin=esc(s.pin||'-');
+  return `<div class="day-admin-form" style="background:var(--card);border-radius:10px;padding:12px;margin-bottom:10px" onclick="event.stopPropagation()">
+    <div style="font-size:11px;font-weight:700;color:var(--m);margin-bottom:8px">🔑 비밀번호(PIN) 관리</div>
+    <div style="font-size:15px;font-weight:900;color:var(--navy);margin-bottom:10px">현재 PIN: <span style="letter-spacing:2px">${curPin}</span></div>
+    <div class="field"><label>새 PIN 지정 (숫자 4자리)</label><input type="text" id="pin-${s._key}" maxlength="4" inputmode="numeric" placeholder="예) 1234"></div>
+    <button onclick="event.stopPropagation();saveStudentPin('${s._key}','${esc(s.name)}')" style="width:100%;border:none;background:var(--navy);color:#fff;border-radius:8px;padding:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">🔑 PIN 변경하기</button>
+  </div>`;
+}
+
+async function saveStudentPin(key,name){
+  const inp=document.getElementById('pin-'+key);
+  const newPin=inp?inp.value.trim():'';
+  if(!/^\d{4}$/.test(newPin)){showToast('숫자 4자리로 입력해주세요!');return;}
+  if(!confirm(`"${name}" 수강생의 PIN을 ${newPin}(으)로 변경할까요?`))return;
+  try{
+    const snap=await DB.ref('students/'+key).once('value');
+    const data=snap.val();
+    if(!data){showToast('수강생 정보를 찾을 수 없어요');return;}
+    const oldPin=String(data.pin||'');
+    data.pin=newPin;
+    let newKey=key;
+    // 로그인 시 이름+PIN으로 키를 다시 계산하는 방식이라, 기존 키가 '...옛PIN'으로 끝나면
+    // 새 PIN으로 키 자체도 함께 옮겨줘야 학생이 새 PIN으로 로그인할 수 있어요
+    if(oldPin && key.endsWith(oldPin)){
+      newKey=key.slice(0,key.length-oldPin.length)+newPin;
+    }
+    if(newKey!==key){
+      const dupSnap=await DB.ref('students/'+newKey).once('value');
+      if(dupSnap.exists()){showToast('이미 같은 이름+PIN 조합의 수강생이 있어요. 다른 PIN을 입력해주세요.');return;}
+      await DB.ref('students/'+newKey).set(data);
+      await DB.ref('students/'+key).remove();
+    } else {
+      await DB.ref('students/'+key).update({pin:newPin});
+    }
+    showToast(`🔑 "${name}"님 PIN이 ${newPin}(으)로 변경됐어요!`);
+    loadAdmin();
+  }catch(e){showToast('PIN 변경 중 오류가 발생했어요');console.error(e);}
+}
+
 function renderAdminList(){
   let list=[..._adminAllList];
   if(_programFilter==='sellzup')list=list.filter(s=>s.program==='sellzup');
@@ -1655,6 +1695,7 @@ function renderAdminList(){
     </div>
     <div class="stu-detail" id="detail-${s._key}">
       <button onclick="event.stopPropagation();openStudentReport('${s._key}')" style="width:100%;border:none;background:linear-gradient(135deg,var(--navy),#24405E);color:#fff;border-radius:10px;padding:10px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:10px">📊 이 수강생 리포트 카드 보기</button>
+      ${renderPinBox(s)}
       ${isSellzup?renderSellzupDetail(s):renderChallengeDetail(s)}
       ${isSellzup?renderQuickNoteBox(s):''}
       <div style="padding-top:10px;margin-top:10px;border-top:1px solid var(--bd)">
