@@ -397,6 +397,7 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
     <div style="display:flex;gap:6px;padding:12px 14px 0">
       <button class="filter-btn active" id="gsub-schedule" onclick="switchGonguSub('schedule')">🛒 공구일정</button>
       <button class="filter-btn" id="gsub-issue" onclick="switchGonguSub('issue')">⚠️ 제품이슈</button>
+      <button class="filter-btn" id="gsub-sellerissue" onclick="switchGonguSub('sellerissue')">🚫 셀러이슈</button>
     </div>
 
     <div id="gongu-sec-schedule">
@@ -435,6 +436,27 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
       </div>
       <div id="issue-list" style="padding:8px 14px 0">
         <div class="empty-state">⚠️<br>등록된 이슈가 없어요</div>
+      </div>
+      <div style="height:20px"></div>
+    </div>
+
+    <div id="gongu-sec-sellerissue" style="display:none">
+      <div class="card" style="margin-top:10px">
+        <div class="card-ttl">🚫 셀러 이슈 등록</div>
+        <p style="font-size:11px;color:var(--m);margin-bottom:12px">감정적인 서술 없이 <b>카테고리만 선택</b>해서 등록해주세요. 아이디는 앞 3자만 공개되고 나머지는 가려져요.</p>
+        <div class="field"><label>셀러 인스타 아이디</label><input type="text" id="szi-seller" placeholder="@인스타아이디" maxlength="50"></div>
+        <div class="field">
+          <label>문제 유형 (하나 선택)</label>
+          <div id="szi-cat-list" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+        <button class="btn btn-dark" onclick="submitSellerIssue()" style="background:linear-gradient(135deg,#8A3A2E,#B04D3C)">📤 이슈 등록</button>
+      </div>
+      <div style="padding:10px 14px 0;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:var(--m);font-weight:700">수강생들이 등록한 셀러 이슈예요</span>
+        <span id="seller-issue-count" style="font-size:11px;color:var(--m)"></span>
+      </div>
+      <div id="seller-issue-list" style="padding:8px 14px 0">
+        <div class="empty-state">🚫<br>등록된 이슈가 없어요</div>
       </div>
       <div style="height:20px"></div>
     </div>
@@ -633,6 +655,9 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
     </div>
     <div style="font-size:11px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;padding:14px 14px 4px">등록된 이슈 목록</div>
     <div id="admin-issue-list" style="padding:0 14px 16px"><div class="empty-state">불러오는 중...</div></div>
+
+    <div style="font-size:11px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;padding:8px 14px 4px">🚫 셀러 이슈 (수강생 등록 · 전체 아이디 표시)</div>
+    <div id="admin-seller-issue-list" style="padding:0 14px 16px"><div class="empty-state">불러오는 중...</div></div>
   </div>
 
   <!-- 공구현황 탭 -->
@@ -1172,10 +1197,80 @@ function switchTab(tab){
 function switchGonguSub(sub){
   document.getElementById('gongu-sec-schedule').style.display=sub==='schedule'?'block':'none';
   document.getElementById('gongu-sec-issue').style.display=sub==='issue'?'block':'none';
+  document.getElementById('gongu-sec-sellerissue').style.display=sub==='sellerissue'?'block':'none';
   document.getElementById('gsub-schedule').classList.toggle('active',sub==='schedule');
   document.getElementById('gsub-issue').classList.toggle('active',sub==='issue');
+  document.getElementById('gsub-sellerissue').classList.toggle('active',sub==='sellerissue');
   if(sub==='schedule')renderGongu();
   if(sub==='issue'){loadProductIssues();markIssuesSeen();}
+  if(sub==='sellerissue'){document.getElementById('szi-seller').value='';renderSzCatButtons();chooseSzCat(null);loadSellerIssues();}
+}
+
+/* ══════════ 셀러 이슈 (카테고리 전용, 아이디 마스킹 공유) ══════════ */
+const SELLER_ISSUE_CATS=[
+  {v:'sample_ghost',label:'📦 샘플만 받고 잠수'},
+  {v:'contact_lost',label:'📵 진행 중 연락두절'},
+  {v:'noshow',label:'🚫 진행 약속 후 잠수'},
+  {v:'cancel',label:'🙅 진행 확정 후 일방취소'},
+  {v:'avoid',label:'💬 연락 회피/답변 씹기'},
+  {v:'etc',label:'❓ 기타'}
+];
+function sellerIssueCatLabel(v){const c=SELLER_ISSUE_CATS.find(x=>x.v===v);return c?c.label:'❓ 기타';}
+function maskSellerId(id){
+  id=(id||'').trim();
+  if(!id)return '-';
+  const hasAt=id.startsWith('@');
+  const core=hasAt?id.slice(1):id;
+  const visible=core.slice(0,3);
+  return (hasAt?'@':'')+visible+'****';
+}
+let _szSelectedCat=null;
+function renderSzCatButtons(){
+  const wrap=document.getElementById('szi-cat-list');
+  if(!wrap)return;
+  wrap.innerHTML=SELLER_ISSUE_CATS.map(c=>`<button type="button" class="filter-btn" id="szc-${c.v}" onclick="chooseSzCat('${c.v}')" style="justify-content:flex-start;text-align:left;padding:10px 12px">${c.label}</button>`).join('');
+}
+function chooseSzCat(v){
+  _szSelectedCat=v;
+  SELLER_ISSUE_CATS.forEach(c=>{
+    const b=document.getElementById('szc-'+c.v);
+    if(b)b.classList.toggle('active',!!v&&c.v===v);
+  });
+}
+function submitSellerIssue(){
+  if(!DB){showToast('연결 오류');return;}
+  const sellerId=document.getElementById('szi-seller').value.trim();
+  if(!sellerId){showToast('셀러 인스타 아이디를 입력해주세요');return;}
+  if(!_szSelectedCat){showToast('문제 유형을 선택해주세요');return;}
+  const now=new Date(); const dateStr=(now.getMonth()+1)+'/'+now.getDate();
+  const maskedName=S.name.length>=2?S.name[0]+'○'.repeat(S.name.length-1):S.name;
+  DB.ref('shared/sellerIssues').push({sellerId,category:_szSelectedCat,dateStr,who:maskedName,whoReal:S.name,ts:Date.now()}).then(()=>{
+    showToast('✅ 이슈가 등록됐어요! 전체 수강생에게 공개됩니다.');
+    document.getElementById('szi-seller').value='';
+    chooseSzCat(null);
+    loadSellerIssues();
+  }).catch(()=>showToast('오류가 발생했어요'));
+}
+function loadSellerIssues(){
+  if(!DB)return;
+  const listEl=document.getElementById('seller-issue-list');
+  const countEl=document.getElementById('seller-issue-count');
+  if(listEl)listEl.innerHTML='<div style="text-align:center;padding:24px;color:var(--m);font-size:13px">불러오는 중...</div>';
+  DB.ref('shared/sellerIssues').once('value',snap=>{
+    const data=snap.val()||{};
+    const items=Object.entries(data).map(([id,v])=>({id,...v})).sort((a,b)=>(b.ts||0)-(a.ts||0));
+    if(countEl)countEl.textContent=`총 ${items.length}건`;
+    if(!listEl)return;
+    if(!items.length){listEl.innerHTML='<div class="empty-state">🚫<br>등록된 이슈가 없어요</div>';return;}
+    listEl.innerHTML=items.map(item=>`
+      <div class="sch-card" style="border-left:3px solid var(--danger)">
+        <div style="font-size:11px;color:var(--m);margin-bottom:5px">📅 ${item.dateStr||''}${item.who?' · '+esc(item.who)+' 님 제보':''}</div>
+        <div class="sch-title">${esc(maskSellerId(item.sellerId))}</div>
+        <span class="sch-type" style="background:var(--dbg);color:var(--danger)">${esc(sellerIssueCatLabel(item.category))}</span>
+      </div>`).join('');
+  },err=>{
+    if(listEl)listEl.innerHTML='<div class="empty-state">⚠️<br>불러오기 실패. 새로고침해주세요.</div>';
+  });
 }
 
 function switchIpjumSub(sub){
@@ -1613,7 +1708,7 @@ function renderEduGrid(firstDow,lastDate,todayStr,year,month,events){const grid=
 
 /* ══════════ 관리자 ══════════ */
 function doAdminLogin(){const pw=document.getElementById('a-pw').value;if(pw!==ADMIN_PW){showToast('비밀번호가 틀렸습니다');return;}show('sc-admin');switchAdminTab('students');}
-function switchAdminTab(tab){document.querySelectorAll('.admin-tab-btn').forEach((b,i)=>b.classList.toggle('active',['students','gongu','ipjumstat','notice','edu','issue'][i]===tab));document.querySelectorAll('.admin-tab-section').forEach(s=>s.classList.remove('active'));document.getElementById('admin-sec-'+tab).classList.add('active');if(tab==='students')loadAdmin();if(tab==='notice')loadAdminNotices();if(tab==='edu')loadAdminEdu();if(tab==='issue')loadAdminProductIssues();if(tab==='gongu')loadAdminGongu();if(tab==='ipjumstat')loadAdminIpjumStat();}
+function switchAdminTab(tab){document.querySelectorAll('.admin-tab-btn').forEach((b,i)=>b.classList.toggle('active',['students','gongu','ipjumstat','notice','edu','issue'][i]===tab));document.querySelectorAll('.admin-tab-section').forEach(s=>s.classList.remove('active'));document.getElementById('admin-sec-'+tab).classList.add('active');if(tab==='students')loadAdmin();if(tab==='notice')loadAdminNotices();if(tab==='edu')loadAdminEdu();if(tab==='issue'){loadAdminProductIssues();loadAdminSellerIssues();}if(tab==='gongu')loadAdminGongu();if(tab==='ipjumstat')loadAdminIpjumStat();}
 
 let _adminAllList=[],_adminFilter='all',_programFilter='all';
 function filterProgram(p,btn){_programFilter=p;_adminFilter='all';document.querySelectorAll('#admin-sec-students .filter-btn').forEach(b=>{if(b.id&&b.id.startsWith('pf-'))b.classList.remove('active');});btn.classList.add('active');renderAdminDashboard();renderStatusFilters();renderAdminList();}
@@ -2290,6 +2385,33 @@ function adminDelProductIssue(id){
     showToast('🗑 삭제됐어요');
     loadAdminProductIssues();
     if(document.getElementById('gongu-sec-issue')?.style.display!=='none')loadProductIssues();
+  });
+}
+
+function loadAdminSellerIssues(){
+  if(!DB)return;
+  const listEl=document.getElementById('admin-seller-issue-list');
+  if(listEl)listEl.innerHTML='<div class="empty-state">불러오는 중...</div>';
+  DB.ref('shared/sellerIssues').once('value',snap=>{
+    const data=snap.val()||{};
+    const items=Object.entries(data).map(([id,v])=>({id,...v})).sort((a,b)=>(b.ts||0)-(a.ts||0));
+    if(!listEl)return;
+    if(!items.length){listEl.innerHTML='<div class="empty-state">등록된 셀러 이슈가 없어요</div>';return;}
+    listEl.innerHTML=items.map(item=>`
+      <div class="sch-card" style="border-left:3px solid var(--danger)">
+        <div style="font-size:11px;color:var(--m);margin-bottom:5px">📅 ${item.dateStr||''}${item.whoReal?' · '+esc(item.whoReal)+' 제보':''}</div>
+        <div class="sch-title">${esc(item.sellerId||'-')} <span style="font-size:10px;color:var(--m);font-weight:400">(학생 화면엔 ${esc(maskSellerId(item.sellerId))}로 표시)</span></div>
+        <span class="sch-type" style="background:var(--dbg);color:var(--danger)">${esc(sellerIssueCatLabel(item.category))}</span>
+        <button class="sch-del-btn" style="margin-top:8px;width:100%" onclick="adminDelSellerIssue('${item.id}')">🗑 삭제</button>
+      </div>`).join('');
+  });
+}
+function adminDelSellerIssue(id){
+  if(!confirm('이 셀러 이슈를 삭제할까요?'))return;
+  DB.ref('shared/sellerIssues/'+id).remove().then(()=>{
+    showToast('🗑 삭제됐어요');
+    loadAdminSellerIssues();
+    if(document.getElementById('gongu-sec-sellerissue')?.style.display!=='none')loadSellerIssues();
   });
 }
 
