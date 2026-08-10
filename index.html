@@ -449,6 +449,10 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
           <label>문제 유형 (하나 선택)</label>
           <div id="szi-cat-list" style="display:flex;flex-direction:column;gap:8px"></div>
         </div>
+        <div class="field" id="szi-etc-wrap" style="display:none">
+          <label>기타 - 짧게 (10자 이내, 감정적 표현 제외)</label>
+          <input type="text" id="szi-etc-note" placeholder="예) 배송지연 안내" maxlength="10">
+        </div>
         <button class="btn btn-dark" onclick="submitSellerIssue()" style="background:linear-gradient(135deg,#8A3A2E,#B04D3C)">📤 이슈 등록</button>
       </div>
       <div style="padding:10px 14px 0;display:flex;justify-content:space-between;align-items:center">
@@ -1230,21 +1234,31 @@ function renderSzCatButtons(){
   if(!wrap)return;
   wrap.innerHTML=SELLER_ISSUE_CATS.map(c=>`<button type="button" class="filter-btn" id="szc-${c.v}" onclick="chooseSzCat('${c.v}')" style="justify-content:flex-start;text-align:left;padding:10px 12px">${c.label}</button>`).join('');
 }
+const SZ_BAD_WORDS=['사기꾼','미친','병신','개새끼','나쁜놈','또라이','진상','쓰레기','씨발','좆','죽어','미친놈','미친년','정신병'];
+function containsSzEmotional(text){return SZ_BAD_WORDS.some(w=>text.includes(w));}
 function chooseSzCat(v){
   _szSelectedCat=v;
   SELLER_ISSUE_CATS.forEach(c=>{
     const b=document.getElementById('szc-'+c.v);
     if(b)b.classList.toggle('active',!!v&&c.v===v);
   });
+  const wrap=document.getElementById('szi-etc-wrap');
+  if(wrap)wrap.style.display=(v==='etc')?'block':'none';
+  if(v!=='etc'){const note=document.getElementById('szi-etc-note');if(note)note.value='';}
 }
 function submitSellerIssue(){
   if(!DB){showToast('연결 오류');return;}
   const sellerId=document.getElementById('szi-seller').value.trim();
   if(!sellerId){showToast('셀러 인스타 아이디를 입력해주세요');return;}
   if(!_szSelectedCat){showToast('문제 유형을 선택해주세요');return;}
+  let etcNote='';
+  if(_szSelectedCat==='etc'){
+    etcNote=document.getElementById('szi-etc-note').value.trim().slice(0,10);
+    if(containsSzEmotional(etcNote)){showToast('감정적인 표현은 빼고 짧게 적어주세요');return;}
+  }
   const now=new Date(); const dateStr=(now.getMonth()+1)+'/'+now.getDate();
   const maskedName=S.name.length>=2?S.name[0]+'○'.repeat(S.name.length-1):S.name;
-  DB.ref('shared/sellerIssues').push({sellerId,category:_szSelectedCat,dateStr,who:maskedName,whoReal:S.name,ts:Date.now()}).then(()=>{
+  DB.ref('shared/sellerIssues').push({sellerId,category:_szSelectedCat,etcNote,dateStr,who:maskedName,whoReal:S.name,ts:Date.now()}).then(()=>{
     showToast('✅ 이슈가 등록됐어요! 전체 수강생에게 공개됩니다.');
     document.getElementById('szi-seller').value='';
     chooseSzCat(null);
@@ -1266,7 +1280,7 @@ function loadSellerIssues(){
       <div class="sch-card" style="border-left:3px solid var(--danger)">
         <div style="font-size:11px;color:var(--m);margin-bottom:5px">📅 ${item.dateStr||''}${item.who?' · '+esc(item.who)+' 님 제보':''}</div>
         <div class="sch-title">${esc(maskSellerId(item.sellerId))}</div>
-        <span class="sch-type" style="background:var(--dbg);color:var(--danger)">${esc(sellerIssueCatLabel(item.category))}</span>
+        <span class="sch-type" style="background:var(--dbg);color:var(--danger)">${esc(sellerIssueCatLabel(item.category))}${item.category==='etc'&&item.etcNote?' · '+esc(item.etcNote):''}</span>
       </div>`).join('');
   },err=>{
     if(listEl)listEl.innerHTML='<div class="empty-state">⚠️<br>불러오기 실패. 새로고침해주세요.</div>';
@@ -2401,7 +2415,7 @@ function loadAdminSellerIssues(){
       <div class="sch-card" style="border-left:3px solid var(--danger)">
         <div style="font-size:11px;color:var(--m);margin-bottom:5px">📅 ${item.dateStr||''}${item.whoReal?' · '+esc(item.whoReal)+' 제보':''}</div>
         <div class="sch-title">${esc(item.sellerId||'-')} <span style="font-size:10px;color:var(--m);font-weight:400">(학생 화면엔 ${esc(maskSellerId(item.sellerId))}로 표시)</span></div>
-        <span class="sch-type" style="background:var(--dbg);color:var(--danger)">${esc(sellerIssueCatLabel(item.category))}</span>
+        <span class="sch-type" style="background:var(--dbg);color:var(--danger)">${esc(sellerIssueCatLabel(item.category))}${item.category==='etc'&&item.etcNote?' · '+esc(item.etcNote):''}</span>
         <button class="sch-del-btn" style="margin-top:8px;width:100%" onclick="adminDelSellerIssue('${item.id}')">🗑 삭제</button>
       </div>`).join('');
   });
