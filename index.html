@@ -245,6 +245,24 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 @keyframes badgePulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(255,255,255,.55)}50%{transform:scale(1.1);box-shadow:0 0 0 7px rgba(255,255,255,0)}}
 #mission-new-banner.anim-in,#mission-mode-card.anim-in{animation:bannerSlideIn .5s cubic-bezier(.34,1.56,.64,1) both}
 #mission-new-banner .new-chip{animation:badgePulse 1.7s ease-in-out infinite}
+
+/* 로그인 시 새 공지 팝업 */
+.notice-popup-wrap{position:fixed;inset:0;background:rgba(20,36,58,.55);z-index:9996;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
+.notice-popup-wrap.open{opacity:1;pointer-events:all}
+.notice-popup-box{background:#fff;border-radius:22px;width:100%;max-width:400px;overflow:hidden;box-shadow:0 20px 60px rgba(20,36,58,.25);transform:translateY(30px);transition:transform .3s cubic-bezier(.4,0,.2,1)}
+.notice-popup-wrap.open .notice-popup-box{transform:translateY(0)}
+.notice-popup-head{background:linear-gradient(135deg,var(--navy),#24405E);padding:20px 20px 18px;display:flex;align-items:flex-start;justify-content:space-between}
+.notice-popup-head .ttl{font-size:16px;font-weight:900;color:#fff}
+.notice-popup-head .sub{font-size:12px;color:rgba(255,255,255,.7);margin-top:4px}
+.notice-popup-x{background:rgba(255,255,255,.18);border:none;width:28px;height:28px;border-radius:50%;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:10px}
+.notice-popup-items{padding:14px 16px 6px;max-height:40vh;overflow-y:auto}
+.notice-popup-item{display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--card);border:1.5px solid var(--bd);border-radius:var(--rs);margin-bottom:8px}
+.notice-popup-item.is-pinned{background:#FDF5EE;border-color:#EAD9A8}
+.notice-popup-dot{width:7px;height:7px;border-radius:50%;background:var(--g);flex-shrink:0}
+.notice-popup-ttl{flex:1;font-size:13.5px;font-weight:700;color:var(--t);line-height:1.4}
+.n-new{font-size:9.5px;font-weight:900;background:var(--g);color:#fff;padding:2px 7px;border-radius:20px;flex-shrink:0}
+.notice-popup-foot{padding:8px 16px 20px;display:flex;gap:8px}
+.notice-popup-foot .btn{margin-top:0;flex:1}
 </style>
 </head>
 <body>
@@ -296,6 +314,15 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
     <div style="padding:0 22px 22px">
       <button class="btn btn-acc" onclick="confirmGuideAndStart()">동의합니다. 시작할게요 →</button>
     </div>
+  </div>
+</div>
+
+<!-- 로그인 시 새 공지 팝업 -->
+<div class="notice-popup-wrap" id="notice-popup">
+  <div class="notice-popup-box">
+    <div class="notice-popup-head"><div><div class="ttl">📢 새 공지가 있어요!</div><div class="sub" id="popup-sub"></div></div><button class="notice-popup-x" onclick="closeNoticePopup(true)">×</button></div>
+    <div class="notice-popup-items" id="popup-items"></div>
+    <div class="notice-popup-foot"><button class="btn btn-dark" onclick="closeNoticePopup(false);show('sc-main');switchTab('notice')">📋 공지 전체 보기</button><button class="btn btn-out" onclick="closeNoticePopup(true)">확인</button></div>
   </div>
 </div>
 
@@ -827,6 +854,7 @@ async function doLogin(silent=false){
     if(!silent)showToast(`👋 ${name}님, 다시 오셨네요!`);
     try{localStorage.setItem('sellzup_s',JSON.stringify({name,pin}));}catch(e){}
     show('sc-main'); renderAll();
+    if(!silent)setTimeout(()=>showNoticePopup(),800);
   }catch(e){showToast('연결 오류가 발생했어요.');console.error(e);}
 }
 
@@ -840,6 +868,7 @@ async function confirmGuideAndStart(){
   try{localStorage.setItem('sellzup_s',JSON.stringify({name,pin}));}catch(e){}
   showToast(`🌱 ${name}님, 셀즈업 시작을 환영해요!`);
   show('sc-main'); renderAll();
+  setTimeout(()=>showNoticePopup(),1200);
   _pendingNew=null;
 }
 function doLogout(){try{localStorage.removeItem('sellzup_s');}catch(e){}SKEY=null;S={};document.getElementById('l-name').value='';document.getElementById('l-pin').value='';show('sc-welcome');}
@@ -1535,6 +1564,36 @@ function getTagStyle(tag){
   return'background:var(--card);color:var(--navy)';
 }
 function renderNotices(){const wrap=document.getElementById('notice-list');if(!wrap||!DB)return;DB.ref('sellzupNotices').orderByChild('createdAt').once('value',snap=>{const data=snap.val()||{};const notices=Object.entries(data).map(([id,n])=>({id,...n})).sort((a,b)=>{if(a.pinned&&!b.pinned)return -1;if(!a.pinned&&b.pinned)return 1;return(b.createdAt||0)-(a.createdAt||0);});if(!notices.length){wrap.innerHTML='<div class="empty-state">📢<br>등록된 공지가 없습니다</div>';setBadge('badge-notice',0);return;}wrap.innerHTML=notices.map(n=>`<div class="notice-item" onclick="this.classList.toggle('expanded')"><div class="notice-item-top">${n.pinned?'<span class="notice-tag-chip" style="background:var(--wbg);color:var(--warn)">📌 고정</span>':''}<span class="notice-tag-chip" style="${getTagStyle(n.tag)}">${n.tag||'📢 공지'}</span>${n.isNew?'<span class="notice-tag-chip" style="background:var(--navy);color:#fff">NEW</span>':''}<span class="notice-item-date">${n.dateStr||''}</span></div><div class="notice-item-title">${esc(n.title)}</div><div class="notice-item-body">${esc(n.body||'').replace(/\n/g,'<br>')}</div></div>`).join('');markAllNoticesRead(notices.map(n=>n.id));setBadge('badge-notice',0);});}
+
+/* 로그인 시 안 읽은 NEW 공지가 있으면 팝업으로 보여주기 */
+let _allNoticesForPopup=[];
+function showNoticePopup(){
+  if(!DB)return;
+  DB.ref('sellzupNotices').orderByChild('createdAt').once('value',snap=>{
+    const data=snap.val()||{};
+    const notices=Object.entries(data).map(([id,n])=>({id,...n})).sort((a,b)=>{if(a.pinned&&!b.pinned)return -1;if(!a.pinned&&b.pinned)return 1;return(b.createdAt||0)-(a.createdAt||0);});
+    _allNoticesForPopup=notices;
+    const readIds=getNoticeReadIds();
+    const unread=notices.filter(n=>n.isNew&&!readIds.includes(n.id));
+    if(!unread.length)return;
+    const sub=document.getElementById('popup-sub');
+    if(sub)sub.textContent=`확인하지 않은 공지 ${unread.length}개`;
+    const items=document.getElementById('popup-items');
+    if(items){
+      items.innerHTML=unread.map(n=>`<div class="notice-popup-item${n.pinned?' is-pinned':''}"><div class="notice-popup-dot"></div><div class="notice-popup-ttl">${esc(n.title)}</div><span class="n-new">NEW</span></div>`).join('');
+    }
+    const w=document.getElementById('notice-popup');
+    if(w)w.classList.add('open');
+  });
+}
+function closeNoticePopup(markAsRead){
+  const w=document.getElementById('notice-popup');
+  if(w)w.classList.remove('open');
+  if(markAsRead){
+    markAllNoticesRead(_allNoticesForPopup.filter(n=>n.isNew).map(n=>n.id));
+    setBadge('badge-notice',0);
+  }
+}
 
 /* ══════════ 교육일정 (기존 챌린지캘린더와 완전 공유) ══════════ */
 let _eduCalDate=new Date();
