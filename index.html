@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>셀즈업 성공메이트</title>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -21,7 +21,8 @@
   --sh:0 4px 20px rgba(20,36,58,.08);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--t);min-height:100vh;padding-bottom:82px;font-size:14px}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--t);min-height:100vh;padding-bottom:82px;font-size:14px;overflow-x:hidden}
 .screen{display:none}.screen.active{display:block}
 .hdr{background:radial-gradient(ellipse at 30% -20%,rgba(38,76,70,.28) 0%,rgba(14,26,44,0) 55%),radial-gradient(ellipse at 80% 120%,rgba(169,175,183,.14) 0%,rgba(14,26,44,0) 55%),linear-gradient(160deg,#0E1A2C 0%,var(--navy) 100%);color:#fff;padding:34px 24px 28px;text-align:left;position:relative;overflow:hidden}
 .hdr-brand{font-family:'Playfair Display',serif;font-style:italic;font-weight:700;font-size:13px;letter-spacing:.05em;color:var(--silver);margin-bottom:8px;position:relative;z-index:1}
@@ -60,10 +61,14 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--t);m
 .card-ttl::before{content:'';position:absolute;left:0;top:2px;bottom:2px;width:3px;background:var(--g);border-radius:2px}
 input[type=text],input[type=password],input[type=date],textarea,select{
   width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:10px 13px;
-  font-family:inherit;font-size:14px;color:var(--t);outline:none;transition:border .2s;background:var(--card)
+  font-family:inherit;font-size:16px;color:var(--t);outline:none;transition:border .2s;background:var(--card);
+  max-width:100%
 }
 input:focus,textarea:focus,select:focus{border-color:var(--g)}
 textarea{resize:vertical;min-height:70px;line-height:1.6}
+@media (min-width:481px){
+  input[type=text],input[type=password],input[type=date],textarea,select{font-size:14px}
+}
 label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:5px}
 .field{margin-bottom:13px}.field:last-child{margin-bottom:0}
 .btn{width:100%;border:none;border-radius:var(--rs);padding:13px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .2s,background .2s;margin-top:10px}
@@ -544,7 +549,25 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
       <div class="field"><label>공지 대상</label><select id="adm-target"><option value="sellzup">✦ 셀즈업 전용</option><option value="challenge">🌱 기존 챌린지 전용</option><option value="both">둘 다 보내기</option></select></div>
       <div class="field"><label>제목</label><input type="text" id="adm-title" placeholder="공지 제목"></div>
       <div class="field"><label>내용</label><textarea id="adm-body" placeholder="공지 내용을 자세히 적어주세요"></textarea></div>
-      <button class="btn btn-dark" onclick="adminSaveNotice()">📤 공지 등록</button>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:10px">
+        <div class="field" style="margin-bottom:0"><label>카테고리</label><select id="adm-tag">
+          <option value="📢 공지">📢 공지</option>
+          <option value="🚀 업데이트">🚀 업데이트</option>
+          <option value="🔥 필독">🔥 필독</option>
+          <option value="📅 일정">📅 일정</option>
+          <option value="🎁 이벤트">🎁 이벤트</option>
+          <option value="📚 신규자료">📚 신규자료</option>
+          <option value="🛠 수정사항">🛠 수정사항</option>
+          <option value="💡 활용팁">💡 활용팁</option>
+          <option value="🏆 우수사례">🏆 우수사례</option>
+        </select></div>
+        <div class="field" style="margin-bottom:0"><label>색상</label><select id="adm-tag-style"><option value="">기본</option><option value="green">초록</option><option value="warm">주황</option></select></div>
+      </div>
+      <div style="display:flex;gap:16px;margin-bottom:12px;font-size:13px">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--t);font-size:13px;font-weight:600;text-transform:none;letter-spacing:0"><input type="checkbox" id="adm-pinned" style="width:auto;margin:0">📌 상단 고정</label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--t);font-size:13px;font-weight:600;text-transform:none;letter-spacing:0"><input type="checkbox" id="adm-isnew" checked style="width:auto;margin:0">🆕 NEW 표시</label>
+      </div>
+      <button class="btn btn-dark" id="adm-notice-submit-btn" onclick="adminSaveNotice()">📤 공지 등록</button>
     </div>
     <div style="font-size:11px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;padding:14px 14px 0">등록된 공지</div>
     <div id="admin-notice-list"><div class="empty-state">등록된 공지가 없습니다</div></div>
@@ -1499,8 +1522,19 @@ function renderIpjum(){
 }
 
 /* ══════════ 공지 (기존 챌린지캘린더와 완전 공유) ══════════ */
-function getTagStyle(){return'background:var(--card);color:var(--navy)';}
-function renderNotices(){const wrap=document.getElementById('notice-list');if(!wrap||!DB)return;DB.ref('sellzupNotices').orderByChild('createdAt').once('value',snap=>{const data=snap.val()||{};const notices=Object.entries(data).map(([id,n])=>({id,...n})).sort((a,b)=>{if(a.pinned&&!b.pinned)return -1;if(!a.pinned&&b.pinned)return 1;return(b.createdAt||0)-(a.createdAt||0);});if(!notices.length){wrap.innerHTML='<div class="empty-state">📢<br>등록된 공지가 없습니다</div>';setBadge('badge-notice',0);return;}wrap.innerHTML=notices.map(n=>`<div class="notice-item" onclick="this.classList.toggle('expanded')"><div class="notice-item-top">${n.pinned?'<span class="notice-tag-chip">📌 고정</span>':''}<span class="notice-tag-chip">${n.tag||'📢 공지'}</span><span class="notice-item-date">${n.dateStr||''}</span></div><div class="notice-item-title">${esc(n.title)}</div><div class="notice-item-body">${esc(n.body||'').replace(/\n/g,'<br>')}</div></div>`).join('');markAllNoticesRead(notices.map(n=>n.id));setBadge('badge-notice',0);});}
+function getTagStyle(tag){
+  tag=tag||'';
+  if(tag.includes('필독'))return'background:var(--dbg);color:var(--danger)';
+  if(tag.includes('업데이트'))return'background:var(--gb);color:var(--g)';
+  if(tag.includes('일정'))return'background:#E9EEF5;color:#1565C0';
+  if(tag.includes('이벤트'))return'background:#FDF0EC;color:#B25A3E';
+  if(tag.includes('신규자료'))return'background:#F3E5F5;color:#6A1B9A';
+  if(tag.includes('수정사항'))return'background:var(--wbg);color:#F57F17';
+  if(tag.includes('활용팁'))return'background:var(--gb);color:var(--g)';
+  if(tag.includes('우수사례'))return'background:var(--wbg);color:#E65100';
+  return'background:var(--card);color:var(--navy)';
+}
+function renderNotices(){const wrap=document.getElementById('notice-list');if(!wrap||!DB)return;DB.ref('sellzupNotices').orderByChild('createdAt').once('value',snap=>{const data=snap.val()||{};const notices=Object.entries(data).map(([id,n])=>({id,...n})).sort((a,b)=>{if(a.pinned&&!b.pinned)return -1;if(!a.pinned&&b.pinned)return 1;return(b.createdAt||0)-(a.createdAt||0);});if(!notices.length){wrap.innerHTML='<div class="empty-state">📢<br>등록된 공지가 없습니다</div>';setBadge('badge-notice',0);return;}wrap.innerHTML=notices.map(n=>`<div class="notice-item" onclick="this.classList.toggle('expanded')"><div class="notice-item-top">${n.pinned?'<span class="notice-tag-chip" style="background:var(--wbg);color:var(--warn)">📌 고정</span>':''}<span class="notice-tag-chip" style="${getTagStyle(n.tag)}">${n.tag||'📢 공지'}</span>${n.isNew?'<span class="notice-tag-chip" style="background:var(--navy);color:#fff">NEW</span>':''}<span class="notice-item-date">${n.dateStr||''}</span></div><div class="notice-item-title">${esc(n.title)}</div><div class="notice-item-body">${esc(n.body||'').replace(/\n/g,'<br>')}</div></div>`).join('');markAllNoticesRead(notices.map(n=>n.id));setBadge('badge-notice',0);});}
 
 /* ══════════ 교육일정 (기존 챌린지캘린더와 완전 공유) ══════════ */
 let _eduCalDate=new Date();
@@ -2030,20 +2064,65 @@ async function deleteStudent(key,name){
 }
 
 /* ══════════ 관리자: 공지 ══════════ */
+let _editNoticeId=null, _editNoticeSrc=null;
+function resetNoticeForm(){
+  document.getElementById('adm-title').value='';
+  document.getElementById('adm-body').value='';
+  document.getElementById('adm-tag').value='📢 공지';
+  document.getElementById('adm-tag-style').value='';
+  document.getElementById('adm-pinned').checked=false;
+  document.getElementById('adm-isnew').checked=true;
+  const targetEl=document.getElementById('adm-target');
+  targetEl.disabled=false; targetEl.value='sellzup';
+  const btn=document.getElementById('adm-notice-submit-btn'); if(btn)btn.textContent='📤 공지 등록';
+  _editNoticeId=null; _editNoticeSrc=null;
+}
 function adminSaveNotice(){
   if(!DB){showToast('연결 오류');return;}
   const title=document.getElementById('adm-title').value.trim();
   const body=document.getElementById('adm-body').value.trim();
   const target=document.getElementById('adm-target').value;
+  const tag=document.getElementById('adm-tag').value;
+  const tagStyle=document.getElementById('adm-tag-style').value;
+  const pinned=document.getElementById('adm-pinned').checked;
+  const isNew=document.getElementById('adm-isnew').checked;
   if(!title){showToast('제목을 입력해주세요');return;}
   const now=new Date();const dateStr=`${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')}`;
-  const payload={title,body,tag:'📢 공지',pinned:false,isNew:true,dateStr,createdAt:Date.now()};
+
+  if(_editNoticeId&&_editNoticeSrc){
+    const node=_editNoticeSrc==='sellzup'?'sellzupNotices':'notices';
+    DB.ref(node+'/'+_editNoticeId).update({title,body,tag,tagStyle,pinned,isNew}).then(()=>{
+      showToast('✅ 공지가 수정됐어요!');resetNoticeForm();loadAdminNotices();
+    }).catch(()=>showToast('저장 오류'));
+    return;
+  }
+
+  const payload={title,body,tag,tagStyle,pinned,isNew,dateStr,createdAt:Date.now()};
   const tasks=[];
   if(target==='sellzup'||target==='both') tasks.push(DB.ref('sellzupNotices').push(payload));
   if(target==='challenge'||target==='both') tasks.push(DB.ref('notices').push(payload));
   Promise.all(tasks).then(()=>{
-    showToast('✅ 공지가 등록됐어요!');document.getElementById('adm-title').value='';document.getElementById('adm-body').value='';loadAdminNotices();
+    showToast('✅ 공지가 등록됐어요!');resetNoticeForm();loadAdminNotices();
   }).catch(()=>showToast('저장 오류'));
+}
+function adminEditNotice(src,id){
+  if(!DB)return;
+  const node=src==='sellzup'?'sellzupNotices':'notices';
+  DB.ref(node+'/'+id).once('value',snap=>{
+    const n=snap.val(); if(!n)return;
+    _editNoticeId=id; _editNoticeSrc=src;
+    document.getElementById('adm-title').value=n.title||'';
+    document.getElementById('adm-body').value=n.body||'';
+    document.getElementById('adm-tag').value=n.tag||'📢 공지';
+    document.getElementById('adm-tag-style').value=n.tagStyle||'';
+    document.getElementById('adm-pinned').checked=!!n.pinned;
+    document.getElementById('adm-isnew').checked=!!n.isNew;
+    const targetEl=document.getElementById('adm-target');
+    targetEl.value=src; targetEl.disabled=true;
+    const btn=document.getElementById('adm-notice-submit-btn'); if(btn)btn.textContent='✏️ 수정 완료';
+    showToast('내용 수정 후 [수정 완료] 버튼을 눌러주세요');
+    document.getElementById('adm-title').scrollIntoView({behavior:'smooth',block:'center'});
+  });
 }
 async function loadAdminNotices(){
   if(!DB)return;
@@ -2056,9 +2135,9 @@ async function loadAdminNotices(){
     ]);
     const sellzupList=Object.entries(sellzupSnap.val()||{}).map(([id,n])=>({id,...n,_src:'sellzup'}));
     const challengeList=Object.entries(challengeSnap.val()||{}).map(([id,n])=>({id,...n,_src:'challenge'}));
-    const list=[...sellzupList,...challengeList].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+    const list=[...sellzupList,...challengeList].sort((a,b)=>{if(a.pinned&&!b.pinned)return -1;if(!a.pinned&&b.pinned)return 1;return(b.createdAt||0)-(a.createdAt||0);});
     if(!list.length){el.innerHTML='<div class="empty-state">등록된 공지가 없습니다</div>';return;}
-    el.innerHTML=list.map(n=>`<div class="sch-card"><span class="sch-type" style="background:${n._src==='sellzup'?'var(--gb)':'var(--card)'};color:${n._src==='sellzup'?'var(--g)':'var(--m)'}">${n._src==='sellzup'?'✦ 셀즈업':'🌱 기존 챌린지'}</span><div style="font-weight:700;font-size:13.5px">${esc(n.title)}</div><div style="font-size:11px;color:var(--m);margin-top:3px">${n.dateStr||''}</div><button class="sch-del-btn" style="margin-top:8px" onclick="adminDelNotice('${n._src}','${n.id}')">삭제</button></div>`).join('');
+    el.innerHTML=list.map(n=>`<div class="sch-card"><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px"><span class="sch-type" style="background:${n._src==='sellzup'?'var(--gb)':'var(--card)'};color:${n._src==='sellzup'?'var(--g)':'var(--m)'}">${n._src==='sellzup'?'✦ 셀즈업':'🌱 기존 챌린지'}</span>${n.pinned?'<span class="sch-type" style="background:var(--wbg);color:var(--warn)">📌 고정</span>':''}<span class="sch-type" style="${getTagStyle(n.tag)}">${n.tag||'📢 공지'}</span></div><div style="font-weight:700;font-size:13.5px">${esc(n.title)}</div><div style="font-size:11px;color:var(--m);margin-top:3px">${n.dateStr||''}</div><div class="sch-actions"><button class="sch-edit" onclick="adminEditNotice('${n._src}','${n.id}')">✏️ 수정</button><button class="sch-del-btn" onclick="adminDelNotice('${n._src}','${n.id}')">삭제</button></div></div>`).join('');
   }catch(e){el.innerHTML='<div class="empty-state">불러오기 실패</div>';}
 }
 function adminDelNotice(src,id){if(!confirm('삭제할까요?'))return;const node=src==='sellzup'?'sellzupNotices':'notices';DB.ref(node+'/'+id).remove().then(()=>{showToast('삭제됐어요');loadAdminNotices();});}
