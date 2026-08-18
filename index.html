@@ -675,11 +675,23 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 
   <!-- 입점현황 탭 -->
   <div class="admin-tab-section" id="admin-sec-ipjumstat">
-    <div class="admin-hdr"><div><h2>🏪 입점 완료 현황</h2><p id="admin-ipjumstat-summary">로딩 중...</p></div><div style="display:flex;gap:6px"><button class="admin-refresh" onclick="loadAdminIpjumStat()">🔄 새로고침</button><button class="admin-refresh" onclick="downloadCommCSV()" style="background:rgba(255,255,255,.22)">⬇ 소통방 CSV</button></div></div>
-    <div id="admin-ipjumstat-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 14px 12px"></div>
-    <div style="padding:0 14px 12px"><input type="text" id="admin-ipjumstat-search" placeholder="🔍 이름 또는 제품명 검색..." oninput="renderAdminIpjumStat()"></div>
-    <div id="admin-ipjumstat-list"><div class="loader">불러오는 중...</div></div>
-    <div style="height:16px"></div>
+    <div style="display:flex;gap:6px;padding:10px 14px 0">
+      <button class="admin-tab-btn active" id="aisub-status" onclick="switchAdminIpjumStatSub('status')" style="flex:1">🏪 입점완료 현황</button>
+      <button class="admin-tab-btn" id="aisub-comm" onclick="switchAdminIpjumStatSub('comm')" style="flex:1">🤝 소통방 관리</button>
+    </div>
+    <div id="admin-ipjumstat-sec-status">
+      <div class="admin-hdr"><div><h2>🏪 입점 완료 현황</h2><p id="admin-ipjumstat-summary">로딩 중...</p></div><button class="admin-refresh" onclick="loadAdminIpjumStat()">🔄 새로고침</button></div>
+      <div id="admin-ipjumstat-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 14px 12px"></div>
+      <div style="padding:0 14px 12px"><input type="text" id="admin-ipjumstat-search" placeholder="🔍 이름 또는 제품명 검색..." oninput="renderAdminIpjumStat()"></div>
+      <div id="admin-ipjumstat-list"><div class="loader">불러오는 중...</div></div>
+      <div style="height:16px"></div>
+    </div>
+    <div id="admin-ipjumstat-sec-comm" style="display:none">
+      <div class="admin-hdr"><div><h2>🤝 입점소통방 관리</h2><p>거절 등록 이력을 확인·수정·삭제할 수 있어요</p></div><div style="display:flex;gap:6px"><button class="admin-refresh" onclick="loadAdminCommMgmt()">🔄 새로고침</button><button class="admin-refresh" onclick="downloadCommCSV()" style="background:rgba(255,255,255,.22)">⬇ CSV</button></div></div>
+      <div style="padding:0 14px 12px"><input type="text" id="admin-comm-mgmt-search" placeholder="🔍 업체명 또는 제품명 검색..." oninput="renderAdminCommMgmt()"></div>
+      <div id="admin-comm-mgmt-list"><div class="loader">불러오는 중...</div></div>
+      <div style="height:16px"></div>
+    </div>
   </div>
 
   <div class="center-row" style="padding-bottom:20px">
@@ -2583,6 +2595,98 @@ async function saveAdminIpjumMemo(stuKey,itemId){
   items[idx].adminMemo=text;
   await DB.ref('students/'+stuKey+'/ipjumItems').set(items);
   showToast('✅ 메모 저장됐어요!');
+}
+
+/* ══════════ 관리자: 입점소통방 관리(조회/수정/삭제) ══════════ */
+function switchAdminIpjumStatSub(tab){
+  const statusEl=document.getElementById('admin-ipjumstat-sec-status');
+  const commEl=document.getElementById('admin-ipjumstat-sec-comm');
+  if(statusEl)statusEl.style.display=tab==='status'?'block':'none';
+  if(commEl)commEl.style.display=tab==='comm'?'block':'none';
+  const btnStatus=document.getElementById('aisub-status');
+  const btnComm=document.getElementById('aisub-comm');
+  if(btnStatus)btnStatus.classList.toggle('active',tab==='status');
+  if(btnComm)btnComm.classList.toggle('active',tab==='comm');
+  if(tab==='comm')loadAdminCommMgmt();
+  if(tab==='status')loadAdminIpjumStat();
+}
+let _adminCommMgmtData=[];
+async function loadAdminCommMgmt(){
+  const el=document.getElementById('admin-comm-mgmt-list');
+  if(!el)return;
+  if(!DB){el.innerHTML='<div style="padding:16px;color:var(--m);font-size:13px">연결 오류</div>';return;}
+  el.innerHTML='<div class="loader">불러오는 중...</div>';
+  try{
+    const snap=await DB.ref('shared/rejectList').once('value');
+    const items=[];
+    snap.forEach(c=>{
+      const v=c.val();
+      items.push({id:c.key,company:v.company||'',product:v.product||'',reason:v.reason||'',who:v.who||'',whoReal:v.whoReal||v.who||'',dateStr:v.dateStr||'',ts:v.ts||0});
+    });
+    items.sort((a,b)=>(b.ts||0)-(a.ts||0));
+    _adminCommMgmtData=items;
+    _commCache=items; _commCacheLoaded=true; // 학생 화면 캐시도 같이 최신화
+    renderAdminCommMgmt();
+  }catch(e){el.innerHTML='<div style="padding:16px;color:var(--m);font-size:13px">불러오기 실패. 새로고침 해주세요.</div>';}
+}
+function renderAdminCommMgmt(){
+  const el=document.getElementById('admin-comm-mgmt-list');
+  if(!el)return;
+  const q=(document.getElementById('admin-comm-mgmt-search')?.value||'').toLowerCase();
+  let items=[..._adminCommMgmtData];
+  if(q)items=items.filter(d=>(d.company||'').toLowerCase().includes(q)||(d.product||'').toLowerCase().includes(q)||(d.whoReal||'').toLowerCase().includes(q));
+  if(!items.length){el.innerHTML=`<div style="padding:2.5rem;text-align:center;color:var(--m);font-size:13px"><div style="font-size:28px;margin-bottom:8px">🤝</div>${q?'검색 결과가 없어요':'등록된 소통방 항목이 없어요'}</div>`;return;}
+  el.innerHTML=items.map(d=>`
+    <div class="sch-card" style="border-left:3px solid var(--danger)" id="comm-mgmt-card-${d.id}">
+      <div id="comm-mgmt-view-${d.id}">
+        <span class="sch-type" style="background:var(--dbg);color:var(--danger)">🔴 거절</span>
+        <div class="sch-title">${esc(d.company)}</div>
+        <div class="sch-detail">📦 ${esc(d.product)}${d.reason?`<br>💬 ${esc(d.reason)}`:''}</div>
+        <div style="font-size:10.5px;color:var(--m);margin-top:6px">실제 등록자: <strong>${esc(d.whoReal)}</strong> · ${d.dateStr||''}</div>
+        <div class="sch-actions">
+          <button class="sch-edit" onclick="toggleCommEditForm('${d.id}')">✏️ 수정</button>
+          <button class="sch-del-btn" onclick="deleteAdminCommItem('${d.id}')">🗑 삭제</button>
+        </div>
+      </div>
+      <div id="comm-mgmt-edit-${d.id}" style="display:none;margin-top:10px;background:var(--card);border-radius:10px;padding:12px">
+        <div class="field"><label>업체명</label><input type="text" id="cme-company-${d.id}" value="${esc(d.company)}"></div>
+        <div class="field"><label>제품명 / 카테고리</label><input type="text" id="cme-product-${d.id}" value="${esc(d.product)}"></div>
+        <div class="field"><label>거절 사유</label><textarea id="cme-reason-${d.id}">${esc(d.reason)}</textarea></div>
+        <button style="width:100%;border:none;background:var(--navy);color:#fff;border-radius:8px;padding:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;margin-top:4px" onclick="saveCommEdit('${d.id}')">💾 저장</button>
+      </div>
+    </div>`).join('');
+}
+function toggleCommEditForm(id){
+  const view=document.getElementById('comm-mgmt-view-'+id);
+  const edit=document.getElementById('comm-mgmt-edit-'+id);
+  if(!view||!edit)return;
+  edit.style.display=edit.style.display==='none'?'block':'none';
+}
+async function saveCommEdit(id){
+  if(!DB){showToast('연결 오류');return;}
+  const company=document.getElementById('cme-company-'+id).value.trim();
+  const product=document.getElementById('cme-product-'+id).value.trim();
+  const reason=document.getElementById('cme-reason-'+id).value.trim();
+  if(!company||!product){showToast('업체명과 제품명을 입력해주세요!');return;}
+  try{
+    await DB.ref('shared/rejectList/'+id).update({company,product,reason});
+    const idx=_adminCommMgmtData.findIndex(d=>d.id===id);
+    if(idx>=0)_adminCommMgmtData[idx]={..._adminCommMgmtData[idx],company,product,reason};
+    _commCacheLoaded=false; // 학생 화면 캐시 무효화 → 다음 조회 시 새로 불러옴
+    renderAdminCommMgmt();
+    showToast('✅ 수정됐어요!');
+  }catch(e){showToast('저장 오류');}
+}
+async function deleteAdminCommItem(id){
+  if(!confirm('이 소통방 항목을 삭제할까요?\n삭제하면 학생들 화면에서도 사라져요.'))return;
+  if(!DB){showToast('연결 오류');return;}
+  try{
+    await DB.ref('shared/rejectList/'+id).remove();
+    _adminCommMgmtData=_adminCommMgmtData.filter(d=>d.id!==id);
+    _commCacheLoaded=false;
+    renderAdminCommMgmt();
+    showToast('🗑 삭제됐어요');
+  }catch(e){showToast('삭제 오류');}
 }
 
 async function downloadCommCSV(){
