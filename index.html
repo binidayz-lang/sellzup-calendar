@@ -599,6 +599,7 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
     <div class="admin-hdr"><div><h2>📢 공지 관리</h2><p>셀즈업과 기존 챌린지, 원하는 대상에 따로 또는 같이 보낼 수 있어요</p></div><button class="admin-refresh" onclick="loadAdminNotices()">🔄 새로고침</button></div>
     <div class="card" style="margin-top:8px">
       <div class="card-ttl">✏️ 새 공지 작성</div>
+      <div id="adm-notice-edit-banner" style="display:none;background:var(--wbg);color:var(--warn);border-radius:8px;padding:9px 12px;font-size:11.5px;font-weight:700;margin-bottom:10px;line-height:1.6">✏️ 지금 기존 공지를 수정하는 중이에요. 새 공지를 쓰려면 [취소]를 눌러주세요.</div>
       <div class="field"><label>공지 대상</label><select id="adm-target"><option value="sellzup">✦ 셀즈업 전용</option><option value="challenge">🌱 기존 챌린지 전용</option><option value="both">둘 다 보내기</option></select></div>
       <div class="field"><label>제목</label><input type="text" id="adm-title" placeholder="공지 제목"></div>
       <div class="field"><label>내용</label><textarea id="adm-body" placeholder="공지 내용을 자세히 적어주세요"></textarea></div>
@@ -620,7 +621,10 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
         <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--t);font-size:13px;font-weight:600;text-transform:none;letter-spacing:0"><input type="checkbox" id="adm-pinned" style="width:auto;margin:0">📌 상단 고정</label>
         <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--t);font-size:13px;font-weight:600;text-transform:none;letter-spacing:0"><input type="checkbox" id="adm-isnew" checked style="width:auto;margin:0">🆕 NEW 표시</label>
       </div>
-      <button class="btn btn-dark" id="adm-notice-submit-btn" onclick="adminSaveNotice()">📤 공지 등록</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-dark" id="adm-notice-submit-btn" onclick="adminSaveNotice()" style="flex:1">📤 공지 등록</button>
+        <button class="btn btn-out" id="adm-notice-cancel-btn" onclick="cancelNoticeEdit()" style="display:none;flex:0 0 90px;margin-top:10px">취소</button>
+      </div>
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 14px 0">
       <div style="font-size:11px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase">등록된 공지</div>
@@ -2281,7 +2285,13 @@ function resetNoticeForm(){
   const targetEl=document.getElementById('adm-target');
   targetEl.disabled=false; targetEl.value='sellzup';
   const btn=document.getElementById('adm-notice-submit-btn'); if(btn)btn.textContent='📤 공지 등록';
+  const cancelBtn=document.getElementById('adm-notice-cancel-btn'); if(cancelBtn)cancelBtn.style.display='none';
+  const banner=document.getElementById('adm-notice-edit-banner'); if(banner)banner.style.display='none';
   _editNoticeId=null; _editNoticeSrc=null;
+}
+function cancelNoticeEdit(){
+  resetNoticeForm();
+  showToast('취소했어요. 새 공지를 작성할 수 있어요');
 }
 function adminSaveNotice(){
   if(!DB){showToast('연결 오류');return;}
@@ -2299,7 +2309,7 @@ function adminSaveNotice(){
     const node=_editNoticeSrc==='sellzup'?'sellzupNotices':'notices';
     DB.ref(node+'/'+_editNoticeId).update({title,body,tag,tagStyle,pinned,isNew}).then(()=>{
       showToast('✅ 공지가 수정됐어요!');resetNoticeForm();loadAdminNotices();
-    }).catch(()=>showToast('저장 오류'));
+    }).catch(e=>{console.error('공지 수정 오류',e);showToast('저장 오류: '+(e&&e.message?e.message:'권한 또는 연결 문제'));});
     return;
   }
 
@@ -2309,7 +2319,7 @@ function adminSaveNotice(){
   if(target==='challenge'||target==='both') tasks.push(DB.ref('notices').push(payload));
   Promise.all(tasks).then(()=>{
     showToast('✅ 공지가 등록됐어요!');resetNoticeForm();loadAdminNotices();
-  }).catch(()=>showToast('저장 오류'));
+  }).catch(e=>{console.error('공지 등록 오류',e);showToast('저장 오류: '+(e&&e.message?e.message:'권한 또는 연결 문제'));});
 }
 function adminEditNotice(src,id){
   if(!DB)return;
@@ -2326,6 +2336,8 @@ function adminEditNotice(src,id){
     const targetEl=document.getElementById('adm-target');
     targetEl.value=src; targetEl.disabled=true;
     const btn=document.getElementById('adm-notice-submit-btn'); if(btn)btn.textContent='✏️ 수정 완료';
+    const cancelBtn=document.getElementById('adm-notice-cancel-btn'); if(cancelBtn)cancelBtn.style.display='block';
+    const banner=document.getElementById('adm-notice-edit-banner'); if(banner)banner.style.display='block';
     showToast('내용 수정 후 [수정 완료] 버튼을 눌러주세요');
     document.getElementById('adm-title').scrollIntoView({behavior:'smooth',block:'center'});
   });
