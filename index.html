@@ -1679,7 +1679,7 @@ function getTagStyle(tag){
   if(tag.includes('우수사례'))return'background:var(--wbg);color:#E65100';
   return'background:var(--card);color:var(--navy)';
 }
-function renderNotices(){const wrap=document.getElementById('notice-list');if(!wrap||!DB)return;DB.ref('sellzupNotices').orderByChild('createdAt').once('value',snap=>{const data=snap.val()||{};const notices=Object.entries(data).map(([id,n])=>({id,...n})).sort((a,b)=>{if(a.pinned&&!b.pinned)return -1;if(!a.pinned&&b.pinned)return 1;return(b.createdAt||0)-(a.createdAt||0);});if(!notices.length){wrap.innerHTML='<div class="empty-state">📢<br>등록된 공지가 없습니다</div>';setBadge('badge-notice',0);return;}wrap.innerHTML=notices.map(n=>`<div class="notice-item" onclick="this.classList.toggle('expanded')"><div class="notice-item-top">${n.pinned?'<span class="notice-tag-chip" style="background:var(--wbg);color:var(--warn)">📌 고정</span>':''}<span class="notice-tag-chip" style="${getTagStyle(n.tag)}">${n.tag||'📢 공지'}</span>${n.isNew?'<span class="notice-tag-chip" style="background:var(--navy);color:#fff">NEW</span>':''}<span class="notice-item-date">${n.dateStr||''}</span></div><div class="notice-item-title">${esc(n.title)}</div><div class="notice-item-body">${esc(n.body||'').replace(/\n/g,'<br>')}</div></div>`).join('');markAllNoticesRead(notices.map(n=>n.id));setBadge('badge-notice',0);});}
+function renderNotices(){const wrap=document.getElementById('notice-list');if(!wrap||!DB)return;DB.ref('sellzupNotices').orderByChild('createdAt').once('value',snap=>{const data=snap.val()||{};const notices=Object.entries(data).map(([id,n])=>({id,...n})).sort((a,b)=>{if(a.pinned&&!b.pinned)return -1;if(!a.pinned&&b.pinned)return 1;return(b.createdAt||0)-(a.createdAt||0);});if(!notices.length){wrap.innerHTML='<div class="empty-state">📢<br>등록된 공지가 없습니다</div>';setBadge('badge-notice',0);return;}wrap.innerHTML=notices.map(n=>`<div class="notice-item" onclick="this.classList.toggle('expanded')"><div class="notice-item-top">${n.pinned?'<span class="notice-tag-chip">📌 고정</span>':''}<span class="notice-tag-chip" style="${getTagStyle(n.tag)}">${n.tag||'📢 공지'}</span>${n.isNew?'<span class="notice-tag-chip" style="background:var(--navy);color:#fff">NEW</span>':''}<span class="notice-item-date">${n.dateStr||''}</span></div><div class="notice-item-title">${esc(n.title)}</div><div class="notice-item-body">${esc(n.body||'').replace(/\n/g,'<br>')}</div></div>`).join('');markAllNoticesRead(notices.map(n=>n.id));setBadge('badge-notice',0);});}
 
 /* 로그인 시 안 읽은 NEW 공지가 있으면 팝업으로 보여주기 */
 let _allNoticesForPopup=[];
@@ -1728,6 +1728,17 @@ let _adminAllList=[],_adminFilter='all',_programFilter='all';
 function filterProgram(p,btn){_programFilter=p;_adminFilter='all';document.querySelectorAll('#admin-sec-students .filter-btn').forEach(b=>{if(b.id&&b.id.startsWith('pf-'))b.classList.remove('active');});btn.classList.add('active');renderAdminDashboard();renderStatusFilters();renderAdminList();}
 function filterAdmin(f,btn){_adminFilter=f;document.querySelectorAll('#admin-status-filters .filter-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');renderAdminList();}
 
+/* 기존 챌린지 수강생: 일차 표시는 30일 단위로 고정되지만(레벨 진급 버튼을 눌러야 갱신됨),
+   실제 활동 여부는 lastActive와 dailyLogs의 가장 최근 기록일 중 더 늦은 날짜로 판단해요.
+   그래야 학생이 30일차에서 진급 버튼을 안 눌러도 "정체된 것처럼" 보이지 않아요. */
+function lastRealActivity(s){
+  const logs=s.dailyLogs||{};
+  const dates=Object.keys(logs).sort((a,b)=>b.localeCompare(a));
+  const latestLog=dates[0]||'';
+  const la=s.lastActive||'';
+  return latestLog>la?latestLog:la;
+}
+
 function renderAdminDashboard(){
   const dash=document.getElementById('admin-dashboard');
   if(!dash)return;
@@ -1738,9 +1749,9 @@ function renderAdminDashboard(){
     const threeDaysAgo=addDays(td,-3);
     const subCnt=cList.filter(s=>s.resultDate===td).length;
     const nosubCnt=cList.filter(s=>s.resultDate!==td).length;
-    const stopCnt=cList.filter(s=>!s.lastActive||s.lastActive<threeDaysAgo).length;
+    const stopCnt=cList.filter(s=>{const la=lastRealActivity(s);return !la||la<threeDaysAgo;}).length;
     const todoCnt=cList.filter(s=>s.resultDate===td&&(s.todos||[]).some(t=>!t.done)).length;
-    const inactCnt=cList.filter(s=>!s.lastActive||s.lastActive<threeDaysAgo).length;
+    const inactCnt=cList.filter(s=>{const la=lastRealActivity(s);return !la||la<threeDaysAgo;}).length;
     const cards=[
       ['✅ 오늘 제출',subCnt,'var(--gb)','var(--g)','submit'],
       ['⬜ 미제출',nosubCnt,'var(--dbg)','var(--danger)','nosub'],
@@ -1877,9 +1888,9 @@ function renderAdminList(){
   if(_adminFilter==='graduated')list=list.filter(s=>s.program==='sellzup'&&s.graduated);
   if(_adminFilter==='submit')list=list.filter(s=>s.resultDate===td);
   if(_adminFilter==='nosub')list=list.filter(s=>s.resultDate!==td);
-  if(_adminFilter==='stop')list=list.filter(s=>!s.lastActive||s.lastActive<threeDaysAgo);
+  if(_adminFilter==='stop')list=list.filter(s=>{const la=lastRealActivity(s);return !la||la<threeDaysAgo;});
   if(_adminFilter==='todo')list=list.filter(s=>s.resultDate===td&&(s.todos||[]).some(t=>!t.done));
-  if(_adminFilter==='inactive')list=list.filter(s=>!s.lastActive||s.lastActive<threeDaysAgo);
+  if(_adminFilter==='inactive')list=list.filter(s=>{const la=lastRealActivity(s);return !la||la<threeDaysAgo;});
 
   const container=document.getElementById('admin-list');
   if(!list.length){container.innerHTML=`<div style="padding:32px;text-align:center;color:var(--m);font-size:13px">해당하는 수강생이 없어요 😊</div>`;return;}
@@ -1894,12 +1905,14 @@ function renderAdminList(){
         ? `<div class="sc-right"><span class="status-chip done">🏆 졸업</span></div>`
         : `<div class="sc-right"><div class="sc-day" style="font-size:20px;font-weight:900;color:var(--navy)">${s.missionDay||1}</div><div class="sc-day-lbl" style="font-size:10px;color:var(--m)">번째 미션</div></div>`;
     } else {
-      const lv=s.currentLevel||'초급'; const sd=s.levels?.[lv]?.startDate||''; const dayNum=sd?Math.min(Math.max(diffDays(sd,td)+1,1),30):0;
-      rightHtml = `<div class="sc-right"><div class="sc-day" style="font-size:20px;font-weight:900;color:var(--navy)">${dayNum}</div><div class="sc-day-lbl" style="font-size:10px;color:var(--m)">${lv} · 일차</div></div>`;
+      const lv=s.currentLevel||'초급'; const sd=s.levels?.[lv]?.startDate||'';
+      const rawDay=sd?diffDays(sd,td)+1:0; const dayNum=sd?Math.min(Math.max(rawDay,1),30):0;
+      const stuckN=rawDay>30?rawDay-30:0;
+      rightHtml = `<div class="sc-right"><div class="sc-day" style="font-size:20px;font-weight:900;color:var(--navy)">${dayNum}</div><div class="sc-day-lbl" style="font-size:10px;color:var(--m)">${lv} · 일차${stuckN>0?` <span style="color:var(--warn);font-weight:700">(+${stuckN})</span>`:''}</div></div>`;
     }
     card.innerHTML = `<div style="display:flex;align-items:center;gap:12px">
       <div class="sc-av">${isSellzup?'✦':(LV_EMOJI[s.currentLevel]||'🌱')}</div>
-      <div class="sc-info"><div class="sc-name">${esc(s.name)}${isSellzup?' <span style=\"font-size:10px;color:var(--g);font-weight:700\">SELLZ UP</span>':''}</div><div class="sc-detail">마지막 접속: ${s.lastActive||'-'}</div></div>
+      <div class="sc-info"><div class="sc-name">${esc(s.name)}${isSellzup?' <span style=\"font-size:10px;color:var(--g);font-weight:700\">SELLZ UP</span>':''}</div><div class="sc-detail">마지막 접속: ${s.lastActive||'-'}${!isSellzup?` · 최근 제출: ${lastRealActivity(s)||'-'}`:''}</div></div>
       ${rightHtml}
     </div>
     <div class="stu-detail" id="detail-${s._key}">
@@ -1921,8 +1934,9 @@ function renderChallengeDetail(s){
   const lv=s.currentLevel||'초급'; const sd=s.levels?.[lv]?.startDate||'';
   const isResult=s.resultDate===td;
   const hasTodoLeft=(s.todos||[]).some(t=>!t.done);
-  const isStopped=!s.lastActive||s.lastActive<addDays(td,-3);
-  const isActive=s.lastActive===td;
+  const la=lastRealActivity(s);
+  const isStopped=!la||la<addDays(td,-3);
+  const isActive=la===td;
   const doneLvs=LEVELS.filter(l=>s.levels?.[l]?.done).map(l=>LV_EMOJI[l]).join('');
   let statusTag='';
   if(isStopped) statusTag=`<span class="status-chip" style="background:var(--dbg);color:var(--danger)">🔴 3일이상멈춤</span>`;
@@ -1931,10 +1945,15 @@ function renderChallengeDetail(s){
   else if(isActive) statusTag=`<span class="status-chip wait">🕐 접속만</span>`;
   else statusTag=`<span class="status-chip" style="background:var(--card);color:var(--m)">⬜ 미제출</span>`;
 
+  const rawDay=sd?diffDays(sd,td)+1:0; const stuckN=rawDay>30?rawDay-30:0;
   const logs=s.dailyLogs||{}; const logDates=Object.keys(logs).sort((a,b)=>b.localeCompare(a)).slice(0,5);
   const gonguList=(s.gonguSchedules||[]).slice(0,3); const ipjumList=(s.ipjumItems||[]).slice(0,3);
 
-  let html=`<div style="font-size:12.5px;color:var(--m);margin-bottom:8px">${lv} · ${sd?fmtDate(sd)+' 시작':'-'} ${doneLvs} ${statusTag}</div>`;
+  let html=`<div style="background:var(--card);border-radius:8px;padding:8px 10px;margin-bottom:8px;font-size:12.5px;font-weight:700;color:var(--navy)">📅 최근 실제 제출: ${la||'기록 없음'}</div>`;
+  if(stuckN>0){
+    html+=`<div style="background:var(--wbg);border-left:3px solid var(--warn);border-radius:0 8px 8px 0;padding:8px 10px;margin-bottom:8px;font-size:11.5px;color:var(--warn);line-height:1.6">⚠️ 일차 표시가 30일차에 멈춰있어요 (+${stuckN}일 경과). 학생이 "다음 30일 시작하기" 버튼을 안 눌렀을 뿐, 활동은 계속되고 있을 수 있어요.</div>`;
+  }
+  html+=`<div style="font-size:12.5px;color:var(--m);margin-bottom:8px">${lv} · ${sd?fmtDate(sd)+' 시작':'-'} ${doneLvs} ${statusTag}</div>`;
   if(logDates.length){
     html+=`<div style="font-size:11px;font-weight:700;color:var(--m);letter-spacing:.5px;text-transform:uppercase;margin:10px 0 6px">📅 최근 기록</div>`;
     logDates.forEach(date=>{
