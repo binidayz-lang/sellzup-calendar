@@ -1324,7 +1324,31 @@ function closeGonguModal(){const w=document.getElementById('gongu-modal');w.styl
 async function saveGongu(){const type=document.getElementById('g-type').value;const seller=document.getElementById('g-seller').value.trim();const product=document.getElementById('g-product').value.trim();const startDate=document.getElementById('g-start').value;const endDate=document.getElementById('g-end').value;const memo=document.getElementById('g-memo').value.trim();if(!product){showToast('상품명을 입력해주세요!');return;}if(!S.gonguSchedules)S.gonguSchedules=[];if(_gonguId){const idx=S.gonguSchedules.findIndex(g=>g.id===_gonguId);if(idx>=0)S.gonguSchedules[idx]={...S.gonguSchedules[idx],type,seller,product,startDate,endDate,memo};}else{S.gonguSchedules.unshift({id:Date.now(),type,seller,product,startDate,endDate,memo});}await fbSave();closeGonguModal();renderGongu();showToast(_gonguId?'✅ 수정됐어요!':'🛒 추가됐어요!');}
 async function delGongu(id){if(!confirm('삭제할까요?'))return;S.gonguSchedules=(S.gonguSchedules||[]).filter(g=>g.id!==id);await fbSave();renderGongu();showToast('삭제됐어요');}
 function filterGongu(f,btn){_gonguFilter=f;document.querySelectorAll('#gongu-filter .filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderGongu();}
-function shareGongu(id){const g=(S.gonguSchedules||[]).find(x=>x.id===id);if(!g)return;const dateStr=g.startDate&&g.endDate?`${g.startDate} ~ ${g.endDate}`:g.startDate||'-';const msg=`🛒 [${g.type}] 공유드려요!\n\n셀러: ${g.seller||'-'}\n상품: ${g.product}\n일정: ${dateStr}${g.memo?'\n메모: '+g.memo:''}`;navigator.clipboard.writeText(msg).then(()=>showToast('📋 복사됐어요! 메리님께 전달해주세요')).catch(()=>{});}
+function shareGongu(id){
+  const g=(S.gonguSchedules||[]).find(x=>x.id===id);
+  if(!g)return;
+  const dateStr=g.startDate&&g.endDate?`${g.startDate} ~ ${g.endDate}`:g.startDate||'-';
+  const msg=`🛒 [${g.type}] 공유드려요!\n\n셀러: ${g.seller||'-'}\n상품: ${g.product}\n일정: ${dateStr}${g.memo?'\n메모: '+g.memo:''}`;
+  navigator.clipboard.writeText(msg).then(()=>{
+    showToast('📋 복사됐어요! 메리님께 전달해주세요');
+  }).catch(()=>{
+    try{
+      const ta=document.createElement('textarea');
+      ta.value=msg;
+      ta.style.position='fixed';
+      ta.style.opacity='0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      const ok=document.execCommand('copy');
+      document.body.removeChild(ta);
+      if(ok) showToast('📋 복사됐어요! 메리님께 전달해주세요');
+      else showToast('⚠️ 복사에 실패했어요. 문구를 길게 눌러 직접 복사해주세요');
+    }catch(e){
+      showToast('⚠️ 복사에 실패했어요. 문구를 길게 눌러 직접 복사해주세요');
+    }
+  });
+}
 function renderGongu(){const list=document.getElementById('gongu-list');if(!list)return;let items=(S.gonguSchedules||[]);if(_gonguFilter!=='all')items=items.filter(g=>g.type===_gonguFilter);if(items.length===0){list.innerHTML=`<div class="empty-state">아직 공구일정이 없어요 🛒<br>+ 추가 버튼으로 등록해보세요!</div>`;return;}list.innerHTML=items.map(g=>`<div class="sch-card">${typeBadge(g.type)}<div class="sch-title">${esc(g.product)}</div><div class="sch-detail">${g.seller?`📱 ${esc(g.seller)}<br>`:''}${g.startDate?`📅 ${g.startDate}${g.endDate?' ~ '+g.endDate:''}<br>`:''}${g.memo?`📝 ${esc(g.memo)}`:''}</div><div class="sch-actions"><button class="sch-edit" onclick="openGonguModal(${g.id})">✏️ 수정</button><button class="sch-del-btn" onclick="delGongu(${g.id})">🗑 삭제</button></div>${(g.type==='공구일정 확정'||g.type==='협찬')?`<button class="share-btn" onclick="shareGongu(${g.id})">📋 공유 문구 복사</button>`:''}</div>`).join('');}
 
 /* ══════════ 제품이슈 (전체 공유) ══════════ */
