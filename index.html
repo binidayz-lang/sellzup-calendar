@@ -574,6 +574,7 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
   <div class="admin-app-hdr"><div class="aicon">⚙️</div><div><div class="atxt">통합 관리자</div><div class="asub">셀즈업 + 기존 챌린지캘린더</div></div></div>
   <div class="admin-tab-nav">
     <button class="admin-tab-btn active" onclick="switchAdminTab('students')">👥 수강생</button>
+    <button class="admin-tab-btn" onclick="switchAdminTab('mission')">📋 미션모아보기</button>
     <button class="admin-tab-btn" onclick="switchAdminTab('gongu')">🛒 공구현황</button>
     <button class="admin-tab-btn" onclick="switchAdminTab('ipjumstat')">🏪 입점현황</button>
     <button class="admin-tab-btn" onclick="switchAdminTab('notice')">📢 공지</button>
@@ -592,6 +593,20 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
     </div>
     <div id="admin-status-filters" style="display:flex;gap:6px;flex-wrap:wrap;padding:10px 14px 0"></div>
     <div id="admin-list"><div class="loader">불러오는 중...</div></div>
+  </div>
+
+  <!-- 미션모아보기 탭 -->
+  <div class="admin-tab-section" id="admin-sec-mission">
+    <div class="admin-hdr"><div><h2>📋 미션 모아보기</h2><p>보낸 미션과 학생 답변을 한 화면에서 확인해요 (셀즈업 전용)</p></div><button class="admin-refresh" onclick="loadAdminMission()">🔄 새로고침</button></div>
+    <div style="display:flex;gap:6px;padding:10px 14px 0">
+      <button class="filter-btn active" id="msn-view-day" onclick="switchMissionView('day')">📅 날짜별</button>
+      <button class="filter-btn" id="msn-view-student" onclick="switchMissionView('student')">🙋 학생별</button>
+    </div>
+    <div class="card" style="margin-top:8px;padding:14px">
+      <div class="field" id="msn-day-picker" style="margin-bottom:0"><label>미션 일차</label><select id="msn-day-sel" onchange="renderMissionByDay()"></select></div>
+      <div class="field" id="msn-student-picker" style="display:none;margin-bottom:0"><label>학생 선택</label><select id="msn-student-sel" onchange="renderMissionByStudent()"></select></div>
+    </div>
+    <div id="msn-list"><div class="loader">불러오는 중...</div></div>
   </div>
 
   <!-- 공지 탭 -->
@@ -1764,7 +1779,87 @@ function renderEduGrid(firstDow,lastDate,todayStr,year,month,events){const grid=
 
 /* ══════════ 관리자 ══════════ */
 function doAdminLogin(){const pw=document.getElementById('a-pw').value;if(pw!==ADMIN_PW){showToast('비밀번호가 틀렸습니다');return;}show('sc-admin');switchAdminTab('students');}
-function switchAdminTab(tab){document.querySelectorAll('.admin-tab-btn').forEach((b,i)=>b.classList.toggle('active',['students','gongu','ipjumstat','notice','edu','issue'][i]===tab));document.querySelectorAll('.admin-tab-section').forEach(s=>s.classList.remove('active'));document.getElementById('admin-sec-'+tab).classList.add('active');if(tab==='students')loadAdmin();if(tab==='notice')loadAdminNotices();if(tab==='edu')loadAdminEdu();if(tab==='issue'){loadAdminProductIssues();loadAdminSellerIssues();}if(tab==='gongu')loadAdminGongu();if(tab==='ipjumstat')loadAdminIpjumStat();}
+function switchAdminTab(tab){document.querySelectorAll('.admin-tab-btn').forEach((b,i)=>b.classList.toggle('active',['students','mission','gongu','ipjumstat','notice','edu','issue'][i]===tab));document.querySelectorAll('.admin-tab-section').forEach(s=>s.classList.remove('active'));document.getElementById('admin-sec-'+tab).classList.add('active');if(tab==='students')loadAdmin();if(tab==='mission')loadAdminMission();if(tab==='notice')loadAdminNotices();if(tab==='edu')loadAdminEdu();if(tab==='issue'){loadAdminProductIssues();loadAdminSellerIssues();}if(tab==='gongu')loadAdminGongu();if(tab==='ipjumstat')loadAdminIpjumStat();}
+
+/* ══════════ 미션모아보기 (날짜별 / 학생별) ══════════ */
+let _msnList=[], _msnView='day';
+function switchMissionView(v){
+  _msnView=v;
+  document.getElementById('msn-view-day').classList.toggle('active',v==='day');
+  document.getElementById('msn-view-student').classList.toggle('active',v==='student');
+  document.getElementById('msn-day-picker').style.display=v==='day'?'block':'none';
+  document.getElementById('msn-student-picker').style.display=v==='student'?'block':'none';
+  if(v==='day')renderMissionByDay();else renderMissionByStudent();
+}
+async function loadAdminMission(){
+  const list=document.getElementById('msn-list');
+  list.innerHTML='<div class="loader">불러오는 중...</div>';
+  try{
+    const snap=await DB.ref('students').once('value');const data=snap.val()||{};
+    _msnList=Object.entries(data).map(([key,s])=>({...s,_key:key})).filter(s=>s.program==='sellzup');
+    populateMissionPickers();
+    if(_msnView==='day')renderMissionByDay();else renderMissionByStudent();
+  }catch(e){list.innerHTML='<div class="empty-state">불러오기 오류</div>';console.error(e);}
+}
+function populateMissionPickers(){
+  const daySel=document.getElementById('msn-day-sel');
+  const curDay=daySel.value;
+  daySel.innerHTML=Array.from({length:30},(_,i)=>i+1).map(n=>`<option value="${n}">${n}일차</option>`).join('');
+  if(curDay)daySel.value=curDay;
+  const stuSel=document.getElementById('msn-student-sel');
+  const curStu=stuSel.value;
+  const sorted=[..._msnList].sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  if(!sorted.length){stuSel.innerHTML='<option value="">학생 없음</option>';return;}
+  stuSel.innerHTML=sorted.map(s=>`<option value="${s._key}">${esc(s.name)} (${s.missionDay||1}일차${s.graduated?' · 졸업':''})</option>`).join('');
+  if(curStu&&sorted.some(s=>s._key===curStu))stuSel.value=curStu;
+}
+function missionEntryHtml(content,log,headerLabel,dayNum){
+  const status=log&&log.status;
+  const chip=status==='approved'?'<span class="status-chip done">✅ 확인완료</span>':status==='submitted'?'<span class="status-chip wait">⚠️ 확인대기중</span>':'<span class="status-chip active">진행중</span>';
+  let html=`<div class="mq-card${status==='approved'?' reviewed':''}">`;
+  html+=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12.5px;font-weight:800;color:var(--navy)">${headerLabel}</span>${chip}</div>`;
+  if(!content){
+    html+=`<div style="font-size:12px;color:var(--m)">${ordinalKr(dayNum)} 미션이 아직 등록되지 않았어요</div></div>`;
+    return html;
+  }
+  const items=content.items||[];
+  const checked=(log&&log.checklist)?log.checklist:items.map(()=>false);
+  if(content.title)html+=`<div style="font-size:13.5px;font-weight:900;margin-bottom:6px">${esc(content.title)}</div>`;
+  html+=`<div style="margin-bottom:8px">`;
+  items.forEach((it,i)=>{
+    const on=!!checked[i];
+    html+=`<div style="display:flex;align-items:center;gap:6px;font-size:12px;padding:3px 0;color:${on?'var(--m)':'var(--t)'}${on?';text-decoration:line-through':''}"><span>${on?'✅':'⬜'}</span><span>${esc(it)}</span></div>`;
+  });
+  html+=`</div>`;
+  if(log&&log.comment)html+=`<div style="background:var(--card);border-radius:8px;padding:8px 10px;font-size:12px;line-height:1.6;margin-bottom:6px"><b style="color:var(--m);font-size:10.5px">💬 학생 코멘트</b><br>${esc(log.comment).replace(/\n/g,'<br>')}</div>`;
+  if(log&&log.adminReply)html+=`<div style="background:var(--gb);border-radius:8px;padding:8px 10px;font-size:12px;line-height:1.6;color:var(--g)"><b style="font-size:10.5px">💌 메리 답장</b><br>${esc(log.adminReply).replace(/\n/g,'<br>')}</div>`;
+  html+='</div>';
+  return html;
+}
+function renderMissionByDay(){
+  const list=document.getElementById('msn-list');
+  const daySel=document.getElementById('msn-day-sel');
+  if(!daySel.options.length){list.innerHTML='<div class="empty-state">셀즈업 학생이 없어요</div>';return;}
+  const day=Number(daySel.value)||1;
+  const dayKey='day'+day;
+  const students=_msnList.filter(s=>(s.missionContent&&s.missionContent[dayKey])||(s.missionLogs&&s.missionLogs[dayKey]));
+  if(!students.length){list.innerHTML=`<div class="empty-state">${day}일차 미션 기록이 있는 학생이 없어요</div>`;return;}
+  students.sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  list.innerHTML=students.map(s=>missionEntryHtml((s.missionContent||{})[dayKey],(s.missionLogs||{})[dayKey],esc(s.name),day)).join('');
+}
+function renderMissionByStudent(){
+  const list=document.getElementById('msn-list');
+  const key=document.getElementById('msn-student-sel').value;
+  const stu=_msnList.find(s=>s._key===key);
+  if(!stu){list.innerHTML='<div class="empty-state">학생을 선택해주세요</div>';return;}
+  const maxDay=stu.missionDay||1;
+  const days=[];
+  for(let d=maxDay;d>=1;d--){
+    if((stu.missionContent||{})['day'+d]||(stu.missionLogs||{})['day'+d])days.push(d);
+  }
+  if(!days.length){list.innerHTML='<div class="empty-state">아직 진행한 미션이 없어요</div>';return;}
+  list.innerHTML=days.map(d=>missionEntryHtml((stu.missionContent||{})['day'+d],(stu.missionLogs||{})['day'+d],ordinalKr(d)+' 미션',d)).join('');
+}
 
 let _adminAllList=[],_adminFilter='all',_programFilter='all';
 function filterProgram(p,btn){_programFilter=p;_adminFilter='all';document.querySelectorAll('#admin-sec-students .filter-btn').forEach(b=>{if(b.id&&b.id.startsWith('pf-'))b.classList.remove('active');});btn.classList.add('active');renderAdminDashboard();renderStatusFilters();renderAdminList();}
