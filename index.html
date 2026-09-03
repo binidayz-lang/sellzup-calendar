@@ -942,10 +942,12 @@ async function saveDailyLogEntry(){
   if(!S.dailyLogs)S.dailyLogs={};
   const entry={todos:JSON.parse(JSON.stringify(S.todos||[])),result:S.result||''};
   S.dailyLogs[d]={...(S.dailyLogs[d]||{}),...entry};
+  S.lastActive=d;
   try{
     await DB.ref('students/'+SKEY).update({
       [`dailyLogs/${d}/todos`]:entry.todos,
-      [`dailyLogs/${d}/result`]:entry.result
+      [`dailyLogs/${d}/result`]:entry.result,
+      lastActive:d
     });
   }catch(e){console.error(e);}
 }
