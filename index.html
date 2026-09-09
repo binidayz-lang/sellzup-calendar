@@ -920,7 +920,7 @@ async function doLogin(silent=false){
     if(!silent)showToast(`👋 ${name}님, 다시 오셨네요!`);
     try{localStorage.setItem('sellzup_s',JSON.stringify({name,pin}));}catch(e){}
     show('sc-main'); renderAll();
-    if(!silent)setTimeout(()=>showNoticePopup(),800);
+    setTimeout(()=>showNoticePopup(),800);
   }catch(e){showToast('연결 오류가 발생했어요.');console.error(e);}
 }
 
